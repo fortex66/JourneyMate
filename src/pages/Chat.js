@@ -1,13 +1,13 @@
 import React from "react";
 import Navigationbar from "../components/Navigationbar";
-const Community = () => {
+const Chat = () => {
   return (
     <div>
-      <h1>Community</h1>
-      <p>커뮤니티페이지다</p>
+      <h1>Chat</h1>
+      <p>채팅페이지입니다.</p>
       <Navigationbar />
     </div>
   );
 };
 
-export default Community;
+export default Chat;

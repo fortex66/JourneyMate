@@ -1,16 +1,29 @@
 .App {
   text-align: center;
+  width: 640px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  background-color: #f6f6f6;
+  display: flex;
+  justify-content: center;
+  font-family: "Nanum pen Script";
+
+  height: auto;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* 
+  @media : 반응형 
+*/
+
+#root {
+  background-color: white;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
 .App-header {
@@ -37,12 +50,34 @@
   }
 }
 
+.Journeymate {
+  color: #f97800;
+}
+
+.Signtitle {
+  color: #f97800;
+}
+.Signitem {
+  margin: 50px;
+}
+.Areaname {
+  color: #f97800;
+}
+.Area {
+  margin: 50px;
+}
+
+.Tag {
+  color: #f97800;
+}
+.login {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
 .Navigationbar {
   display: flex;
   justify-content: space-around; /* 링크 사이의 공간을 균등하게 배분 */
   list-style: none; /* 기본 리스트 스타일 제거 */
-}
-
-.Navigationbar div {
-  
 }
