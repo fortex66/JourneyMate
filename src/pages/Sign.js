@@ -6,7 +6,7 @@ const Sign = () => {
   const [Id, setId] = useState("");
   const [Password, setPassword] = useState("");
   const [BirthDate, setBirthDate] = useState("");
-  const [PhoneNumber, setPhoneNumber] = useState("");
+  const [email, setemail] = useState("");
   const [Gender, setGender] = useState("");
   const navigate = useNavigate();
 
@@ -26,8 +26,8 @@ const Sign = () => {
     setBirthDate(e.currentTarget.value);
   };
 
-  const onPhoneNumberHandler = (e) => {
-    setPhoneNumber(e.currentTarget.value);
+  const onemailHandler = (e) => {
+    setemail(e.currentTarget.value);
   };
 
   const onGenderHandler = (e) => {
@@ -64,8 +64,8 @@ const Sign = () => {
       </div>
 
       <div className="Signitem">
-        <label style={{ textAlign: "right" }}> 전화번호 </label>
-        <input type="tel" value={PhoneNumber} onChange={onPhoneNumberHandler} />
+        <label style={{ textAlign: "right" }}> 이메일 </label>
+        <input type="tel" value={email} onChange={onemailHandler} />
       </div>
 
       <div className="Signitem">

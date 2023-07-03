@@ -23,8 +23,7 @@ const Navigationbar = () => {
               navigate("/Community");
             }}
           >
-            <FontAwesomeIcon icon={faGlobe} size="2x" color={"#f97800"} />
-            <p style={{ color: "black" }}>Community</p>
+            <FontAwesomeIcon icon={faGlobe} size="2x" color={"black"} />
           </div>
 
           <div
@@ -33,8 +32,7 @@ const Navigationbar = () => {
               navigate("/Companion");
             }}
           >
-            <FontAwesomeIcon icon={faUserGroup} size="2x" color={"#f97800"} />
-            <p style={{ color: "black" }}>Companion</p>
+            <FontAwesomeIcon icon={faUserGroup} size="2x" color={"black"} />
           </div>
 
           <div
@@ -43,8 +41,7 @@ const Navigationbar = () => {
               navigate("/Home");
             }}
           >
-            <FontAwesomeIcon icon={faHouse} size="2x" color={"#f97800"} />
-            <p style={{ color: "black" }}>HOME</p>
+            <FontAwesomeIcon icon={faHouse} size="2x" color={"black"} />
           </div>
 
           <div
@@ -53,8 +50,7 @@ const Navigationbar = () => {
               navigate("/Chat");
             }}
           >
-            <FontAwesomeIcon icon={faComments} size="2x" color={"#f97800"} />
-            <p style={{ color: "black" }}>CHAT</p>
+            <FontAwesomeIcon icon={faComments} size="2x" color={"black"} />
           </div>
 
           <div
@@ -63,8 +59,7 @@ const Navigationbar = () => {
               navigate("/Mypage");
             }}
           >
-            <FontAwesomeIcon icon={faBars} size="2x" color={"#f97800"} />
-            <p style={{ color: "black" }}>MY Page</p>
+            <FontAwesomeIcon icon={faBars} size="2x" color={"black"} />
           </div>
         </div>
       </div>

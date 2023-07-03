@@ -8,7 +8,7 @@ function Start() {
     <Box>
       <Intro>
         <h1>
-          <img src={logo} alt="당근마켓 로고" />
+          <img src={logo} alt="Journeymate 로고" />
         </h1>
         <h2>같이 여행하실래요?</h2>
         <p>

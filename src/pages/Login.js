@@ -35,7 +35,7 @@ function Login() {
             <h2>Journeymate</h2>
           </div>
           <Form onSubmit={handleSubmit}>
-            <div>
+            <div className="IDS">
               <input
                 type="text"
                 value={username}

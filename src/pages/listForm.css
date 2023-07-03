@@ -5,7 +5,7 @@
   height: 100px;
 }
 
-.Wrap {
+.Navigationbar {
   width: 640px;
   position: relative;
   min-height: 100vh;
@@ -40,11 +40,11 @@
 .BMenuBox {
   width: 50%;
   height: 100%;
-  border: 1px solid #dddddd;
+  border: 1px solid #dddddd; /*아이콘 나누는 선*/
+  flex-direction: column;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
 }
 
 .BMenuBox + .BMenuBox {

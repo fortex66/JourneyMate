@@ -12,6 +12,8 @@ import Sign from "./pages/Sign";
 import Area from "./pages/Area";
 import Tag from "./pages/Tag";
 import Start from "./pages/Start";
+import Profile from "./pages/Profile";
+import Scrap from "./pages/Scrap";
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
           <Route path="/Area" element={<Area />} />
           <Route path="/Tag" element={<Tag />} />
           <Route path="/" element={<Start />} />
+          <Route path="/Profile" element={<Profile />} />
+          <Route path="/Scrap" element={<Scrap />} />
         </Routes>
       </div>
     </BrowserRouter>
