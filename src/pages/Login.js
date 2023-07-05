@@ -73,7 +73,11 @@ const Box = styled.div``;
 
 const Content = styled.div`
   padding: 40px 20px 0;
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  
   em {
     font-size: 20px;
     font-weight: bold;

@@ -1,14 +1,15 @@
+import Modal from "../components/Modal";
 import Navigationbar from "../components/Navigationbar";
+import React, { useState } from "react";
 import "./listForm.css";
 import styled from "styled-components";
-
 import { useNavigate } from "react-router-dom";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faUser, faScroll } from "@fortawesome/free-solid-svg-icons";
 
 function MyPage() {
   const navigate = useNavigate();
+  const [write, setWrite] = useState(false);
 
   return (
     <div className="Wrap">
@@ -32,11 +33,9 @@ function MyPage() {
 
           <MyMenuMiddle>
             <div>
-              <Circle
-                onClick={() => {
-                  navigate("/Write");
-                }}
-              >
+              <Circle onClick={() => setWrite(!write)}>
+                {write && <Modal closeModal={() => setWrite(!write)}></Modal>}
+
                 <FontAwesomeIcon icon={faPen} size="2x" color={"#f97800"} />
               </Circle>
               글쓰기
@@ -75,6 +74,7 @@ const MyMenuMiddle = styled.div`
   align-items: center;
   justify-content: space-around;
   padding: 25px auto;
+  text-align: center;
 `;
 
 const Circle = styled.div`

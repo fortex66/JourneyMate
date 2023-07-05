@@ -14,6 +14,8 @@ import Tag from "./pages/Tag";
 import Start from "./pages/Start";
 import Profile from "./pages/Profile";
 import Scrap from "./pages/Scrap";
+import Community_Write from "./components/Community_Write";
+import Companion_Write from "./components/Companion_Write";
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
           <Route path="/" element={<Start />} />
           <Route path="/Profile" element={<Profile />} />
           <Route path="/Scrap" element={<Scrap />} />
+          <Route path="/Community_Write" element={<Community_Write />} />
+          <Route path="/Companion_Write" element={<Companion_Write />} />
         </Routes>
       </div>
     </BrowserRouter>
