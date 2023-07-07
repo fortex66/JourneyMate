@@ -1,9 +1,13 @@
+//Tag.js
 import React, { useState } from "react";
 import styled from "styled-components";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Tag = () => {
   const [tagItem, setTagItem] = useState("");
   const [tagList, setTagList] = useState([]);
+  const navigate = useNavigate();
 
   const onKeyPress = (e) => {
     if (e.target.value.length !== 0 && e.key === "Enter") {
@@ -24,6 +28,35 @@ const Tag = () => {
       (tagItem) => tagItem !== deleteTagItem
     );
     setTagList(filteredTagList);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // 사용자가 입력한 태그가 최소 2개 이상인지 검사
+    if (tagList.length < 2) {
+      alert("최소 2개 이상의 태그를 입력해주세요.");
+      return;
+    }
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/signup/part3",
+        {
+          tags: tagList,
+        },
+        {
+          withCredentials: true, // credentials 옵션 추가
+        }
+      );
+
+      console.log(response.data);
+      if (response.data.message === "회원가입3 성공") {
+        navigate("/start"); // 성공 후 리다이렉트될 경로
+      } else {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -52,7 +85,7 @@ const Tag = () => {
         />
       </div>
 
-      <button type="submit">확인</button>
+      <button onClick={handleSubmit}>다음</button>
     </div>
   );
 };

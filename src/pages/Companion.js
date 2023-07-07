@@ -1,9 +1,11 @@
 import Navigationbar from "../components/Navigationbar";
+import Companion_List from "../components/Companion_List";
+
 const Companion = () => {
   return (
     <div>
-      <h1>Companion</h1>
-      <p>동행인페이지입니다.</p>
+      <h1>동행인</h1>
+      <Companion_List />
       <Navigationbar />
     </div>
   );

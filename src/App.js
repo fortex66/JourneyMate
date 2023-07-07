@@ -1,6 +1,6 @@
 import "./App.css";
 import React from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, useReducer } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Login from "./pages/Login";
@@ -22,26 +22,60 @@ import Companion_Write from "./components/Companion_Write";
 export const CommunityStateContext = React.createContext();
 export const CommunityDispatchContext = React.createContext();
 
+const reducer = (state, action) => {
+  let newState = [];
+  switch (action.type) {
+    case "INIT": {
+      return action.data;
+    }
+    case "CREATE": {
+      const newItem = {
+        ...action.data,
+      };
+      newState = [newItem, ...state];
+      break;
+    }
+    default:
+      return state;
+  }
+  return newState;
+};
+
+export const CompanionStateContext = React.createContext();
+export const CompanionDispatchContext = React.createContext();
+
 function App() {
-  const [data, setData] = useState([]);
-
+  const [data, dispatch] = useReducer(reducer, []);
   const dataId = useRef(0);
-
-  const onCreate = (title, location, tag, content) => {
-    const newItem = {
-      title,
-      location,
-      tag,
-      content,
-      id: dataId.current,
-    };
+  //CREATE
+  const onCreate_Companion = (
+    title,
+    location,
+    tag,
+    start_date,
+    finish_date,
+    content,
+    personnel
+  ) => {
+    dispatch({
+      type: "CREATE",
+      data: {
+        id: dataId.current,
+        title,
+        location,
+        tag,
+        start_date,
+        finish_date,
+        content,
+        personnel,
+      },
+    });
     dataId.current += 1;
-    setData([newItem, ...data]);
   };
 
   return (
-    <CommunityStateContext.Provider value={data}>
-      <CommunityDispatchContext.Provider value={onCreate}>
+    <CompanionStateContext.Provider value={data}>
+      <CompanionDispatchContext.Provider value={onCreate_Companion}>
         <BrowserRouter>
           <div className="App">
             <Routes>
@@ -63,8 +97,8 @@ function App() {
             </Routes>
           </div>
         </BrowserRouter>
-      </CommunityDispatchContext.Provider>
-    </CommunityStateContext.Provider>
+      </CompanionDispatchContext.Provider>
+    </CompanionStateContext.Provider>
   );
 }
 

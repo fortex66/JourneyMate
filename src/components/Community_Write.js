@@ -79,9 +79,7 @@ const Community_Write = () => {
       tagRef.current.focus();
       return;
     } else if (window.confirm("게시글을 등록하시겠습니까?"))
-      onCreate(title, location, tag, content);
-
-    navigate("/Community", { replace: true }); // 작성하는 페이지로 뒤로오기 금지
+      navigate("/Community", { replace: true }); // 작성하는 페이지로 뒤로오기 금지
   };
 
   return (
