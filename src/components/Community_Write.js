@@ -11,7 +11,7 @@ const Community_Write = () => {
   const tagRef = useRef();
 
   const [data, setData] = useState([
-    { photo: "", content: "", file: null, previewURL: null, fileInput: null },
+    { photo: [], content: "", file: null, previewURL: null, fileInput: null },
   ]);
 
   const handleClick = () => {
@@ -63,7 +63,10 @@ const Community_Write = () => {
     reader.onload = () => {
       const newData = [...data];
       newData[i].file = file;
-      newData[i].previewURL = reader.result;
+      if (!newData[i].previewURL) {
+        newData[i].previewURL = [];
+      }
+      newData[i].previewURL.push(reader.result); // add image to array
       setData(newData);
     };
   };
@@ -78,9 +81,11 @@ const Community_Write = () => {
     } else if (tag.length < 1) {
       tagRef.current.focus();
       return;
-    } else if (window.confirm("게시글을 등록하시겠습니까?"))
-      onCreate(title, location, tag, content);
-
+    } else if (window.confirm("게시글을 등록하시겠습니까?")) {
+      const photos = data.map((item) => item.previewURL);
+      const contents = data.map((item) => item.content); // Extract content values from data
+      onCreate(title, location, tag, photos, contents); // Pass the photo and content values to onCreate
+    }
     navigate("/Community", { replace: true }); // 작성하는 페이지로 뒤로오기 금지
   };
 

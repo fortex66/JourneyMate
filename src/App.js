@@ -1,5 +1,5 @@
 import "./App.css";
-import React from "react";
+import React, { useReducer } from "react";
 import { useState, useRef } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -18,36 +18,63 @@ import Profile from "./pages/Profile";
 import Scrap from "./pages/Scrap";
 import Community_Write from "./components/Community_Write";
 import Companion_Write from "./components/Companion_Write";
+import Community_Detail from "./pages/Community_Detail";
 
 export const CommunityStateContext = React.createContext();
 export const CommunityDispatchContext = React.createContext();
 
+const reducer = (state, action) => {
+  let newState = [];
+  switch (action.type) {
+    case "INIT": {
+      return action.data;
+    }
+    case "CREATE": {
+      const newItem = {
+        ...action.data,
+      };
+      newState = [newItem, ...state];
+      break;
+    }
+    default:
+      return state;
+  }
+  return newState;
+};
+
 function App() {
-  const [data, setData] = useState([]);
+  const [data, dispatch] = useReducer(reducer, []);
 
   const dataId = useRef(0);
 
-  const onCreate = (title, location, tag, content) => {
-    const newItem = {
-      title,
-      location,
-      tag,
-      content,
-      id: dataId.current,
-    };
+  const onCreate = (title, location, tag, photos, content) => {
+    dispatch({
+      type: "CREATE",
+      data: {
+        id: dataId.current,
+        title,
+        location,
+        tag,
+        photos,
+        content,
+      },
+    });
     dataId.current += 1;
-    setData([newItem, ...data]);
   };
 
   return (
     <CommunityStateContext.Provider value={data}>
-      <CommunityDispatchContext.Provider value={onCreate}>
+      <CommunityDispatchContext.Provider value={{ onCreate }}>
         <BrowserRouter>
           <div className="App">
             <Routes>
               <Route path="/Login" element={<Login />} />
               <Route path="/Home" element={<Home />} />
               <Route path="/Community" element={<Community />} />
+              <Route
+                path="/Community_Detail/:id"
+                element={<Community_Detail />}
+              />
               <Route path="/Companion" element={<Companion />} />
               <Route path="/Chat" element={<Chat />} />
               <Route path="/Mypage" element={<Mypage />} />

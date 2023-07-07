@@ -1,7 +1,10 @@
 import React from "react";
+import { useContext } from "react";
 import Community_Item from "./Community_Item";
+import { CommunityStateContext } from "../App";
 
-const Community_List = ({ community_list }) => {
+const Community_List = () => {
+  const community_list = useContext(CommunityStateContext);
   return (
     <div className="Community_List">
       <div>
