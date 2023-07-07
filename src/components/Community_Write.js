@@ -1,29 +1,46 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-
-
 import styled from "styled-components";
 import MyButton from "./MyButton";
-import AddFrom from "./AddForm";
+
+import { CommunityDispatchContext } from "../App";
 
 const Community_Write = () => {
-  const contentRef = useRef();
   const titleRef = useRef();
   const locationRef = useRef();
   const tagRef = useRef();
+
+  const [data, setData] = useState([
+    { photo: "", content: "", file: null, previewURL: null, fileInput: null },
+  ]);
+
+  const handleClick = () => {
+    setData([
+      ...data,
+      { photo: "", content: "", file: null, previewURL: null, fileInput: null },
+    ]);
+  };
+
+  const handleChange = (e, i) => {
+    const { name, value } = e.target;
+    const newData = [...data];
+    newData[i][name] = value;
+    setData(newData);
+  };
+
+  const handleDelete = (i) => {
+    const newData = [...data];
+    newData.splice(i, 1);
+    setData(newData);
+  };
 
   const [inputs, setInputs] = useState({
     title: "",
     location: "",
     tag: "",
-    content: "",
   });
 
-  const { title, location, tag, content } = inputs;
-
-  const [previewURL, setPreviewURL] = useState("");
-  const [file, setFile] = useState();
-  const fileInput = useRef();
+  const { title, location, tag } = inputs;
 
   const navigate = useNavigate();
 
@@ -35,21 +52,20 @@ const Community_Write = () => {
     });
   }
 
-  const onFileInput = (e) => {
+  const { onCreate } = useContext(CommunityDispatchContext);
+
+  const onFileInput = (e, i) => {
     e.preventDefault();
     const reader = new FileReader();
     const file = e.target.files[0];
     reader.readAsDataURL(file);
 
     reader.onload = () => {
-      setFile(file);
-      setPreviewURL(reader.result);
+      const newData = [...data];
+      newData[i].file = file;
+      newData[i].previewURL = reader.result;
+      setData(newData);
     };
-  };
-
-  const onClickDelete = () => {
-    fileInput.current.value = null;
-    setFile("");
   };
 
   const handleSubmit = () => {
@@ -62,11 +78,10 @@ const Community_Write = () => {
     } else if (tag.length < 1) {
       tagRef.current.focus();
       return;
-    } else if (content.length < 1) {
-      contentRef.current.focus();
-      return;
     } else if (window.confirm("게시글을 등록하시겠습니까?"))
-      navigate("/Community", { replace: true }); // 일기 작성하는 페이지로 뒤로오기 금지 옵션
+      onCreate(title, location, tag, content);
+
+    navigate("/Community", { replace: true }); // 작성하는 페이지로 뒤로오기 금지
   };
 
   return (
@@ -78,7 +93,6 @@ const Community_Write = () => {
             text={"<"}
             onClick={() => navigate(-1)}
           />
-
           <MyButton
             className="complete_btn"
             text={"등록"}
@@ -114,42 +128,50 @@ const Community_Write = () => {
           />
         </Info>
       </section>
+
       <section>
-        {file ? (
-          <Preview>
-            <ProfilePreview src={previewURL} alt="uploaded" ref={fileInput} />
-            <button ref={fileInput} onClick={onClickDelete}>
-              X
-            </button>
-          </Preview>
-        ) : (
-          <PhotoContainer>
-            <UploadInput
-              type="file"
-              name="photo"
-              id="photo"
-              accept="image/*"
-              onChange={onFileInput}
-              required
-            />
-            <Upload type="submit">
-              사진 올리기
-              <p>(*1장만)</p>
-            </Upload>
-          </PhotoContainer>
-        )}
-      </section>
-      <section>
-        <Content>
-          <textarea
-            name="content"
-            placeholder="내용 입력"
-            ref={contentRef}
-            value={content}
-            onChange={onChange}
-          />
-        </Content>
-        <AddFrom />
+        <button onClick={handleClick}>+</button>
+        {data.map((val, i) => (
+          <div key={i}>
+            {val.file ? (
+              <Preview>
+                <ProfilePreview
+                  name="photopreview"
+                  onChange={(e) => handleChange(e, i)}
+                  src={val.previewURL}
+                  alt="uploaded"
+                  ref={val.fileInput}
+                />
+              </Preview>
+            ) : (
+              <PhotoContainer>
+                <UploadInput
+                  type="file"
+                  name="photo"
+                  id="photo"
+                  accept="image/*"
+                  value={val.photo}
+                  onChange={(e) => onFileInput(e, i)}
+                  required
+                />
+                <Upload type="submit">
+                  사진 올리기
+                  <p>(*1장만)</p>
+                </Upload>
+              </PhotoContainer>
+            )}
+            <Contents>
+              <textarea
+                name="content"
+                placeholder="내용 입력"
+                value={val.content}
+                onChange={(e) => handleChange(e, i)}
+              />
+            </Contents>
+
+            <button onClick={() => handleDelete(i)}>X</button>
+          </div>
+        ))}
       </section>
     </div>
   );
@@ -171,12 +193,6 @@ const Title = styled.div`
 `;
 
 const Info = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-`;
-
-const Content = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -245,22 +261,17 @@ const Preview = styled.div`
   flex-basis: 50%;
   margin-bottom: 10px;
   text-align: center;
-
-  button {
-    position: absolute;
-    top: 10px;
-    right: 100px;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 5px;
-    border: none;
-    cursor: pointer;
-  }
 `;
 
 const ProfilePreview = styled.img`
   width: 70%;
   height: 70%;
+`;
+
+const Contents = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 `;
 
 export default Community_Write;
