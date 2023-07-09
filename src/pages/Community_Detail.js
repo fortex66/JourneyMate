@@ -2,6 +2,8 @@ import { useEffect, useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { CommunityStateContext } from "../App";
 import MyButton from "../components/MyButton";
+import styled from "styled-components";
+import Detail_Nav from "../components/Detail_Nav";
 
 const Community_Detail = () => {
   const { id } = useParams();
@@ -31,29 +33,67 @@ const Community_Detail = () => {
     return <div className="DiaryPage">로딩중입니다...</div>;
   } else {
     return (
-      <div>
-        <div>
-          <h1>커뮤니티 상세페이지</h1>
+      <Page>
+        <Top>
           <MyButton text={"<"} onClick={() => navigate(-1)} />
-        </div>
-        <div>{data.title}</div>
-        <div>
-          {data.location}
+        </Top>
+        <Title>{data.title}</Title>
+        <Info>
+          위치 : {data.location}
           <br />
-          {data.tag}
-        </div>
+          테그 : {data.tag}
+        </Info>
         <div>
           {data.photos &&
             data.photos.map((photoUrl, index) => (
-              <div key={index}>
-                <img src={photoUrl} alt="community" />
-              </div>
+              <Main key={index}>
+                <img
+                  src={photoUrl}
+                  style={{ maxWidth: "600px", height: "auto" }}
+                  alt="community"
+                />
+                <Content>{data.content[index]}</Content>
+              </Main>
             ))}
         </div>
-        <div>{data.content}</div>
-      </div>
+        <Detail_Nav />
+      </Page>
     );
   }
 };
+
+const Page = styled.div`
+  margin-top: 40px;
+`;
+
+const Top = styled.div`
+  margin-left: 20px;
+  margin-right: 20px;
+`;
+
+const Title = styled.div`
+  text-align: center;
+  font-weight: bold;
+  font-size: 20px;
+`;
+
+const Info = styled.div`
+  margin-left: 20px;
+  margin-right: 20px;
+`;
+
+const Main = styled.div`
+  background-color: rgb(240, 240, 240);
+  margin: 0px 20px 20px 20px;
+  text-align: center;
+  img {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+`;
+
+const Content = styled.div`
+  padding-bottom: 20px;
+`;
 
 export default Community_Detail;

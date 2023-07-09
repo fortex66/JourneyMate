@@ -11,12 +11,13 @@ import {
   faComments,
 } from "@fortawesome/free-solid-svg-icons";
 
-const Navigationbar = () => {
+const Detail_Nav = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("");
 
   useEffect(() => {
+    console.log(location.pathname);
     setActiveTab(location.pathname.split("/")[1]);
   }, [location.pathname]); //location.pathname이 바뀔 때 마다 setActiveTab(location.pathname.split("/")[1]) 실행
 
@@ -141,4 +142,4 @@ const Text = styled.span.withConfig({
   color: ${(props) => (props.active ? "#F97800" : "black")};
 `;
 
-export default Navigationbar;
+export default Detail_Nav;

@@ -9,9 +9,11 @@ const Community_Write = () => {
   const titleRef = useRef();
   const locationRef = useRef();
   const tagRef = useRef();
+  const photoRefs = useRef([]);
+  const contentRefs = useRef([]);
 
   const [data, setData] = useState([
-    { photo: [], content: "", file: null, previewURL: null, fileInput: null },
+    { photo: "", content: "", file: null, previewURL: null, fileInput: null },
   ]);
 
   const handleClick = () => {
@@ -19,6 +21,8 @@ const Community_Write = () => {
       ...data,
       { photo: "", content: "", file: null, previewURL: null, fileInput: null },
     ]);
+    photoRefs.current = photoRefs.current.concat(null);
+    contentRefs.current = contentRefs.current.concat(null);
   };
 
   const handleChange = (e, i) => {
@@ -32,6 +36,9 @@ const Community_Write = () => {
     const newData = [...data];
     newData.splice(i, 1);
     setData(newData);
+
+    photoRefs.current = photoRefs.current.filter((_, idx) => idx !== i);
+    contentRefs.current = contentRefs.current.filter((_, idx) => idx !== i);
   };
 
   const [inputs, setInputs] = useState({
@@ -80,6 +87,12 @@ const Community_Write = () => {
       return;
     } else if (tag.length < 1) {
       tagRef.current.focus();
+      return;
+    } else if (data.some((item, i) => !item.file)) {
+      photoRefs.current.find((ref, i) => !data[i].file)?.focus();
+      return;
+    } else if (data.some((item, i) => item.content.length < 1)) {
+      contentRefs.current.find((ref, i) => data[i].content.length < 1)?.focus();
       return;
     } else if (window.confirm("게시글을 등록하시겠습니까?")) {
       const photos = data.map((item) => item.previewURL);
@@ -145,7 +158,7 @@ const Community_Write = () => {
                   onChange={(e) => handleChange(e, i)}
                   src={val.previewURL}
                   alt="uploaded"
-                  ref={val.fileInput}
+                  ref={(el) => (photoRefs.current[i] = el)} // Set the ref
                 />
               </Preview>
             ) : (
@@ -171,6 +184,7 @@ const Community_Write = () => {
                 placeholder="내용 입력"
                 value={val.content}
                 onChange={(e) => handleChange(e, i)}
+                ref={(el) => (contentRefs.current[i] = el)} // Set the ref
               />
             </Contents>
 
