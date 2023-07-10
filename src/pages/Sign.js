@@ -11,7 +11,6 @@ const Sign = () => {
   const checkpasswordRef = useRef();
   const birthRef = useRef();
   const emailRef = useRef();
-  const checkemailRef = useRef();
 
   const [inputs, setInputs] = useState({
     user: "",

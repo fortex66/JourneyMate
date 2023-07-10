@@ -1,6 +1,5 @@
 import "./App.css";
-import React from "react";
-import { useState, useRef, useReducer } from "react";
+import React, { useRef, useReducer } from "react"; // useState 제거
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Login from "./pages/Login";
@@ -18,9 +17,6 @@ import Profile from "./pages/Profile";
 import Scrap from "./pages/Scrap";
 import Community_Write from "./components/Community_Write";
 import Companion_Write from "./components/Companion_Write";
-
-export const CommunityStateContext = React.createContext();
-export const CommunityDispatchContext = React.createContext();
 
 const reducer = (state, action) => {
   let newState = [];
@@ -47,7 +43,7 @@ export const CompanionDispatchContext = React.createContext();
 function App() {
   const [data, dispatch] = useReducer(reducer, []);
   const dataId = useRef(0);
-  //CREATE
+
   const onCreate_Companion = (
     title,
     location,
@@ -75,7 +71,7 @@ function App() {
 
   return (
     <CompanionStateContext.Provider value={data}>
-      <CompanionDispatchContext.Provider value={onCreate_Companion}>
+      <CompanionDispatchContext.Provider value={{ onCreate_Companion }}>
         <BrowserRouter>
           <div className="App">
             <Routes>

@@ -1,7 +1,6 @@
 import React from "react";
 
 const Companion_Item = ({
-  id,
   title,
   location,
   tag,
@@ -13,7 +12,10 @@ const Companion_Item = ({
   return (
     <div className="Companion_Item">
       <div className="info_Wrapper">
-        <div className="title">{title}</div>
+        <div className="title">
+          <span>제목:</span>
+          {title}
+        </div>
         <div className="location">{location}</div>
         <div className="tag">{tag}</div>
         <div className="start_date">{start_date}</div>
