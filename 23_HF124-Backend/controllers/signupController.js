@@ -1,5 +1,5 @@
 // signupController.js
-require('dotenv').config();
+require('dotenv').config(); //환경변수 처리 
 const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
 const axios = require('axios'); // HTTP 통신을 위한 라이브러리
