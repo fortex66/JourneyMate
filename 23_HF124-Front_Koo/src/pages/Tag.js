@@ -50,7 +50,7 @@ const Tag = () => {
 
       console.log(response.data);
       if (response.data.message === "회원가입3 성공") {
-        navigate("/start"); // 성공 후 리다이렉트될 경로
+        navigate("/Login"); // 성공 후 리다이렉트될 경로
       } else {
         alert(response.data.message);
       }

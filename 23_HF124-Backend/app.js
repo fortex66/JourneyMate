@@ -1,4 +1,5 @@
 //app.js
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
@@ -33,8 +34,9 @@ app.use('/signup', signupRoutes);
 app.use('/like', likeRoutes);
 app.use('/chats', chatRoutes);
 app.use('/community/post', commentRoutes);
-
+console.log(process.env.MYSQL_USERNAME);
 const port = 3000
 app.listen(port, () => {
+  
   console.log("서버가 " + port,"번 포트에서 실행중입니다.");
 });
