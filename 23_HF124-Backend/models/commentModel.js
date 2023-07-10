@@ -1,5 +1,13 @@
+require('dotenv').config();
+
 const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = new Sequelize('mysql://root:a1234567!@hanium.cgpi8jbee1gd.ap-northeast-2.rds.amazonaws.com:3306/hanium');
+
+const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USERNAME, process.env.MYSQL_PASSWORD, {
+  host: process.env.MYSQL_HOST,
+  port: process.env.MYSQL_PORT,
+  dialect: 'mysql',
+});
+
 
 const tComment = sequelize.define('tcomment', {
   // Assuming postId and userId are the foreign keys from post and user table.
