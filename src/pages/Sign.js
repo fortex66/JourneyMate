@@ -34,17 +34,8 @@ const Sign = () => {
     });
   }
 
-  const {
-    user,
-    userID,
-    password,
-    checkpassword,
-    birth,
-    email,
-    man,
-    girl,
-    checkemail,
-  } = inputs;
+  const { user, userID, password, checkpassword, birth, email, man, girl } =
+    inputs;
 
   const navigate = useNavigate();
 
