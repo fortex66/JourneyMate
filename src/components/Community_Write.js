@@ -110,6 +110,7 @@ const Community_Write = () => {
             className="back_btn"
             text={"<"}
             onClick={() => navigate(-1)}
+            // -1 = 뒤로가기
           />
           <MyButton
             className="complete_btn"
