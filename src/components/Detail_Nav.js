@@ -1,87 +1,75 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
 import "../pages/listForm.css";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faGlobe,
-  faUserGroup,
-  faHouse,
-  faBars,
-  faComments,
-} from "@fortawesome/free-solid-svg-icons";
+import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
+import { faComment as faCommentRegular } from "@fortawesome/free-regular-svg-icons";
+import { faBookmark as faBookmarkRegular } from "@fortawesome/free-regular-svg-icons";
+import { faShareSquare as faShareSquareRegular } from "@fortawesome/free-regular-svg-icons";
+import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
+import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
+import { faBookmark as faBookmarkSolid } from "@fortawesome/free-solid-svg-icons";
 
 const Detail_Nav = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [activeTab, setActiveTab] = useState("");
+  const [activeHeart, setActiveHeart] = useState(false);
+  const [activeComment, setActiveComment] = useState(false);
+  const [activeBookmark, setActiveBookmark] = useState(false);
 
-  useEffect(() => {
-    console.log(location.pathname);
-    setActiveTab(location.pathname.split("/")[1]);
-  }, [location.pathname]); //location.pathname이 바뀔 때 마다 setActiveTab(location.pathname.split("/")[1]) 실행
+  const handleHeartClick = () => {
+    setActiveHeart(!activeHeart);
+  };
 
-  const handleTabClick = (tabName) => {
-    navigate(`/${tabName}`);
+  const handleCommentClick = () => {
+    setActiveComment(!activeComment);
+  };
+
+  const handleBookmarkClick = () => {
+    setActiveBookmark(!activeBookmark);
+  };
+
+  const copyLinkToClipboard = async () => {
+    const url = window.location.href; // 또는 원하는 URL을 지정할 수 있습니다.
+    await navigator.clipboard.writeText(url);
+    alert("링크가 복사되었습니다!");
   };
 
   return (
     <Navigation>
       <Bottomview>
         <BottomBox>
-          <NavBox
-            onClick={() => handleTabClick("Community")} // onClick 함수 수정
-          >
+          <NavBox>
             <FontAwesomeIcon
-              icon={faGlobe}
+              icon={activeHeart ? faHeartSolid : faHeartRegular}
               size="2x"
-              color={activeTab === "Community" ? "#F97800" : "black"}
+              onClick={() => handleHeartClick()}
+              color={activeHeart ? "red" : ""}
             />
-            <Text active={activeTab === "Community"}>커뮤니티</Text>
           </NavBox>
 
-          <NavBox
-            onClick={() => handleTabClick("Companion")} // onClick 함수 수정
-          >
+          <NavBox>
             <FontAwesomeIcon
-              icon={faUserGroup}
+              icon={activeComment ? faCommentSolid : faCommentRegular}
               size="2x"
-              color={activeTab === "Companion" ? "#F97800" : "black"}
+              onClick={() => handleCommentClick()}
+              color={activeComment ? "#F97800" : ""}
             />
-            <Text active={activeTab === "Companion"}>동행인 구하기</Text>
           </NavBox>
 
-          <NavBox
-            onClick={() => handleTabClick("Home")} // onClick 함수 수정
-          >
+          <NavBox>
             <FontAwesomeIcon
-              icon={faHouse}
+              icon={activeBookmark ? faBookmarkSolid : faBookmarkRegular}
               size="2x"
-              color={activeTab === "Home" ? "#F97800" : "black"}
+              onClick={() => handleBookmarkClick()}
+              color={activeBookmark ? "#FFE600" : ""}
             />
-            <Text active={activeTab === "Home"}>홈</Text>
           </NavBox>
 
-          <NavBox
-            onClick={() => handleTabClick("Chat")} // onClick 함수 수정
-          >
+          <NavBox>
             <FontAwesomeIcon
-              icon={faComments}
+              icon={faShareSquareRegular}
               size="2x"
-              color={activeTab === "Chat" ? "#F97800" : "black"}
+              onClick={() => copyLinkToClipboard()}
             />
-            <Text active={activeTab === "Chat"}>채팅방</Text>
-          </NavBox>
-
-          <NavBox
-            onClick={() => handleTabClick("Mypage")} // onClick 함수 수정
-          >
-            <FontAwesomeIcon
-              icon={faBars}
-              size="2x"
-              color={activeTab === "Mypage" ? "#F97800" : "black"}
-            />
-            <Text active={activeTab === "Mypage"}>마이페이지</Text>
           </NavBox>
         </BottomBox>
       </Bottomview>
@@ -103,7 +91,7 @@ const Bottomview = styled.div`
   width: 640px;
   position: fixed;
   bottom: 0;
-  height: 90px;
+  height: 70px;
   background-color: white;
 `;
 
@@ -123,23 +111,6 @@ const NavBox = styled.div`
   align-items: center;
   justify-content: center;
   background-color: white;
-`;
-
-/* 
-    수정 전 코드
-    const Text = styled.span`
-      color: ${(props) => (props.active ? "orange" : "black")};
-    `;
-
-    styled-components에서 Text 컴포넌트에 전달되는 active prop이 HTML 엘리먼트에 전달되면서 문제가 발생하는 것 같다. 
-    styled-components를 사용할 때는 이러한 prop 필터링을 수행해야 한다.
-    이를 수정하려면, styled-components의 shouldForwardProp 기능을 사용하여 active prop이 HTML 엘리먼트로 전달되지 않도록 할 수 있다. 
-*/
-
-const Text = styled.span.withConfig({
-  shouldForwardProp: (prop) => prop !== "active",
-})`
-  color: ${(props) => (props.active ? "#F97800" : "black")};
 `;
 
 export default Detail_Nav;

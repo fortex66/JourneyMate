@@ -1,7 +1,6 @@
 import { useEffect, useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { CommunityStateContext } from "../App";
-import MyButton from "../components/MyButton";
 import styled from "styled-components";
 import Detail_Nav from "../components/Detail_Nav";
 
@@ -10,6 +9,8 @@ const Community_Detail = () => {
   const community_list = useContext(CommunityStateContext);
   const navigate = useNavigate();
   const [data, setData] = useState();
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
 
   useEffect(() => {
     if (community_list.length >= 1) {
@@ -28,6 +29,15 @@ const Community_Detail = () => {
     }
   }, [id, community_list]);
 
+  const handleNewCommentChange = (event) => {
+    setNewComment(event.target.value);
+  };
+
+  const addComment = () => {
+    setComments([...comments, newComment]);
+    setNewComment("");
+  };
+
   // 데이터가 없을때
   if (!data) {
     return <div className="DiaryPage">로딩중입니다...</div>;
@@ -35,7 +45,7 @@ const Community_Detail = () => {
     return (
       <Page>
         <Top>
-          <MyButton text={"<"} onClick={() => navigate(-1)} />
+          <StyledButton onClick={() => navigate(-1)}>{"<"}</StyledButton>
         </Top>
         <Title>{data.title}</Title>
         <Info>
@@ -56,6 +66,22 @@ const Community_Detail = () => {
               </Main>
             ))}
         </div>
+        <CommentSection>
+          <h3>댓글</h3>
+          <CommentInput>
+            <textarea
+              value={newComment}
+              onChange={handleNewCommentChange}
+              placeholder="댓글을 입력하세요"
+            />
+            <StyledButton onClick={addComment}>입력</StyledButton>
+          </CommentInput>
+          <CommentList>
+            {comments.map((comment, index) => (
+              <Comment key={index}>{comment}</Comment>
+            ))}
+          </CommentList>
+        </CommentSection>
         <Detail_Nav />
       </Page>
     );
@@ -94,6 +120,52 @@ const Main = styled.div`
 
 const Content = styled.div`
   padding-bottom: 20px;
+`;
+
+const CommentSection = styled.div`
+  border-top: 2px solid rgb(234, 235, 239);
+  margin: 20px 0;
+`;
+
+const CommentInput = styled.div`
+  display: flex;
+  justify-content: space-between;
+
+  textarea {
+    width: 90%;
+    height: 30px;
+    resize: none;
+  }
+`;
+
+const CommentList = styled.div`
+  margin-top: 20px;
+`;
+
+const Comment = styled.div`
+  padding: 10px;
+  background-color: #f0f0f0;
+  margin-bottom: 10px;
+  border-radius: 5px;
+`;
+
+const StyledButton = styled.button`
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+
+  &:focus {
+    outline: none;
+  }
 `;
 
 export default Community_Detail;

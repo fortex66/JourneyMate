@@ -18,9 +18,7 @@ const Community_Item = ({ id, title, photos }) => {
             <img src={photos[0]} width="250" height="250" alt="post" />
           </div>
         </Picture>
-        <Title>
-          <div>{title}</div>
-        </Title>
+        <Title>{title}</Title>
       </div>
     </CommunityItem>
   );
@@ -39,8 +37,6 @@ const CommunityItem = styled.div`
   ); /* 두 개의 컴포넌트가 한 행에 들어갈 수 있도록 너비 설정. 간격을 고려하여 -20px 함 */
 `;
 const Title = styled.div`
-  display: block;
-  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
