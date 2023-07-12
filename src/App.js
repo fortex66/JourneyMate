@@ -1,6 +1,5 @@
 import "./App.css";
 import React, { useRef, useReducer } from "react"; // useState 제거
-import React, { useReducer } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Login from "./pages/Login";

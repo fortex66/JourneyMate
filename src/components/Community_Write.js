@@ -1,36 +1,21 @@
-// import { useState, useRef, useContext } from "react";
-// import { useNavigate } from "react-router-dom";
-// import styled from "styled-components";
-// import MyButton from "./MyButton";
+import { useState, useRef, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import MyButton from "./MyButton";
 
-// import { CommunityDispatchContext } from "../App";
+import { CommunityDispatchContext } from "../App";
 
-<<<<<<< HEAD
-// const Community_Write = () => {
-//   const titleRef = useRef();
-//   const locationRef = useRef();
-//   const tagRef = useRef();
-=======
 const Community_Write = () => {
   const titleRef = useRef();
   const locationRef = useRef();
   const tagRef = useRef();
   const photoRefs = useRef([]);
   const contentRefs = useRef([]);
->>>>>>> ae629f799c68b3f6b330c5c81ba221d67b7edb69
 
-//   const [data, setData] = useState([
-//     { photo: "", content: "", file: null, previewURL: null, fileInput: null },
-//   ]);
+  const [data, setData] = useState([
+    { photo: "", content: "", file: null, previewURL: null, fileInput: null },
+  ]);
 
-<<<<<<< HEAD
-//   const handleClick = () => {
-//     setData([
-//       ...data,
-//       { photo: "", content: "", file: null, previewURL: null, fileInput: null },
-//     ]);
-//   };
-=======
   const handleClick = () => {
     setData([
       ...data,
@@ -39,22 +24,14 @@ const Community_Write = () => {
     photoRefs.current = photoRefs.current.concat(null);
     contentRefs.current = contentRefs.current.concat(null);
   };
->>>>>>> ae629f799c68b3f6b330c5c81ba221d67b7edb69
 
-//   const handleChange = (e, i) => {
-//     const { name, value } = e.target;
-//     const newData = [...data];
-//     newData[i][name] = value;
-//     setData(newData);
-//   };
+  const handleChange = (e, i) => {
+    const { name, value } = e.target;
+    const newData = [...data];
+    newData[i][name] = value;
+    setData(newData);
+  };
 
-<<<<<<< HEAD
-//   const handleDelete = (i) => {
-//     const newData = [...data];
-//     newData.splice(i, 1);
-//     setData(newData);
-//   };
-=======
   const handleDelete = (i) => {
     const newData = [...data];
     newData.splice(i, 1);
@@ -63,102 +40,33 @@ const Community_Write = () => {
     photoRefs.current = photoRefs.current.filter((_, idx) => idx !== i);
     contentRefs.current = contentRefs.current.filter((_, idx) => idx !== i);
   };
->>>>>>> ae629f799c68b3f6b330c5c81ba221d67b7edb69
 
-//   const [inputs, setInputs] = useState({
-//     title: "",
-//     location: "",
-//     tag: "",
-//   });
+  const [inputs, setInputs] = useState({
+    title: "",
+    location: "",
+    tag: "",
+  });
 
-//   const { title, location, tag } = inputs;
+  const { title, location, tag } = inputs;
 
-//   const navigate = useNavigate();
+  const navigate = useNavigate();
 
-//   function onChange(e) {
-//     const { value, name } = e.target;
-//     setInputs({
-//       ...inputs,
-//       [name]: value,
-//     });
-//   }
+  function onChange(e) {
+    const { value, name } = e.target;
+    setInputs({
+      ...inputs,
+      [name]: value,
+    });
+  }
 
-//   const { onCreate } = useContext(CommunityDispatchContext);
+  const { onCreate } = useContext(CommunityDispatchContext);
 
-//   const onFileInput = (e, i) => {
-//     e.preventDefault();
-//     const reader = new FileReader();
-//     const file = e.target.files[0];
-//     reader.readAsDataURL(file);
+  const onFileInput = (e, i) => {
+    e.preventDefault();
+    const reader = new FileReader();
+    const file = e.target.files[0];
+    reader.readAsDataURL(file);
 
-<<<<<<< HEAD
-//     reader.onload = () => {
-//       const newData = [...data];
-//       newData[i].file = file;
-//       newData[i].previewURL = reader.result;
-//       setData(newData);
-//     };
-//   };
-
-//   const handleSubmit = () => {
-//     if (title.length < 1) {
-//       titleRef.current.focus();
-//       return;
-//     } else if (location.length < 1) {
-//       locationRef.current.focus();
-//       return;
-//     } else if (tag.length < 1) {
-//       tagRef.current.focus();
-//       return;
-//     } else if (window.confirm("게시글을 등록하시겠습니까?"))
-//       navigate("/Community", { replace: true }); // 작성하는 페이지로 뒤로오기 금지
-//   };
-
-//   return (
-//     <div>
-//       <section>
-//         <Header>
-//           <MyButton
-//             className="back_btn"
-//             text={"<"}
-//             onClick={() => navigate(-1)}
-//           />
-//           <MyButton
-//             className="complete_btn"
-//             text={"등록"}
-//             onClick={handleSubmit}
-//           />
-//         </Header>
-//       </section>
-
-//       <section>
-//         <Title>
-//           <input
-//             name="title"
-//             placeholder="제목"
-//             ref={titleRef}
-//             value={title}
-//             onChange={onChange}
-//           />
-//         </Title>
-//         <Info>
-//           <input
-//             name="location"
-//             placeholder="위치 입력"
-//             ref={locationRef}
-//             value={location}
-//             onChange={onChange}
-//           />
-//           <input
-//             name="tag"
-//             placeholder="테그 입력"
-//             ref={tagRef}
-//             value={tag}
-//             onChange={onChange}
-//           />
-//         </Info>
-//       </section>
-=======
     reader.onload = () => {
       const newData = [...data];
       newData[i].file = file;
@@ -211,57 +119,35 @@ const Community_Write = () => {
           />
         </Header>
       </section>
->>>>>>> ae629f799c68b3f6b330c5c81ba221d67b7edb69
 
-//       <section>
-//         <button onClick={handleClick}>+</button>
-//         {data.map((val, i) => (
-//           <div key={i}>
-//             {val.file ? (
-//               <Preview>
-//                 <ProfilePreview
-//                   name="photopreview"
-//                   onChange={(e) => handleChange(e, i)}
-//                   src={val.previewURL}
-//                   alt="uploaded"
-//                   ref={val.fileInput}
-//                 />
-//               </Preview>
-//             ) : (
-//               <PhotoContainer>
-//                 <UploadInput
-//                   type="file"
-//                   name="photo"
-//                   id="photo"
-//                   accept="image/*"
-//                   value={val.photo}
-//                   onChange={(e) => onFileInput(e, i)}
-//                   required
-//                 />
-//                 <Upload type="submit">
-//                   사진 올리기
-//                   <p>(*1장만)</p>
-//                 </Upload>
-//               </PhotoContainer>
-//             )}
-//             <Contents>
-//               <textarea
-//                 name="content"
-//                 placeholder="내용 입력"
-//                 value={val.content}
-//                 onChange={(e) => handleChange(e, i)}
-//               />
-//             </Contents>
+      <section>
+        <Title>
+          <input
+            name="title"
+            placeholder="제목"
+            ref={titleRef}
+            value={title}
+            onChange={onChange}
+          />
+        </Title>
+        <Info>
+          <input
+            name="location"
+            placeholder="위치 입력"
+            ref={locationRef}
+            value={location}
+            onChange={onChange}
+          />
+          <input
+            name="tag"
+            placeholder="테그 입력"
+            ref={tagRef}
+            value={tag}
+            onChange={onChange}
+          />
+        </Info>
+      </section>
 
-<<<<<<< HEAD
-//             <button onClick={() => handleDelete(i)}>X</button>
-//           </div>
-//         ))}
-//       </section>
-//     </div>
-//   );
-// };
-=======
       <section>
         <button onClick={handleClick}>+</button>
         {data.map((val, i) => (
@@ -302,103 +188,110 @@ const Community_Write = () => {
                 ref={(el) => (contentRefs.current[i] = el)} // Set the ref
               />
             </Contents>
->>>>>>> ae629f799c68b3f6b330c5c81ba221d67b7edb69
 
-// const Header = styled.div`
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
+            <button onClick={() => handleDelete(i)}>X</button>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+};
 
-//   padding: 16px 15px;
-//   border-bottom: 1px solid #dadada;
-// `;
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-// const Title = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: center;
-// `;
+  padding: 16px 15px;
+  border-bottom: 1px solid #dadada;
+`;
 
-// const Info = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: center;
-// `;
+const Title = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
 
-// const PhotoContainer = styled.form`
-//   position: relative;
-//   flex: 1 1 auto;
+const Info = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
 
-//   @media screen and (max-width: 64px) {
-//     width: 100%;
-//   }
-// `;
+const PhotoContainer = styled.form`
+  position: relative;
+  flex: 1 1 auto;
 
-// const UploadInput = styled.input`
-//   position: absolute;
-//   top: 0;
-//   left: 0;
-//   width: 100%;
-//   height: 100%;
-//   color: transparent;
+  @media screen and (max-width: 64px) {
+    width: 100%;
+  }
+`;
 
-//   &::-webkit-file-upload-button {
-//     display: none;
-//   }
-// `;
+const UploadInput = styled.input`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: transparent;
 
-// const Upload = styled.button`
-//   flex: 1 1 auto;
-//   padding: 100px 0px;
-//   width: 100%;
-//   height: 100%;
-//   margin-right: 20px;
-//   text-align: center;
-//   color: #a4acb3;
-//   font-weight: bold;
-//   cursor: pointer;
-//   border: none;
-//   background-color: ${({ theme }) => theme.backgroundGrey} !important;
+  &::-webkit-file-upload-button {
+    display: none;
+  }
+`;
 
-//   //for border dot's wider spacing
-//   background: linear-gradient(to right, #ccc 50%, rgba(255, 255, 255, 0) 0%),
-//     linear-gradient(#ccc 50%, rgba(255, 255, 255, 0) 0%),
-//     linear-gradient(to right, #ccc 50%, rgba(255, 255, 255, 0) 0%),
-//     linear-gradient(#ccc 50%, rgba(255, 255, 255, 0) 0%);
-//   background-position: top, right, bottom, left;
-//   background-repeat: repeat-x, repeat-y;
-//   background-size: 10px 1px, 1px 10px;
+const Upload = styled.button`
+  flex: 1 1 auto;
+  padding: 100px 0px;
+  width: 100%;
+  height: 100%;
+  margin-right: 20px;
+  text-align: center;
+  color: #a4acb3;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  background-color: ${({ theme }) => theme.backgroundGrey} !important;
 
-//   &:hover {
-//     opacity: 0.5;
-//   }
+  //for border dot's wider spacing
+  background: linear-gradient(to right, #ccc 50%, rgba(255, 255, 255, 0) 0%),
+    linear-gradient(#ccc 50%, rgba(255, 255, 255, 0) 0%),
+    linear-gradient(to right, #ccc 50%, rgba(255, 255, 255, 0) 0%),
+    linear-gradient(#ccc 50%, rgba(255, 255, 255, 0) 0%);
+  background-position: top, right, bottom, left;
+  background-repeat: repeat-x, repeat-y;
+  background-size: 10px 1px, 1px 10px;
 
-//   i {
-//     display: block;
-//     font-size: 3rem;
-//   }
+  &:hover {
+    opacity: 0.5;
+  }
 
-//   p {
-//     font-size: 0.6rem;
-//   }
-// `;
+  i {
+    display: block;
+    font-size: 3rem;
+  }
 
-// const Preview = styled.div`
-//   position: relative;
-//   flex-basis: 50%;
-//   margin-bottom: 10px;
-//   text-align: center;
-// `;
+  p {
+    font-size: 0.6rem;
+  }
+`;
 
-// const ProfilePreview = styled.img`
-//   width: 70%;
-//   height: 70%;
-// `;
+const Preview = styled.div`
+  position: relative;
+  flex-basis: 50%;
+  margin-bottom: 10px;
+  text-align: center;
+`;
 
-// const Contents = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: center;
-// `;
+const ProfilePreview = styled.img`
+  width: 70%;
+  height: 70%;
+`;
 
-// export default Community_Write;
+const Contents = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+export default Community_Write;
