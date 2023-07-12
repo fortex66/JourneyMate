@@ -26,7 +26,7 @@ const User = sequelize.define('User', {
   },
   birth: {
     type: DataTypes.DATEONLY,
-    allowNull: true,
+    allowNull: false,
   },
   email: {
     type: DataTypes.STRING,
