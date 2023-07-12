@@ -1,13 +1,12 @@
 // signupController.js
 require('dotenv').config(); //환경변수 처리함수
-const nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer'); // 이메일 인증용 라이브러리
 const dotenv = require('dotenv');
 const axios = require('axios'); // HTTP 통신을 위한 라이브러리
 const bcrypt = require('bcrypt'); // 비밀번호 해쉬로 변경을 위한 라이브러리
 
 dotenv.config();
 
-// const { User, UserTag } = require('../models/userModel');
 const { User, UserTagging } = require('../models/signupModel');
 
 

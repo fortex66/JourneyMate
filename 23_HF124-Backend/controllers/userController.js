@@ -26,7 +26,7 @@ const loginUser = async (req, res) => {
 
     console.log(`${user.userID}님이 로그인했습니다.`);
 
-    res.status(200).json({ token, result: true, message: `${user.nickname}님이 로그인했습니다.` });
+    res.status(200).json({ token, result: true, message: `${user.user}님이 로그인했습니다.` });
   } catch (err) {
     console.log(err);
     res.status(500).json({ result: false, message: "Server error" });
