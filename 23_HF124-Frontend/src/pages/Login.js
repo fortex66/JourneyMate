@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import axios from 'axios'; // 추가
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 function Login() {
-  const [username, setUsername] = useState("");
+  const [userID, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
@@ -13,13 +14,29 @@ function Login() {
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
   };
-  const handleSubmit = (e) => {
+
+
+
+  const handleSubmit = async (e) => { // async 추가
     e.preventDefault();
-    if (username && password) {
-      // 로그인 로직 작성 부분입니다.
-      console.log(`ID: ${username}`);
-      console.log(`Password: ${password}`);
-      navigate("/Home"); // 로그인이 성공하면 Home 페이지로 이동
+    if (userID && password) {
+      try {
+        const response = await axios.post('http://localhost:3000/users/login', {
+          userID: userID,
+          password: password,
+        });
+        
+        if(response.data.result) {
+          localStorage.setItem('token', response.data.token);
+          console.log(response.data.message);
+          navigate("/Home"); // 로그인이 성공하면 Home 페이지로 이동
+        } else {
+          alert(response.data.message);
+        }
+        
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
@@ -38,7 +55,7 @@ function Login() {
             <div className="IDS">
               <input
                 type="text"
-                value={username}
+                value={userID}
                 onChange={handleUsernameChange}
                 placeholder="아이디를 입력해주세요"
                 required
@@ -69,6 +86,7 @@ function Login() {
     </Box>
   );
 }
+
 const Box = styled.div``;
 
 const Content = styled.div`
@@ -77,7 +95,7 @@ const Content = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
-  
+
   em {
     font-size: 20px;
     font-weight: bold;
@@ -110,4 +128,5 @@ const Form = styled.form`
     margin-top: 10px;
   }
 `;
+
 export default Login;

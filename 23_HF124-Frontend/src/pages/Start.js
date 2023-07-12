@@ -23,9 +23,9 @@ function Start() {
             <Link to="/Login">시작하기</Link>
           </button>
           <p>
-            이미 계정이 있나요?{" "}
+           계정이 없으신가요?{" "}
             <span>
-              <Link to="/Login">로그인</Link>
+              <Link to="/Sign">회원가입</Link>
             </span>
           </p>
         </WrapBottom>
