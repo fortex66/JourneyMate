@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
 function Modal(props) {
@@ -9,28 +10,62 @@ function Modal(props) {
   const navigate = useNavigate();
   return (
     <div>
-      <div className="Modal" onClick={closeModal}>
-        <div className="modalBody" onClick={(e) => e.stopPropagation()}>
-          <button
-            className="Cummunity_write"
-            onClick={() => navigate("/Community_Write")}
-          >
+      <Frame onClick={closeModal}>
+        <Body onClick={(e) => e.stopPropagation()}>
+          <CummunityBtn onClick={() => navigate("/Community_Write")}>
             커뮤니티 글쓰기
-          </button>
-          <button
-            className="Companion_write"
-            onClick={() => navigate("/Companion_Write")}
-          >
+          </CummunityBtn>
+          <CompanionBtn onClick={() => navigate("/Companion_Write")}>
             동행인 글쓰기
-          </button>
-          <button id="modalCloseBtn" onClick={closeModal}>
-            ✖
-          </button>
+          </CompanionBtn>
+          <CloseBtn onClick={closeModal}>✖</CloseBtn>
           {props.children}
-        </div>
-      </div>
+        </Body>
+      </Frame>
     </div>
   );
 }
+
+const Frame = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const Body = styled.div`
+  position: absolute;
+  width: 300px;
+  height: 500px;
+  padding: 40px;
+  text-align: center;
+  background-color: rgb(255, 255, 255);
+  border-radius: 10px;
+  box-shadow: 0 2px 3px 0 rgba(34, 36, 38, 0.15);
+`;
+
+const CummunityBtn = styled.button``;
+
+const CompanionBtn = styled.button``;
+
+const CloseBtn = styled.button`
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  border: none;
+  color: rgba(0, 0, 0, 0.7);
+  background-color: transparent;
+  font-size: 20px;
+
+  &:hover{  
+    cursor: pointer;
+
+`;
 
 export default Modal;

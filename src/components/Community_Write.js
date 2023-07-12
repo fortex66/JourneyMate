@@ -5,21 +5,41 @@
 
 // import { CommunityDispatchContext } from "../App";
 
+<<<<<<< HEAD
 // const Community_Write = () => {
 //   const titleRef = useRef();
 //   const locationRef = useRef();
 //   const tagRef = useRef();
+=======
+const Community_Write = () => {
+  const titleRef = useRef();
+  const locationRef = useRef();
+  const tagRef = useRef();
+  const photoRefs = useRef([]);
+  const contentRefs = useRef([]);
+>>>>>>> ae629f799c68b3f6b330c5c81ba221d67b7edb69
 
 //   const [data, setData] = useState([
 //     { photo: "", content: "", file: null, previewURL: null, fileInput: null },
 //   ]);
 
+<<<<<<< HEAD
 //   const handleClick = () => {
 //     setData([
 //       ...data,
 //       { photo: "", content: "", file: null, previewURL: null, fileInput: null },
 //     ]);
 //   };
+=======
+  const handleClick = () => {
+    setData([
+      ...data,
+      { photo: "", content: "", file: null, previewURL: null, fileInput: null },
+    ]);
+    photoRefs.current = photoRefs.current.concat(null);
+    contentRefs.current = contentRefs.current.concat(null);
+  };
+>>>>>>> ae629f799c68b3f6b330c5c81ba221d67b7edb69
 
 //   const handleChange = (e, i) => {
 //     const { name, value } = e.target;
@@ -28,11 +48,22 @@
 //     setData(newData);
 //   };
 
+<<<<<<< HEAD
 //   const handleDelete = (i) => {
 //     const newData = [...data];
 //     newData.splice(i, 1);
 //     setData(newData);
 //   };
+=======
+  const handleDelete = (i) => {
+    const newData = [...data];
+    newData.splice(i, 1);
+    setData(newData);
+
+    photoRefs.current = photoRefs.current.filter((_, idx) => idx !== i);
+    contentRefs.current = contentRefs.current.filter((_, idx) => idx !== i);
+  };
+>>>>>>> ae629f799c68b3f6b330c5c81ba221d67b7edb69
 
 //   const [inputs, setInputs] = useState({
 //     title: "",
@@ -60,6 +91,7 @@
 //     const file = e.target.files[0];
 //     reader.readAsDataURL(file);
 
+<<<<<<< HEAD
 //     reader.onload = () => {
 //       const newData = [...data];
 //       newData[i].file = file;
@@ -126,6 +158,60 @@
 //           />
 //         </Info>
 //       </section>
+=======
+    reader.onload = () => {
+      const newData = [...data];
+      newData[i].file = file;
+      if (!newData[i].previewURL) {
+        newData[i].previewURL = [];
+      }
+      newData[i].previewURL.push(reader.result); // add image to array
+      setData(newData);
+    };
+  };
+
+  const handleSubmit = () => {
+    if (title.length < 1) {
+      titleRef.current.focus();
+      return;
+    } else if (location.length < 1) {
+      locationRef.current.focus();
+      return;
+    } else if (tag.length < 1) {
+      tagRef.current.focus();
+      return;
+    } else if (data.some((item, i) => !item.file)) {
+      photoRefs.current.find((ref, i) => !data[i].file)?.focus();
+      return;
+    } else if (data.some((item, i) => item.content.length < 1)) {
+      contentRefs.current.find((ref, i) => data[i].content.length < 1)?.focus();
+      return;
+    } else if (window.confirm("게시글을 등록하시겠습니까?")) {
+      const photos = data.map((item) => item.previewURL);
+      const contents = data.map((item) => item.content); // Extract content values from data
+      onCreate(title, location, tag, photos, contents); // Pass the photo and content values to onCreate
+    }
+    navigate("/Community", { replace: true }); // 작성하는 페이지로 뒤로오기 금지
+  };
+
+  return (
+    <div>
+      <section>
+        <Header>
+          <MyButton
+            className="back_btn"
+            text={"<"}
+            onClick={() => navigate(-1)}
+            // -1 = 뒤로가기
+          />
+          <MyButton
+            className="complete_btn"
+            text={"등록"}
+            onClick={handleSubmit}
+          />
+        </Header>
+      </section>
+>>>>>>> ae629f799c68b3f6b330c5c81ba221d67b7edb69
 
 //       <section>
 //         <button onClick={handleClick}>+</button>
@@ -167,6 +253,7 @@
 //               />
 //             </Contents>
 
+<<<<<<< HEAD
 //             <button onClick={() => handleDelete(i)}>X</button>
 //           </div>
 //         ))}
@@ -174,6 +261,48 @@
 //     </div>
 //   );
 // };
+=======
+      <section>
+        <button onClick={handleClick}>+</button>
+        {data.map((val, i) => (
+          <div key={i}>
+            {val.file ? (
+              <Preview>
+                <ProfilePreview
+                  name="photopreview"
+                  onChange={(e) => handleChange(e, i)}
+                  src={val.previewURL}
+                  alt="uploaded"
+                  ref={(el) => (photoRefs.current[i] = el)} // Set the ref
+                />
+              </Preview>
+            ) : (
+              <PhotoContainer>
+                <UploadInput
+                  type="file"
+                  name="photo"
+                  id="photo"
+                  accept="image/*"
+                  value={val.photo}
+                  onChange={(e) => onFileInput(e, i)}
+                  required
+                />
+                <Upload type="submit">
+                  사진 올리기
+                  <p>(*1장만)</p>
+                </Upload>
+              </PhotoContainer>
+            )}
+            <Contents>
+              <textarea
+                name="content"
+                placeholder="내용 입력"
+                value={val.content}
+                onChange={(e) => handleChange(e, i)}
+                ref={(el) => (contentRefs.current[i] = el)} // Set the ref
+              />
+            </Contents>
+>>>>>>> ae629f799c68b3f6b330c5c81ba221d67b7edb69
 
 // const Header = styled.div`
 //   display: flex;

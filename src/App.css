@@ -8,6 +8,10 @@ body {
   font-family: "Nanum pen Script";
   min-height: 100vh;
   margin: 0px;
+  letter-spacing: -0.4px;
+  word-break: keep-all;
+  word-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
 }
 
 @media (min-width: 650px) {
@@ -28,8 +32,8 @@ body {
 }
 .App {
   min-height: 100vh;
-  padding-left: 20px;
-  padding-right: 20px;
+
+  overflow: auto;
 }
 .App-header {
   background-color: #282c34;
@@ -81,6 +85,7 @@ body {
   padding-left: 20px;
   padding-right: 20px;
 }
+<<<<<<< HEAD
 .Navigationbar {
   display: flex;
   justify-content: space-around; /* 링크 사이의 공간을 균등하게 배분 */
@@ -159,3 +164,5 @@ header .head_btn_right {
   display: flex;
   justify-content: space-between;
 }
+=======
+>>>>>>> ae629f799c68b3f6b330c5c81ba221d67b7edb69

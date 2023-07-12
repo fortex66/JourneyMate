@@ -1,5 +1,6 @@
 import "./App.css";
 import React, { useRef, useReducer } from "react"; // useState 제거
+import React, { useReducer } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Login from "./pages/Login";
@@ -17,6 +18,13 @@ import Profile from "./pages/Profile";
 import Scrap from "./pages/Scrap";
 import Community_Write from "./components/Community_Write";
 import Companion_Write from "./components/Companion_Write";
+import Community_Detail from "./pages/Community_Detail";
+
+export const CompanionStateContext = React.createContext();
+export const CompanionDispatchContext = React.createContext();
+
+export const CommunityStateContext = React.createContext();
+export const CommunityDispatchContext = React.createContext();
 
 const reducer = (state, action) => {
   let newState = [];
@@ -31,28 +39,50 @@ const reducer = (state, action) => {
       newState = [newItem, ...state];
       break;
     }
+    case "CREATE_COMPANION": {
+      const newItem = {
+        ...action.data,
+      };
+      newState = [newItem, ...state];
+      break;
+    }
     default:
       return state;
   }
   return newState;
 };
 
-export const CompanionStateContext = React.createContext();
-export const CompanionDispatchContext = React.createContext();
-
 function App() {
   const [data, dispatch] = useReducer(reducer, []);
+  const companion_dataId = useRef(0);
   const dataId = useRef(0);
 
   const onCreate_Companion = (
     title,
     location,
-    tag,
     start_date,
     finish_date,
+    personnel,
     content,
-    personnel
+    tag
   ) => {
+    dispatch({
+      type: "CREATE_COMPANION",
+      data: {
+        id: companion_dataId.current,
+        title,
+        location,
+        tag,
+        start_date,
+        finish_date,
+        personnel,
+        content,
+      },
+    });
+    companion_dataId.current += 1;
+  };
+
+  const onCreate = (title, location, tag, photos, content) => {
     dispatch({
       type: "CREATE",
       data: {
@@ -60,10 +90,8 @@ function App() {
         title,
         location,
         tag,
-        start_date,
-        finish_date,
+        photos,
         content,
-        personnel,
       },
     });
     dataId.current += 1;
@@ -72,27 +100,41 @@ function App() {
   return (
     <CompanionStateContext.Provider value={data}>
       <CompanionDispatchContext.Provider value={{ onCreate_Companion }}>
-        <BrowserRouter>
-          <div className="App">
-            <Routes>
-              <Route path="/Login" element={<Login />} />
-              <Route path="/Home" element={<Home />} />
-              <Route path="/Community" element={<Community />} />
-              <Route path="/Companion" element={<Companion />} />
-              <Route path="/Chat" element={<Chat />} />
-              <Route path="/Mypage" element={<Mypage />} />
-              <Route path="/Write" element={<Write />} />
-              <Route path="/Sign" element={<Sign />} />
-              <Route path="/Area" element={<Area />} />
-              <Route path="/Tag" element={<Tag />} />
-              <Route path="/" element={<Start />} />
-              <Route path="/Profile" element={<Profile />} />
-              <Route path="/Scrap" element={<Scrap />} />
-              <Route path="/Community_Write" element={<Community_Write />} />
-              <Route path="/Companion_Write" element={<Companion_Write />} />
-            </Routes>
-          </div>
-        </BrowserRouter>
+        <CommunityStateContext.Provider value={data}>
+          <CommunityDispatchContext.Provider value={{ onCreate }}>
+            <BrowserRouter>
+              <div className="App">
+                <Routes>
+                  <Route path="/Login" element={<Login />} />
+                  <Route path="/Home" element={<Home />} />
+                  <Route path="/Community" element={<Community />} />
+                  <Route
+                    path="/Community_Detail/:id"
+                    element={<Community_Detail />}
+                  />
+                  <Route path="/Companion" element={<Companion />} />
+                  <Route path="/Chat" element={<Chat />} />
+                  <Route path="/Mypage" element={<Mypage />} />
+                  <Route path="/Write" element={<Write />} />
+                  <Route path="/Sign" element={<Sign />} />
+                  <Route path="/Area" element={<Area />} />
+                  <Route path="/Tag" element={<Tag />} />
+                  <Route path="/" element={<Start />} />
+                  <Route path="/Profile" element={<Profile />} />
+                  <Route path="/Scrap" element={<Scrap />} />
+                  <Route
+                    path="/Community_Write"
+                    element={<Community_Write />}
+                  />
+                  <Route
+                    path="/Companion_Write"
+                    element={<Companion_Write />}
+                  />
+                </Routes>
+              </div>
+            </BrowserRouter>
+          </CommunityDispatchContext.Provider>
+        </CommunityStateContext.Provider>
       </CompanionDispatchContext.Provider>
     </CompanionStateContext.Provider>
   );

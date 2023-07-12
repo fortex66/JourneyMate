@@ -1,0 +1,116 @@
+import React, { useState } from "react";
+import "../pages/listForm.css";
+import styled from "styled-components";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
+import { faComment as faCommentRegular } from "@fortawesome/free-regular-svg-icons";
+import { faBookmark as faBookmarkRegular } from "@fortawesome/free-regular-svg-icons";
+import { faShareSquare as faShareSquareRegular } from "@fortawesome/free-regular-svg-icons";
+import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
+import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
+import { faBookmark as faBookmarkSolid } from "@fortawesome/free-solid-svg-icons";
+
+const Detail_Nav = () => {
+  const [activeHeart, setActiveHeart] = useState(false);
+  const [activeComment, setActiveComment] = useState(false);
+  const [activeBookmark, setActiveBookmark] = useState(false);
+
+  const handleHeartClick = () => {
+    setActiveHeart(!activeHeart);
+  };
+
+  const handleCommentClick = () => {
+    setActiveComment(!activeComment);
+  };
+
+  const handleBookmarkClick = () => {
+    setActiveBookmark(!activeBookmark);
+  };
+
+  const copyLinkToClipboard = async () => {
+    const url = window.location.href; // 또는 원하는 URL을 지정할 수 있습니다.
+    await navigator.clipboard.writeText(url);
+    alert("링크가 복사되었습니다!");
+  };
+
+  return (
+    <Navigation>
+      <Bottomview>
+        <BottomBox>
+          <NavBox>
+            <FontAwesomeIcon
+              icon={activeHeart ? faHeartSolid : faHeartRegular}
+              size="2x"
+              onClick={() => handleHeartClick()}
+              color={activeHeart ? "red" : ""}
+            />
+          </NavBox>
+
+          <NavBox>
+            <FontAwesomeIcon
+              icon={activeComment ? faCommentSolid : faCommentRegular}
+              size="2x"
+              onClick={() => handleCommentClick()}
+              color={activeComment ? "#F97800" : ""}
+            />
+          </NavBox>
+
+          <NavBox>
+            <FontAwesomeIcon
+              icon={activeBookmark ? faBookmarkSolid : faBookmarkRegular}
+              size="2x"
+              onClick={() => handleBookmarkClick()}
+              color={activeBookmark ? "#FFE600" : ""}
+            />
+          </NavBox>
+
+          <NavBox>
+            <FontAwesomeIcon
+              icon={faShareSquareRegular}
+              size="2x"
+              onClick={() => copyLinkToClipboard()}
+            />
+          </NavBox>
+        </BottomBox>
+      </Bottomview>
+    </Navigation>
+  );
+};
+
+const Navigation = styled.div`
+  position: relative;
+  min-height: 100vh;
+  box-sizing: border-box;
+  height: auto;
+  overflow-y: auto;
+  padding-bottom: 100px;
+`;
+
+const Bottomview = styled.div`
+  cursor: pointer;
+  width: 640px;
+  position: fixed;
+  bottom: 0;
+  height: 70px;
+  background-color: white;
+`;
+
+const BottomBox = styled.div`
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+`;
+
+const NavBox = styled.div`
+  width: 50%;
+  height: 100%;
+  border-top: 1px solid #dddddd;
+  flex-direction: column;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+`;
+
+export default Detail_Nav;

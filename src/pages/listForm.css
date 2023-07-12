@@ -1,20 +1,3 @@
-.bottomView {
-  width: 640px;
-  position: fixed;
-  bottom: 0;
-  height: 100px;
-}
-
-.Navigationbar {
-  width: 640px;
-  position: relative;
-  min-height: 100vh;
-  box-sizing: border-box;
-  height: auto;
-  overflow-y: auto; /* 변경된 부분 */
-  padding-bottom: 100px; /* 변경된 부분 */
-}
-
 .TMenuBar {
   border-bottom: 1px solid #f97800;
   display: flex;
@@ -28,23 +11,6 @@
 .TMenuBar p {
   font-size: 20px;
   font-weight: bold;
-}
-
-.BMenuBar {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.BMenuBox {
-  width: 50%;
-  height: 100%;
-  border: 1px solid #dddddd; /*아이콘 나누는 선*/
-  flex-direction: column;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .BMenuBox + .BMenuBox {
