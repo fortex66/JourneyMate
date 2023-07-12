@@ -12,7 +12,7 @@ router.post('/upload', upload.array('files', 10),authMiddleware, uploadControlle
 router.delete('/:tpostid', authMiddleware, uploadController.deletepost);
 router.put('/:tpostID', upload.array('files', 10),authMiddleware, uploadController.updatePost);
 
-
+// comment 부분
 router.post('/comments/:tpostID',authMiddleware, commentController.addComment);
 router.delete('/comments/:tpostID',authMiddleware, commentController.deleteComment);
 
