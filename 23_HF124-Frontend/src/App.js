@@ -52,7 +52,8 @@ const reducer = (state, action) => {
 };
 
 function App() {
-  const [data, dispatch] = useReducer(reducer, []);
+  const [companionData, companionDispatch] = useReducer(reducer, []);
+  const [communityData, communityDispatch] = useReducer(reducer, []);
   const companion_dataId = useRef(0);
   const dataId = useRef(0);
 
@@ -65,7 +66,7 @@ function App() {
     content,
     tag
   ) => {
-    dispatch({
+    companionDispatch({
       type: "CREATE_COMPANION",
       data: {
         id: companion_dataId.current,
@@ -82,7 +83,7 @@ function App() {
   };
 
   const onCreate = (title, location, tag, photos, content) => {
-    dispatch({
+    communityDispatch({
       type: "CREATE",
       data: {
         id: dataId.current,
@@ -97,9 +98,9 @@ function App() {
   };
 
   return (
-    <CompanionStateContext.Provider value={data}>
+    <CompanionStateContext.Provider value={companionData}>
       <CompanionDispatchContext.Provider value={{ onCreate_Companion }}>
-        <CommunityStateContext.Provider value={data}>
+        <CommunityStateContext.Provider value={communityData}>
           <CommunityDispatchContext.Provider value={{ onCreate }}>
             <BrowserRouter>
               <div className="App">
