@@ -1,4 +1,4 @@
-import { useContext, useState, useRef } from "react";
+import React, { useContext, useState, useRef } from "react";
 import MyButton from "../components/MyButton";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -12,16 +12,18 @@ const Companion_Write = () => {
   const personnelRef = useRef();
   const contentRef = useRef();
   const tagRef = useRef();
-  const [data, setData] = useState([{ photo: "", content: "" }]);
+
+  const navigate = useNavigate();
+
+  const { onCreate_Companion } = useContext(CompanionDispatchContext);
 
   const [inputs, setInputs] = useState({
     title: "",
     location: "",
+    gender: "man",
     start_date: "",
     finish_date: "",
     personnel: "",
-    man: "man",
-    girl: "",
     content: "",
     tag: "",
   });
@@ -29,13 +31,6 @@ const Companion_Write = () => {
   const [previewURL, setPreviewURL] = useState("");
   const [file, setFile] = useState();
   const fileInput = useRef();
-
-  const handleChange = (e, i) => {
-    const { name, value } = e.target;
-    const onchangeVal = [...data];
-    onchangeVal[i][name] = value;
-    setData(onchangeVal);
-  };
 
   function onChange(e) {
     const { value, name } = e.target;
@@ -48,30 +43,27 @@ const Companion_Write = () => {
   const {
     title,
     location,
+    gender,
     start_date,
     finish_date,
     personnel,
-    man,
-    girl,
     content,
     tag,
   } = inputs;
 
-  const navigate = useNavigate();
-
-  const { onCreate_Companion } = useContext(CompanionDispatchContext);
-
   const handleSubmit = () => {
+    const finalGender = gender === "man" ? "남자" : "여자";
+
     if (title.length < 1) {
       titleRef.current.focus();
       return;
     } else if (location.length < 1) {
       locationRef.current.focus();
       return;
-    } else if (start_date == 0) {
+    } else if (start_date === "") {
       start_dateRef.current.focus();
       return;
-    } else if (finish_date == 0) {
+    } else if (finish_date === "") {
       finish_dateRef.current.focus();
       return;
     } else if (content.length < 1) {
@@ -80,19 +72,27 @@ const Companion_Write = () => {
     } else if (personnel === "" || isNaN(personnel)) {
       personnelRef.current.focus();
       return;
+    } else if (!file) {
+      // Check if a file is not selected
+      // Display an error message or handle the case when no file is selected
+      return;
     } else if (window.confirm("게시글을 등록하시겠습니까?")) {
       onCreate_Companion(
         title,
         location,
+        finalGender,
         start_date,
         finish_date,
-        tag,
+        personnel,
+        file,
         content,
-        personnel
+        tag
       );
     }
+
     navigate("/Companion", { replace: true }); // 작성하는 페이지로 뒤로오기 금지
   };
+
   const onFileInput = (e) => {
     e.preventDefault();
     const reader = new FileReader();
@@ -104,9 +104,10 @@ const Companion_Write = () => {
       setPreviewURL(reader.result);
     };
   };
+
   return (
-    <div>
-      <section>
+    <Container>
+      <Section>
         <Header>
           <MyButton
             className="back_btn"
@@ -119,57 +120,77 @@ const Companion_Write = () => {
             onClick={handleSubmit}
           />
         </Header>
-      </section>
+      </Section>
 
-      <Info>
-        <input
-          name="title"
-          placeholder="제목을 입력하세요"
-          ref={titleRef}
-          value={title}
-          onChange={onChange}
-        />
-        <input
-          name="location"
-          placeholder="위치를 입력하세요"
-          ref={locationRef}
-          value={location}
-          onChange={onChange}
-        />
-        <label>
-          <span>남성</span>
-          <input
-            type="radio"
-            name="gender"
-            checked={man === "man"}
-            value={man}
+      <Section>
+        <InputContainer>
+          <InputLabel>제목</InputLabel>
+          <Input
+            name="title"
+            placeholder="제목을 입력하세요"
+            ref={titleRef}
+            value={title}
             onChange={onChange}
           />
-          <span>여성</span>
-          <input type="radio" name="gender" value={girl} onChange={onChange} />
-        </label>
-        <label>
-          <span>여행기간</span>{" "}
-          <input
-            type="date"
-            name="start_date"
-            ref={start_dateRef}
-            value={start_date}
+        </InputContainer>
+
+        <InputContainer>
+          <InputLabel>위치</InputLabel>
+          <Input
+            name="location"
+            placeholder="위치를 입력하세요"
+            ref={locationRef}
+            value={location}
             onChange={onChange}
           />
-          {"     ~     "}
-          <input
-            type="date"
-            name="finish_date"
-            ref={finish_dateRef}
-            value={finish_date}
-            onChange={onChange}
-          />
-        </label>
-        <label>
-          {" "}
-          <span>모집인원</span>{" "}
-          <input
+        </InputContainer>
+
+        <InputContainer>
+          <InputLabel>성별</InputLabel>
+          <RadioContainer>
+            <RadioButton
+              type="radio"
+              name="gender"
+              checked={gender === "man"}
+              value="man"
+              onChange={onChange}
+            />
+            <RadioLabel>남성</RadioLabel>
+            <RadioButton
+              type="radio"
+              name="gender"
+              value="girl"
+              checked={gender === "girl"}
+              onChange={onChange}
+            />
+            <RadioLabel>여성</RadioLabel>
+          </RadioContainer>
+        </InputContainer>
+
+        <InputContainer>
+          <InputLabel>여행기간</InputLabel>
+          <DateContainer>
+            <DateInput
+              type="date"
+              name="start_date"
+              ref={start_dateRef}
+              value={start_date}
+              onChange={onChange}
+            />
+            <DateSeparator>~</DateSeparator>
+            <DateInput
+              type="date"
+              name="finish_date"
+              ref={finish_dateRef}
+              value={finish_date}
+              onChange={onChange}
+            />
+          </DateContainer>
+        </InputContainer>
+
+        <InputContainer>
+          <InputLabel>모집인원</InputLabel>
+          <Input
             type="text"
             name="personnel"
             placeholder="모집인원(숫자만 입력가능)"
@@ -177,95 +198,130 @@ const Companion_Write = () => {
             value={personnel}
             onChange={onChange}
           />
-        </label>
-      </Info>
-      {data.map((val, i) => (
-        <div>
-          {file ? (
-            <Preview>
-              <ProfilePreview
-                name="photo"
-                onchange={(e) => handleChange(e, i)}
-                src={previewURL}
-                alt="uploaded"
-                ref={fileInput}
-              />
-            </Preview>
-          ) : (
-            <PhotoContainer>
-              <UploadInput
-                type="file"
-                name="photo"
-                id="photo"
-                accept="image/*"
-                value={val.photo}
-                onChange={onFileInput}
-                required
-              />
-              <Upload type="submit">
-                사진 올리기
-                <p>(*1장만)</p>
-              </Upload>
-            </PhotoContainer>
-          )}
-        </div>
-      ))}
-      <Contents>
-        <textarea
-          name="content"
-          placeholder="내용 입력"
-          ref={contentRef}
-          value={content}
-          onChange={onChange}
-        />
-      </Contents>
-      <Tag>
-        <input
-          type="text"
-          name="tag"
-          placeholder="태그를 입력하세요"
-          ref={tagRef}
-          value={tag}
-          onChange={onChange}
-        />
-      </Tag>
-    </div>
+        </InputContainer>
+
+        <InputContainer>
+          <PhotoContainer>
+            {file ? (
+              <Preview>
+                <ProfilePreview
+                  src={previewURL}
+                  alt="uploaded"
+                  ref={fileInput}
+                />
+              </Preview>
+            ) : (
+              <>
+                <UploadInput
+                  type="file"
+                  name="photo"
+                  id="photo"
+                  accept="image/*"
+                  onChange={onFileInput}
+                  required
+                />
+                <Upload htmlFor="photo">
+                  배경사진
+                  <p>(최소 한장을 올려주세요)</p>
+                </Upload>
+              </>
+            )}
+          </PhotoContainer>
+        </InputContainer>
+
+        <InputContainer>
+          <InputLabel>내용</InputLabel>
+          <ContentTextarea
+            name="content"
+            placeholder="내용 입력"
+            ref={contentRef}
+            value={content}
+            onChange={onChange}
+          />
+        </InputContainer>
+
+        <InputContainer>
+          <InputLabel>태그</InputLabel>
+          <Input
+            type="text"
+            name="tag"
+            placeholder="태그를 입력하세요"
+            ref={tagRef}
+            value={tag}
+            onChange={onChange}
+          />
+        </InputContainer>
+      </Section>
+    </Container>
   );
 };
+
+const Container = styled.div`
+  padding: 20px;
+`;
+
+const Section = styled.section`
+  margin-bottom: 20px;
+`;
 
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  padding: 16px 15px;
+  padding-bottom: 10px;
   border-bottom: 1px solid #dadada;
 `;
 
-const Title = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+const InputContainer = styled.div`
+  margin-bottom: 10px;
 `;
 
-const Info = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-`;
-const Tag = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+const InputLabel = styled.label`
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
 `;
 
-const PhotoContainer = styled.form`
+const Input = styled.input`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #dadada;
+  border-radius: 4px;
+  outline: none;
+`;
+
+const RadioContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const RadioButton = styled.input`
+  margin-right: 5px;
+`;
+
+const RadioLabel = styled.label`
+  margin-right: 15px;
+`;
+
+const DateContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const DateInput = styled.input`
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #dadada;
+  border-radius: 4px;
+  outline: none;
+`;
+
+const DateSeparator = styled.div`
+  margin: 0 10px;
+`;
+
+const PhotoContainer = styled.div`
   position: relative;
-  flex: 1 1 auto;
-
-  @media screen and (max-width: 64px) {
-    width: 100%;
-  }
 `;
 
 const UploadInput = styled.input`
@@ -281,58 +337,45 @@ const UploadInput = styled.input`
   }
 `;
 
-const Upload = styled.button`
-  flex: 1 1 auto;
-  padding: 100px 0px;
-  width: 100%;
-  height: 100%;
-  margin-right: 20px;
+const Upload = styled.label`
+  display: block;
+  margin-top: 10px;
+  padding: 8px;
   text-align: center;
   color: #a4acb3;
   font-weight: bold;
   cursor: pointer;
-  border: none;
-  background-color: ${({ theme }) => theme.backgroundGrey} !important;
-
-  //for border dot's wider spacing
-  background: linear-gradient(to right, #ccc 50%, rgba(255, 255, 255, 0) 0%),
-    linear-gradient(#ccc 50%, rgba(255, 255, 255, 0) 0%),
-    linear-gradient(to right, #ccc 50%, rgba(255, 255, 255, 0) 0%),
-    linear-gradient(#ccc 50%, rgba(255, 255, 255, 0) 0%);
-  background-position: top, right, bottom, left;
-  background-repeat: repeat-x, repeat-y;
-  background-size: 10px 1px, 1px 10px;
-
-  &:hover {
-    opacity: 0.5;
-  }
+  border: 1px solid #dadada;
+  border-radius: 4px;
+  background-color: ${({ theme }) => theme.backgroundGrey};
 
   i {
     display: block;
-    font-size: 3rem;
+    font-size: 18px;
   }
 
   p {
-    font-size: 0.6rem;
+    font-size: 12px;
+    margin-top: 5px;
   }
 `;
 
 const Preview = styled.div`
-  position: relative;
-  flex-basis: 50%;
   margin-bottom: 10px;
-  text-align: center;
 `;
 
 const ProfilePreview = styled.img`
-  width: 70%;
-  height: 70%;
+  width: 100%;
+  height: auto;
 `;
 
-const Contents = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+const ContentTextarea = styled.textarea`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #dadada;
+  border-radius: 4px;
+  outline: none;
+  resize: vertical;
 `;
 
 export default Companion_Write;

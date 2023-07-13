@@ -140,7 +140,7 @@ const Community_Write = () => {
           />
           <input
             name="tag"
-            placeholder="테그 입력"
+            placeholder="태그 입력"
             ref={tagRef}
             value={tag}
             onChange={onChange}

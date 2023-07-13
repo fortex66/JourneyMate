@@ -20,8 +20,7 @@ const Sign = () => {
     birth: "",
     email: "",
     checkemail: "",
-    man: "man",
-    girl: "",
+    gender: "man",
   });
 
   const [emailVerified, setEmailVerified] = useState(false);
@@ -34,8 +33,7 @@ const Sign = () => {
     });
   }
 
-  const { user, userID, password, checkpassword, birth, email, man, girl } =
-    inputs;
+  const { user, userID, password, checkpassword, birth, email } = inputs;
 
   const navigate = useNavigate();
 
@@ -60,7 +58,7 @@ const Sign = () => {
           password: password,
           birth: birth,
           email: email,
-          gender: man === "man" ? "남자" : "여자", //assuming "man" means Male and else Female.
+          gender: inputs.gender === "man" ? "남자" : "여자", //assuming "man" means Male and else Female.
         }),
         credentials: "include",
       });
@@ -165,12 +163,18 @@ const Sign = () => {
           <input
             type="radio"
             name="gender"
-            checked={man === "man"}
-            value={man}
+            checked={inputs.gender === "man"}
+            value="man"
             onChange={onChange}
           />
           <span>여성</span>
-          <input type="radio" name="gender" value={girl} onChange={onChange} />
+          <input
+            type="radio"
+            name="gender"
+            value="girl"
+            onChange={onChange}
+            checked={inputs.gender === "girl"}
+          />
         </label>
         <span>이메일</span>
         <input
