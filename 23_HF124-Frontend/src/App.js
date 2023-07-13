@@ -1,5 +1,6 @@
+// App.js
 import "./App.css";
-import React, { useRef, useReducer } from "react"; // useState 제거
+import React, { useRef, useReducer } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Login from "./pages/Login";
@@ -18,6 +19,7 @@ import Scrap from "./pages/Scrap";
 import Community_Write from "./components/Community_Write";
 import Companion_Write from "./components/Companion_Write";
 import Community_Detail from "./pages/Community_Detail";
+import Companion_Detail from "./pages/Companion_Detail";
 
 export const CompanionStateContext = React.createContext();
 export const CompanionDispatchContext = React.createContext();
@@ -52,37 +54,42 @@ const reducer = (state, action) => {
 };
 
 function App() {
-  const [data, dispatch] = useReducer(reducer, []);
+  const [companionData, companionDispatch] = useReducer(reducer, []);
+  const [communityData, communityDispatch] = useReducer(reducer, []);
   const companion_dataId = useRef(0);
   const dataId = useRef(0);
 
   const onCreate_Companion = (
     title,
     location,
+    gender,
     start_date,
     finish_date,
     personnel,
+    photo,
     content,
     tag
   ) => {
-    dispatch({
+    companionDispatch({
       type: "CREATE_COMPANION",
       data: {
         id: companion_dataId.current,
         title,
         location,
-        tag,
+        gender,
         start_date,
         finish_date,
         personnel,
+        photo,
         content,
+        tag,
       },
     });
     companion_dataId.current += 1;
   };
 
   const onCreate = (title, location, tag, photos, content) => {
-    dispatch({
+    communityDispatch({
       type: "CREATE",
       data: {
         id: dataId.current,
@@ -97,9 +104,9 @@ function App() {
   };
 
   return (
-    <CompanionStateContext.Provider value={data}>
+    <CompanionStateContext.Provider value={companionData}>
       <CompanionDispatchContext.Provider value={{ onCreate_Companion }}>
-        <CommunityStateContext.Provider value={data}>
+        <CommunityStateContext.Provider value={communityData}>
           <CommunityDispatchContext.Provider value={{ onCreate }}>
             <BrowserRouter>
               <div className="App">
@@ -110,6 +117,10 @@ function App() {
                   <Route
                     path="/Community_Detail/:id"
                     element={<Community_Detail />}
+                  />
+                  <Route
+                    path="/Companion_Detail/:id"
+                    element={<Companion_Detail />}
                   />
                   <Route path="/Companion" element={<Companion />} />
                   <Route path="/Chat" element={<Chat />} />
