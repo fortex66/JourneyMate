@@ -1,0 +1,29 @@
+.TMenuBar {
+  border-bottom: 1px solid #f97800;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+  padding: 0 20px;
+}
+
+.TMenuBar span,
+.TMenuBar p {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.BMenuBox + .BMenuBox {
+  border-left: none;
+}
+
+.ContentsBox {
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+}
+
+.MainListBox {
+  display: flex;
+  flex-direction: column;
+}
