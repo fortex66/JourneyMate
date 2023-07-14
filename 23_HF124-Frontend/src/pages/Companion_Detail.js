@@ -62,8 +62,6 @@ const Companion_Detail = () => {
           여행종료날짜 : {data.finish_date}
           <br />
           여행인원 : {data.personnel}
-          <br />
-          내용 : {data.content}
         </Info>
         <div>
           {data.photo && (
@@ -76,6 +74,7 @@ const Companion_Detail = () => {
                   alt="post"
                 />
               </Main>
+              <Content>{data.content}</Content>
             </div>
           )}
         </div>
