@@ -9,6 +9,7 @@ const chatRoutes = require('./routes/chatRoutes');
 const signupRoutes = require('./routes/signupRoutes');
 const likeRoutes = require('./routes/likeRoutes');
 const communityRoutes = require('./routes/communityRoutes');
+const companionRoutes = require('./routes/companionRoutes');
 
 
 dotenv.config();
@@ -33,6 +34,7 @@ app.use(session({
 }));
 
 app.use('/community', communityRoutes);
+app.use('/companion', companionRoutes);
 app.use('/users', userRoutes); //POST, PUT, GET, DELETE
 app.use('/signup', signupRoutes);
 app.use('/like', likeRoutes);
