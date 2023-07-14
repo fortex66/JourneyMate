@@ -40,12 +40,6 @@ app.use('/signup', signupRoutes);
 app.use('/like', likeRoutes);
 app.use('/chats', chatRoutes);
 
-
-
-
-
-
-
 const port = 3000
 app.listen(port, () => {
   
