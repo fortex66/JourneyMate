@@ -2,10 +2,12 @@ import { useState, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import MyButton from "./MyButton";
-
+import axios from "axios";
 import { CommunityDispatchContext } from "../App";
-
+// const token=localStorage.getItem('jwtToken');
+axios.defaults.withCredentials = true;
 const Community_Write = () => {
+  
   const titleRef = useRef();
   const locationRef = useRef();
   const tagRef = useRef();
@@ -78,7 +80,8 @@ const Community_Write = () => {
     };
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    
     if (title.length < 1) {
       titleRef.current.focus();
       return;
@@ -98,6 +101,34 @@ const Community_Write = () => {
       const photos = data.map((item) => item.previewURL);
       const contents = data.map((item) => item.content); // Extract content values from data
       onCreate(title, location, tag, photos, contents); // Pass the photo and content values to onCreate
+      
+    }
+    const formData = new FormData();
+  
+    // 사진과 내용 데이터를 FormData에 추가
+    data.forEach((item, i) => {
+      formData.append('photos[]', item.file);
+      formData.append('contents[]', item.content);
+    });
+    // json으로 제목과 위치를 만들기
+    const jsonData={
+      title: title,
+      location: location,
+      // x : x,
+      // y : y
+      // tag: tag
+    }
+    formData.append('jsonData',JSON.stringify(jsonData)); // 위치와 제목데이터를 formdata에 담기
+
+    // 서버로 formData전송
+    try{
+      axios.post('http://localhost:3000/community/upload',formData,{
+        headers:{
+          'Content-Type': 'multipart/form-data' // multipart/form-data로 보낸다고 명시
+        }
+      })
+    }catch(error){
+      console.log(error);
     }
     navigate("/Community", { replace: true }); // 작성하는 페이지로 뒤로오기 금지
   };
@@ -140,7 +171,7 @@ const Community_Write = () => {
           />
           <input
             name="tag"
-            placeholder="태그 입력"
+            placeholder="테그 입력"
             ref={tagRef}
             value={tag}
             onChange={onChange}

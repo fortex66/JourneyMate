@@ -46,7 +46,6 @@ const Sign = () => {
 
     try {
       // POST request to /signup endpoint with form data
-      console.log(JSON.stringify);
       const response = await fetch("http://localhost:3000/signup/part1", {
         method: "POST",
         headers: {

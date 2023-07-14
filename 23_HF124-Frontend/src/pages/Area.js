@@ -1,4 +1,3 @@
-//Area.js
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -7,27 +6,28 @@ function AddressForm() {
   const [addressInput, setAddressInput] = useState("");
   const [addressList, setAddressList] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
-  // const history = useHistory(); // 페이지 이동을 위해 useHistory 훅 사용
 
   const handleInputChange = (event) => {
     setAddressInput(event.target.value);
   };
+
   const navigate = useNavigate();
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    // 카카오 API를 사용하기 위한 헤더 설정
     const headers = {
       Authorization: `KakaoAK ${process.env.REACT_APP_KAKAO_API_KEY}`,
     };
+
     try {
       const response = await axios.get(
-        `https://dapi.kakao.com/v2/local/search/address.json?query=${addressInput}`,
+        `http://localhost:3000/signup/search-address?query=${addressInput}`,
         { headers }
       );
-
+  
       if (response.status === 200) {
-        setAddressList(response.data.documents);
+        setAddressList(response.data);
+        console.log(response.data);
       } else {
         console.error("주소 검색 실패", response.status);
       }
@@ -36,11 +36,10 @@ function AddressForm() {
     }
   };
 
-  const handleAddressSelect = async (address) => {
-    // 선택하시겠습니까? 확인창 추가
+  const handleAddressSelect = async (place_name) => {
     if (window.confirm("선택하시겠습니까?")) {
-      setSelectedAddress(address);
-      console.log({ selectedAddress: address });
+      setSelectedAddress(place_name);
+      console.log({ selectedAddress: place_name });
 
       try {
         const response = await fetch("http://localhost:3000/signup/part2", {
@@ -49,10 +48,11 @@ function AddressForm() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            address: address,
+            address: place_name,
           }),
-          credentials: "include", //세션값을 함께 날려줘야 다음 파트로 넘어갈때 userID값이 세션에 같이 저장됩니다
+          credentials: "include",
         });
+
         if (response.status === 200) {
           console.log("위치정보 입력 완료");
         } else {
@@ -64,7 +64,6 @@ function AddressForm() {
     }
   };
 
-  // 다음 버튼을 클릭하면 /Tag 페이지로 이동
   const handleNext = () => {
     if (selectedAddress) {
       navigate("/Tag", { replace: true });
@@ -78,11 +77,7 @@ function AddressForm() {
       <form onSubmit={handleSubmit}>
         <label>
           주소 검색:
-          <input
-            type="text"
-            value={addressInput}
-            onChange={handleInputChange}
-          />
+          <input type="text" value={addressInput} onChange={handleInputChange} />
         </label>
         <input type="submit" value="주소 검색" />
       </form>
@@ -91,12 +86,9 @@ function AddressForm() {
         <div>
           <h2>주소 목록</h2>
           <ul>
-            {addressList.map((address, index) => (
-              <li
-                key={index}
-                onClick={() => handleAddressSelect(address.address_name)}
-              >
-                {address.address_name}
+            {addressList.map((place_name, index) => (
+              <li key={index} onClick={() => handleAddressSelect(place_name)}>
+                {place_name}
               </li>
             ))}
           </ul>

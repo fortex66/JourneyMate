@@ -8,9 +8,9 @@ const router = express.Router();
 
 
 // authMiddleware를 통과후 controller로 이동
-router.post('/upload', upload.array('files', 10),authMiddleware, uploadController.uploadpost);
+router.post('/upload', upload.array('photos[]', 10),authMiddleware, uploadController.uploadpost);
 router.delete('/:tpostid', authMiddleware, uploadController.deletepost);
-router.put('/:tpostID', upload.array('files', 10),authMiddleware, uploadController.updatePost);
+router.put('/:tpostID', upload.array('photos[]', 10),authMiddleware, uploadController.updatePost);
 
 // comment 부분
 router.post('/comments/:tpostID',authMiddleware, commentController.addComment);
