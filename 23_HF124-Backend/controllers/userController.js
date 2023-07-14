@@ -25,8 +25,9 @@ const loginUser = async (req, res) => {
     const token = jwt.sign({ userID: user.userID }, secret, { expiresIn: "24h" });
 
     console.log(`${user.userID}님이 로그인했습니다.`);
+    console.log(`${token}`);
 
-    res.status(200).json({ token, result: true, message: `${user.user}님이 로그인했습니다.` });
+    res.status(200).json({result: true, message: `${user.user}님이 로그인했습니다.` ,token : token});
   } catch (err) {
     console.log(err);
     res.status(500).json({ result: false, message: "Server error" });

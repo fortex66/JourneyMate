@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef } from "react";
+import React, { useEffect, useContext, useState, useRef } from "react";
 import MyButton from "../components/MyButton";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -12,6 +12,8 @@ const Companion_Write = () => {
   const personnelRef = useRef();
   const contentRef = useRef();
   const tagRef = useRef();
+  const ageRef = useRef();
+  const fileRef = useRef(); //
 
   const navigate = useNavigate();
 
@@ -21,6 +23,7 @@ const Companion_Write = () => {
     title: "",
     location: "",
     gender: "man",
+    age: "",
     start_date: "",
     finish_date: "",
     personnel: "",
@@ -31,6 +34,16 @@ const Companion_Write = () => {
   const [previewURL, setPreviewURL] = useState("");
   const [file, setFile] = useState();
   const fileInput = useRef();
+  const [ageError, setAgeError] = useState(false);
+  const [fileError, setFileError] = useState(false); //
+
+  useEffect(() => {
+    setAgeError(false); // reset ageError when age changes
+  }, [inputs.age]);
+
+  useEffect(() => {
+    setFileError(false); // reset fileError when file changes
+  }, [file]);
 
   function onChange(e) {
     const { value, name } = e.target;
@@ -44,6 +57,7 @@ const Companion_Write = () => {
     title,
     location,
     gender,
+    age,
     start_date,
     finish_date,
     personnel,
@@ -69,18 +83,24 @@ const Companion_Write = () => {
     } else if (content.length < 1) {
       contentRef.current.focus();
       return;
+    } else if (age === "") {
+      // check if age is not selected
+      setAgeError(true); // set ageError to true if age is not selected
+      ageRef.current.focus();
+      return;
     } else if (personnel === "" || isNaN(personnel)) {
       personnelRef.current.focus();
       return;
     } else if (!file) {
-      // Check if a file is not selected
-      // Display an error message or handle the case when no file is selected
+      setFileError(true); // set fileError to true if file is not selected
+      fileRef.current.focus();
       return;
     } else if (window.confirm("게시글을 등록하시겠습니까?")) {
       onCreate_Companion(
         title,
         location,
         finalGender,
+        age,
         start_date,
         finish_date,
         personnel,
@@ -88,9 +108,8 @@ const Companion_Write = () => {
         content,
         tag
       );
+      navigate("/Companion", { replace: true }); // 작성하는 페이지로 뒤로오기 금지
     }
-
-    navigate("/Companion", { replace: true }); // 작성하는 페이지로 뒤로오기 금지
   };
 
   const onFileInput = (e) => {
@@ -168,6 +187,25 @@ const Companion_Write = () => {
         </InputContainer>
 
         <InputContainer>
+          <InputLabel>나이</InputLabel>
+          <Select
+            name="age"
+            ref={ageRef}
+            value={age}
+            onChange={onChange}
+            error={ageError}
+          >
+            <option value="">선택하세요</option>
+            <option value="10s">10대</option>
+            <option value="20s">20대</option>
+            <option value="30s">30대</option>
+            <option value="40s">40대</option>
+            <option value="50s">50대</option>
+            <option value="60s">60대</option>
+          </Select>
+        </InputContainer>
+
+        <InputContainer>
           <InputLabel>여행기간</InputLabel>
           <DateContainer>
             <DateInput
@@ -217,12 +255,14 @@ const Companion_Write = () => {
                   name="photo"
                   id="photo"
                   accept="image/*"
+                  ref={fileRef}
                   onChange={onFileInput}
-                  required
+                  error={fileError}
                 />
+
                 <Upload htmlFor="photo">
                   배경사진
-                  <p>(최소 한장을 올려주세요)</p>
+                  <p>(최소 한장을 올려주세요!)</p>
                 </Upload>
               </>
             )}
@@ -335,6 +375,13 @@ const UploadInput = styled.input`
   &::-webkit-file-upload-button {
     display: none;
   }
+
+  border: ${(props) => (props.error ? "1px solid red" : "1px solid #dadada")};
+  transition: border-color 0.3s ease;
+
+  &:focus {
+    border-color: #3875d7;
+  }
 `;
 
 const Upload = styled.label`
@@ -376,6 +423,19 @@ const ContentTextarea = styled.textarea`
   border-radius: 4px;
   outline: none;
   resize: vertical;
+`;
+const Select = styled.select`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #dadada;
+  border-radius: 4px;
+  outline: none;
+  border: ${(props) => (props.error ? "1px solid red" : "1px solid #dadada")};
+  transition: border-color 0.3s ease;
+
+  &:focus {
+    border-color: #3875d7;
+  }
 `;
 
 export default Companion_Write;
