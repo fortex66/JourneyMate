@@ -18,9 +18,8 @@ function AddressForm() {
 
     // 카카오 API를 사용하기 위한 헤더 설정
     const headers = {
-      Authorization: "KakaoAK 4274a457c874f4376c5abb0c8187c6c8",
+      Authorization: `KakaoAK ${process.env.REACT_APP_KAKAO_API_KEY}`,
     };
-
     try {
       const response = await axios.get(
         `https://dapi.kakao.com/v2/local/search/address.json?query=${addressInput}`,
