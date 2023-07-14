@@ -3,6 +3,7 @@ import axios from 'axios'; // 추가
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
+
 function Login() {
   const [userID, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -27,7 +28,10 @@ function Login() {
         });
         
         if(response.data.result) {
-          localStorage.setItem('token', response.data.token);
+          
+          // const { accessToken } = response.data.token;
+
+		      // API 요청하는 콜마다 헤더에 accessToken 담아 보내도록 설정
           console.log(response.data.message);
           navigate("/Home"); // 로그인이 성공하면 Home 페이지로 이동
         } else {
@@ -39,6 +43,7 @@ function Login() {
       }
     }
   };
+  axios.defaults.withCredentials = true;
 
   const movesign = (e) => {
     navigate("/Sign");

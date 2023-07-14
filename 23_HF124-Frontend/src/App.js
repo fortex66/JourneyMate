@@ -3,6 +3,7 @@ import "./App.css";
 import React, { useRef, useReducer } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Community from "./pages/Community";
@@ -125,7 +126,7 @@ function App() {
                     element={<Companion_Detail />}
                   />
                   <Route path="/Companion" element={<Companion />} />
-                  <Route path="/Chat" element={<Chat />} />
+                  <Route path="/Chat" element={<Chat />} /> 
                   <Route path="/Mypage" element={<Mypage />} />
                   <Route path="/Write" element={<Write />} />
                   <Route path="/Sign" element={<Sign />} />
