@@ -31,12 +31,6 @@ exports.processPart1 = async (req, res) => {
         console.log('아이디 중복됨');
         return res.status(400).send(`아이디 '${userID}'는 이미 사용 중입니다`);
       }
-
-      // 비밀번호 확인
-      // if (password !== confirmPassword) {
-      //   return res.status(400).send('비밀번호가 일치하지 않습니다.');
-      // }
-  
       //회원 정보 저장
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -93,6 +87,25 @@ exports.processPart1 = async (req, res) => {
     } catch (error) {
       console.error('회원가입2 과정에서 문제가 발생했습니다.', error);
       res.status(400).send('회원가입2 과정에서 문제가 발생했습니다.');
+    }
+  };
+  exports.searchAddress = async (req, res) => {
+    try {
+      const query = req.query.query;
+  
+      const headers = {
+        Authorization: `KakaoAK ${process.env.KAKAO_API_KEY}`,
+      };
+  
+      const response = await axios.get(
+        `https://dapi.kakao.com/v2/local/search/keyword.json`,
+        { params: { query }, headers }
+      );
+  
+      res.json(response.data.documents.map((document) => document.place_name));
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('주소 검색에서 문제가 발생했습니다.');
     }
   };
   
@@ -169,3 +182,5 @@ exports.sendEmail = async (req, res) => {
     }
   });
 };
+
+module.exports = exports;

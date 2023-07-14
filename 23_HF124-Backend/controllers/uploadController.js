@@ -10,26 +10,27 @@ async function uploadpost(req, res) {
 
 try {
     const user=req.decode; // 유저 토큰의 정보 저장
+    const jsonData = JSON.parse(req.body.jsonData);
     // 요청 데이터로 받은 게시물 정보를 travel_post 테이블에 저장
-    await tUpload.tPost.create({
-      tpostID: req.body.tpostID,  
+    const posting=await tUpload.tPost.create({
       userID: user.userID,
       postDate: new Date(),
-      location: req.body.location,
-      title: req.body.title
+      location: jsonData.location,
+      title: jsonData.title
     });
+    const tpostID = posting.getDataValue('tpostID'); // 위에서 저장한 게시물의 tpostID를 받아옴
+    console.log(tpostID);
     // 게시물 이미지를 저장
-    req.files.forEach(async (file, index) => {
+    const imageSavePromises = req.files.map((file, index) => {
       const imageUrl = path.join(file.destination, file.filename);
-      await tUpload.tPostImage.create({
+      return tUpload.tPostImage.create({
         imageURL: imageUrl,
-        tpostID: req.body.tpostID,
+        tpostID: tpostID,
         content: req.body.contents[index]
       });
-      
-      }
-    )
-    
+    });
+  
+    await Promise.all(imageSavePromises);
     res.status(200).send({ message: "Posts saved successfully" });
   } catch (err) {
     console.error(err);
@@ -53,9 +54,6 @@ async function deletepost(req, res) {
 
 // 사용자 검증 통과후 게시물 수정하는 메서드
 async function updatePost(req, res) {
-  // let token=req.cookies.user;
-  // const decode=jwt.verify(token,secretObj.secret);
-  
     try { 
       const user=req.decode.userID;
       const { tpostID } = req.params;
