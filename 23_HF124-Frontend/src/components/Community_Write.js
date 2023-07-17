@@ -16,10 +16,46 @@ const Community_Write = () => {
   const photoRefs = useRef([]);
   const contentRefs = useRef([]);
   const navigate = useNavigate();
+  const [locationList, setLocationList] = useState([]);
+
 
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [data, setData] = useState([{ photo: "", content: "", file: null }]);
+  const [selectedLocation, setSelectedLocation] = useState({});
+
+
+
+  //위치를 입력 받을때 kakaoapi를 활용하기 위함
+  const searchLocation = async () => {
+    const query = locationRef.current.value;
+
+    if (!query.trim()) { // 입력값이 비어있는 경우 API 호출을 막습니다.
+      setLocationList([]); // 위치 목록을 초기화하면서 자동완성 리스트를 비웁니다.
+      return; // 빈 문자열인 경우 함수를 여기서 종료합니다.
+    }
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/community/search-keyword?query=${locationRef.current.value}`
+        );
+      if (response.status === 200) {
+        setLocationList(response.data);
+      } else {
+        console.error("주소 검색 실패", response.status);
+      }
+    } catch (error) {
+      console.error("주소를 검색하는 도중 에러가 발생했습니다", error);
+    }
+  };
+
+  // 선택한 위치를 사용하기 위함
+
+
+  const handleLocationSelect = (location) => {
+    locationRef.current.value = location.place_name;
+    setSelectedLocation({x: location.x, y: location.y});
+    setLocationList([]);
+  };
 
   /** 새로운 사진 및 내용 입력 영역 추가 */
   const handleClick = () => {
@@ -125,6 +161,8 @@ const Community_Write = () => {
       const jsonData = {
         title: titleRef.current.value,
         location: locationRef.current.value,
+        x: selectedLocation.x,
+        y: selectedLocation.y,
         // tag: tag
       };
       formData.append("jsonData", JSON.stringify(jsonData)); // 위치와 제목데이터를 formdata에 담기
@@ -143,6 +181,7 @@ const Community_Write = () => {
     }
   };
 
+  
   return (
     <Write>
       <Navigation>
@@ -157,21 +196,23 @@ const Community_Write = () => {
           <input type="text" name="title" placeholder="제목을 입력하세요" ref={titleRef} />
         </Title>
         <Info>
-          <input name="location" placeholder="위치 입력" ref={locationRef} />
+          <input name="location" placeholder="위치 입력" ref={locationRef} onChange={searchLocation} />
+
+          {locationList.map((location, i) => (
+                <li key={i} onClick={() => handleLocationSelect(location)}>
+                {location.place_name}
+              </li>
+          ))}
+          
           <input name="tag" placeholder="태그 입력" ref={tagRef} />
         </Info>
       </div>
 
       <Addform>
-        {/* 사진 및 내용 영역들을 동적으로 생성 */}
-        {/* map 함수를 이용해서 data 배열의 각 항목에 대해 반복 실행 한다.*/}
         {data.map((val, i) => (
-          <RepeatWrapper key={i}> {/* 각 항목을 감싸는 컨테이너, 리스트 항목이라서 key가 필요함 */}
+          <RepeatWrapper key={i}>
             <PhotoWrapper>
-              {/* 클릭 시 handleClick 함수를 호출하는 추가 버튼 */}
               <AddButton onClick={handleClick}> + </AddButton>
-
-              {/* 파일이 있을 경우에는 파일 미리보기를 보여주고, 없으면 사진 업로드 입력 필드를 보여준다. */}
               {val.file ? (
                 <Preview>
                   <ProfilePreview name="photopreview" onChange={(e) => handleChange(e, i)}
@@ -190,7 +231,6 @@ const Community_Write = () => {
                   </UploadButton>
                 </PhotoContainer>
               )}
-              {/* 첫 번째 항목에 대해서는 삭제 버튼을 비활성화 한다. 그 외의 항목은 삭제 버튼 활성화 */}
               {i === 0 ? (<DisabledDeleteButton> x </DisabledDeleteButton>
               ) : (<DeleteButton onClick={() => handleDelete(i)}> x </DeleteButton> )}
             </PhotoWrapper>
