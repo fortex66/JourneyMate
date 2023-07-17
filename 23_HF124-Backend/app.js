@@ -27,10 +27,6 @@ app.use(cors({
 app.use(express.json());
 app.use(cookiParser());
 
-
-
-
-
 app.use(session({
   secret: process.env.sessionKey,
   resave: false,
