@@ -18,7 +18,7 @@ const tComment = sequelize.define('tcomments', {
     primaryKey: true,
     autoIncrement: true
   },
-  userId: {
+  userID: {
     type: DataTypes.STRING,
     allowNull: false
   },
@@ -26,16 +26,18 @@ const tComment = sequelize.define('tcomments', {
     type: DataTypes.TEXT,
     allowNull: true,
   },
-  contentDate: {
+  commentDate: {
     type: DataTypes.TIME,
     allowNull: true,
   },
   tpostID: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: { // 이 부분을 추가
+      model: 'travel_posts', // 여기에는 참조하고 있는 테이블의 이름을 넣으세요.
+      key: 'tpostID'
+    }
   }
-
-  
 }, {
   // 다른 옵션들 기입
   timestamps: false, // 기본 옵션으로 선택되는 설정을 취소하기 위해

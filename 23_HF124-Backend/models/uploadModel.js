@@ -27,6 +27,14 @@ const tPost = sequelize.define('travel_posts', {
     type: DataTypes.STRING,
     allowNull: true
   },
+  x: {
+    type: DataTypes.DOUBLE,
+    allowNull: true
+  },
+  y: {
+    type: DataTypes.DOUBLE,
+    allowNull: true
+  },
   title: {
     type: DataTypes.STRING,
     allowNull: false

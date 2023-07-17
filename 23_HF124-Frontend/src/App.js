@@ -21,6 +21,7 @@ import Community_Write from "./components/Community_Write";
 import Companion_Write from "./components/Companion_Write";
 import Community_Detail from "./pages/Community_Detail";
 import Companion_Detail from "./pages/Companion_Detail";
+import Search from "./pages/Search";
 
 export const CompanionStateContext = React.createContext();
 export const CompanionDispatchContext = React.createContext();
@@ -135,6 +136,7 @@ function App() {
                   <Route path="/" element={<Start />} />
                   <Route path="/Profile" element={<Profile />} />
                   <Route path="/Scrap" element={<Scrap />} />
+                  <Route path="/Search" element={<Search />} />
                   <Route
                     path="/Community_Write"
                     element={<Community_Write />}
