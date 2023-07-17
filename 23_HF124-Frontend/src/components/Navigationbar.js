@@ -18,6 +18,7 @@ const Navigationbar = () => {
     navigate(`/${tabName}`);
   };
 
+  
   return (
     <Navigation>
       <Bottomview>

@@ -89,6 +89,7 @@ exports.processPart1 = async (req, res) => {
       res.status(400).send('회원가입2 과정에서 문제가 발생했습니다.');
     }
   };
+
   exports.searchAddress = async (req, res) => {
     try {
       const query = req.query.query;
@@ -98,11 +99,11 @@ exports.processPart1 = async (req, res) => {
       };
   
       const response = await axios.get(
-        `https://dapi.kakao.com/v2/local/search/keyword.json`,
+        `https://dapi.kakao.com/v2/local/search/address.json`,
         { params: { query }, headers }
       );
   
-      res.json(response.data.documents.map((document) => document.place_name));
+      res.json(response.data.documents.map((document) => document.address_name));
     } catch (error) {
       console.error(error);
       res.status(500).send('주소 검색에서 문제가 발생했습니다.');

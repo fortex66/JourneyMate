@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { CommunityStateContext } from "../App";
 import styled from "styled-components";
 import Detail_Nav from "../components/Detail_Nav";
+import axios from 'axios'; 
+
 
 const Community_Detail = () => {
   const { id } = useParams();
@@ -34,9 +36,43 @@ const Community_Detail = () => {
   };
 
   const addComment = () => {
-    setComments([...comments, newComment]);
+    const newComments = [...comments, newComment];
+    setComments(newComments);
     setNewComment("");
+  
+    const tpostID = window.location.pathname.split('/').pop();
+    // 서버에게 POST 요청을 하여 댓글을 추가
+    axios.post(`http://localhost:3000/community/comments/${tpostID}`, {
+      tcommentId: newComments.length - 1, // ID는 인덱스를 기준으로 가정
+      contents: newComment,
+    })
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
   };
+
+  const deleteComment = (index) => {
+    const newComments = comments.filter((_, idx) => idx !== index);
+    setComments(newComments);
+    const tpostID = window.location.pathname.split('/').pop();
+    // 서버에게 DELETE 요청을 하여 댓글을 삭제
+    axios.delete(`http://localhost:3000/community/comments/${tpostID}`, {
+      data: { 
+        tcommentId: index
+        // userId: "userId" // 필요한 경우
+      }
+    })
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  };
+
 
   // 데이터가 없을때
   if (!data) {
@@ -78,7 +114,13 @@ const Community_Detail = () => {
           </CommentInput>
           <CommentList>
             {comments.map((comment, index) => (
-              <Comment key={index}>{comment}</Comment>
+              <Comment key={index}>
+                {comment}
+                <Button>
+                <button onClick={() => deleteComment(index)}>삭제</button> {/* 삭제 버튼 추가 */}
+                </Button>
+                
+              </Comment>
             ))}
           </CommentList>
         </CommentSection>
@@ -147,6 +189,7 @@ const Comment = styled.div`
   background-color: #f0f0f0;
   margin-bottom: 10px;
   border-radius: 5px;
+  display:flex;
 `;
 
 const StyledButton = styled.button`
@@ -168,4 +211,8 @@ const StyledButton = styled.button`
   }
 `;
 
+const Button = styled.div`
+margin-left:550px;
+
+`
 export default Community_Detail;
