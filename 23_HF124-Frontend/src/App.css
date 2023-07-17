@@ -1,17 +1,19 @@
-@import url("https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Yeon+Sung&display=swap");
+
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&family=Noto+Sans+KR:wght@300&display=swap');
 
 body {
   background-color: #f6f6f6;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: "Nanum pen Script";
+  font-family: 'Noto Sans KR', sans-serif;
   min-height: 100vh;
   margin: 0px;
   letter-spacing: -0.4px;
   word-break: keep-all;
   word-wrap: break-word;
   -webkit-font-smoothing: antialiased;
+  overflow-y: scroll;
 }
 
 @media (min-width: 650px) {
@@ -32,7 +34,6 @@ body {
 }
 .App {
   min-height: 100vh;
-
   overflow: auto;
 }
 .App-header {

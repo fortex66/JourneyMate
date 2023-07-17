@@ -3,13 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import "../pages/listForm.css";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faGlobe,
-  faUserGroup,
-  faHouse,
-  faBars,
-  faComments,
-} from "@fortawesome/free-solid-svg-icons";
+import {faGlobe, faUserGroup, faHouse, faBars, faComments,} from "@fortawesome/free-solid-svg-icons";
 
 const Navigationbar = () => {
   const navigate = useNavigate();
@@ -28,58 +22,28 @@ const Navigationbar = () => {
     <Navigation>
       <Bottomview>
         <BottomBox>
-          <NavBox
-            onClick={() => handleTabClick("Community")} // onClick 함수 수정
-          >
-            <FontAwesomeIcon
-              icon={faGlobe}
-              size="2x"
-              color={activeTab === "Community" ? "#F97800" : "black"}
-            />
+          <NavBox onClick={() => handleTabClick("Community")}>
+            <FontAwesomeIcon icon={faGlobe} size="2x" color={activeTab === "Community" ? "#F97800" : "black"} />
             <Text active={activeTab === "Community"}>커뮤니티</Text>
           </NavBox>
 
-          <NavBox
-            onClick={() => handleTabClick("Companion")} // onClick 함수 수정
-          >
-            <FontAwesomeIcon
-              icon={faUserGroup}
-              size="2x"
-              color={activeTab === "Companion" ? "#F97800" : "black"}
-            />
+          <NavBox onClick={() => handleTabClick("Companion")} >
+            <FontAwesomeIcon icon={faUserGroup} size="2x" color={activeTab === "Companion" ? "#F97800" : "black"} />
             <Text active={activeTab === "Companion"}>동행인 구하기</Text>
           </NavBox>
 
-          <NavBox
-            onClick={() => handleTabClick("Home")} // onClick 함수 수정
-          >
-            <FontAwesomeIcon
-              icon={faHouse}
-              size="2x"
-              color={activeTab === "Home" ? "#F97800" : "black"}
-            />
+          <NavBox onClick={() => handleTabClick("Home")}  >
+            <FontAwesomeIcon icon={faHouse} size="2x" color={activeTab === "Home" ? "#F97800" : "black"} />
             <Text active={activeTab === "Home"}>홈</Text>
           </NavBox>
 
-          <NavBox
-            onClick={() => handleTabClick("Chat")} // onClick 함수 수정
-          >
-            <FontAwesomeIcon
-              icon={faComments}
-              size="2x"
-              color={activeTab === "Chat" ? "#F97800" : "black"}
-            />
+          <NavBox onClick={() => handleTabClick("Chat")} >
+            <FontAwesomeIcon icon={faComments} size="2x" color={activeTab === "Chat" ? "#F97800" : "black"} />
             <Text active={activeTab === "Chat"}>채팅방</Text>
           </NavBox>
 
-          <NavBox
-            onClick={() => handleTabClick("Mypage")} // onClick 함수 수정
-          >
-            <FontAwesomeIcon
-              icon={faBars}
-              size="2x"
-              color={activeTab === "Mypage" ? "#F97800" : "black"}
-            />
+          <NavBox onClick={() => handleTabClick("Mypage")} >
+            <FontAwesomeIcon icon={faBars} size="2x" color={activeTab === "Mypage" ? "#F97800" : "black"} />
             <Text active={activeTab === "Mypage"}>마이페이지</Text>
           </NavBox>
         </BottomBox>
@@ -89,12 +53,12 @@ const Navigationbar = () => {
 };
 
 const Navigation = styled.div`
-  position: relative;
-  min-height: 100vh;
-  box-sizing: border-box;
-  height: auto;
-  overflow-y: auto;
-  padding-bottom: 100px;
+position: relative;
+min-height: 100vh;
+box-sizing: border-box;
+height: auto;
+overflow-y: auto;
+padding-bottom: 100px;
 `;
 
 const Bottomview = styled.div`
@@ -117,11 +81,13 @@ const NavBox = styled.div`
   width: 50%;
   height: 100%;
   border-top: 1px solid #dddddd;
+  border-right: 1px solid #dddddd;
   flex-direction: column;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: white;
+  
 `;
 
 /* 
@@ -139,6 +105,8 @@ const Text = styled.span.withConfig({
   shouldForwardProp: (prop) => prop !== "active",
 })`
   color: ${(props) => (props.active ? "#F97800" : "black")};
+  margin-top: 5px;
+  font-size:12px;
 `;
 
 export default Navigationbar;
