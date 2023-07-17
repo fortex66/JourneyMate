@@ -7,39 +7,23 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 
-app.use(express.json());
-
-io.on('connection', (socket) => {
-  console.log('a user connected');
-
-  socket.on('getUsers', async () => {
-    try {
-      const users = await User.findAll();
-      socket.emit('users', users);
-    } catch (err) {
-      console.error(err);
-    }
+exports.getMessages = (req, res) => {
+  const roomId = req.params.roomId;
+  db.getMessages(roomId, (err, messages) => {
+    if (err) res.status(500).json({ error: 'Error fetching messages' });
+    else res.json(messages);
   });
+};
 
-  socket.on('sendMessage', async ({ senderId, receiverId, text }) => {
-    try {
-      const message = await Message.create({
-        sender: senderId,
-        receiver: receiverId,
-        text,
-        timestamp: new Date(),
-      });
-      socket.broadcast.emit('message', message);
-    } catch (err) {
-      console.error(err);
-    }
+exports.postMessage = (req, res) => {
+  const roomId = req.params.roomId;
+  const message = req.body;
+  db.postMessage(roomId, message, (err) => {
+    if (err) res.status(500).json({ error: 'Error posting message' });
+    else res.status(200).json({ success: true });
   });
+};
 
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
-});
+module.exports = exports;
 
-server.listen(3000, () => {
-  console.log('listening on *:3000');
-});
+

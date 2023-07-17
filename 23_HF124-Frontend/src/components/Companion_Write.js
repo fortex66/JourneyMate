@@ -1,5 +1,4 @@
-import React, { useEffect, useContext, useState, useRef } from "react";
-import MyButton from "../components/MyButton";
+import React, { useContext, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { CompanionDispatchContext } from "../App";
@@ -13,102 +12,85 @@ const Companion_Write = () => {
   const contentRef = useRef();
   const tagRef = useRef();
   const ageRef = useRef();
-  const fileRef = useRef(); //
-
+  const fileRef = useRef();
   const navigate = useNavigate();
 
   const { onCreate_Companion } = useContext(CompanionDispatchContext);
 
-  const [inputs, setInputs] = useState({
-    title: "",
-    location: "",
-    gender: "man",
-    age: "",
-    start_date: "",
-    finish_date: "",
-    personnel: "",
-    content: "",
-    tag: "",
-  });
-
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
   const [previewURL, setPreviewURL] = useState("");
   const [file, setFile] = useState();
   const fileInput = useRef();
-  const [ageError, setAgeError] = useState(false);
-  const [fileError, setFileError] = useState(false); //
+  const [gender, setGender] = useState("man");
+  const [content, setContent] = useState(""); // Set the initial value of content
 
-  useEffect(() => {
-    setAgeError(false); // reset ageError when age changes
-  }, [inputs.age]);
 
-  useEffect(() => {
-    setFileError(false); // reset fileError when file changes
-  }, [file]);
+  const handleGenderChange = (e) => {
+    setGender(e.target.value);
+  };
 
-  function onChange(e) {
-    const { value, name } = e.target;
-    setInputs({
-      ...inputs,
-      [name]: value,
-    });
+  function handleInput(e) {
+    contentRef.current.style.height = "auto";
+    contentRef.current.style.height = contentRef.current.scrollHeight + "px";
+    setContent(e.target.value); // Update the content state with the input value
   }
 
-  const {
-    title,
-    location,
-    gender,
-    age,
-    start_date,
-    finish_date,
-    personnel,
-    content,
-    tag,
-  } = inputs;
+   /** "사진수정" 버튼 클릭 시 처리 - 사진 변경 부분 */
+   const handleEdit = (i) => {
+    const newFileInput = document.createElement("input"); // 새로운 input 요소 생성
+    newFileInput.type = "file"; // input 요소의 유형을 'file'로 설정
+    newFileInput.accept = "image/*"; // 가능한 파일 형식을 이미지 제한
+    // 파일 input 요소에서 발생하는 'change' 이벤트 리스너 추가, 이벤트 발생시 onFileInput 함수를 호출한다.
+    newFileInput.addEventListener("change", (e) => {onFileInput(e, i); });
+    newFileInput.click(); // 생성한 input 요소의 'click' 이벤트를 트리거하여 파일 선택 창 열기
+  };
 
   const handleSubmit = () => {
-    const finalGender = gender === "man" ? "남자" : "여자";
+    // const finalGender = gender === "man" ? "남자" : "여자";
 
-    if (title.length < 1) {
+    if (titleRef.current.value.length < 1) {
       titleRef.current.focus();
       return;
-    } else if (location.length < 1) {
+    } else if (locationRef.current.value.length < 1) {
       locationRef.current.focus();
       return;
-    } else if (start_date === "") {
+    } else if (start_dateRef.current.value === "") {
       start_dateRef.current.focus();
       return;
-    } else if (finish_date === "") {
+    } else if (finish_dateRef.current.value === "") {
       finish_dateRef.current.focus();
       return;
-    } else if (content.length < 1) {
+    } else if (contentRef.current.value.length < 1) {
       contentRef.current.focus();
       return;
-    } else if (age === "") {
-      // check if age is not selected
-      setAgeError(true); // set ageError to true if age is not selected
+    } else if (ageRef.current.value === "") {
       ageRef.current.focus();
       return;
-    } else if (personnel === "" || isNaN(personnel)) {
+    } else if (!parseInt(personnelRef.current.value, 10) || isNaN(parseInt(personnelRef.current.value, 10))) {
       personnelRef.current.focus();
       return;
     } else if (!file) {
-      setFileError(true); // set fileError to true if file is not selected
-      fileRef.current.focus();
+      setModalMessage("사진을 올려주세요.");
+      setShowModal(true);
+      setTimeout(() => {
+        setShowModal(false);
+      }, 2000);
       return;
     } else if (window.confirm("게시글을 등록하시겠습니까?")) {
       onCreate_Companion(
-        title,
-        location,
-        finalGender,
-        age,
-        start_date,
-        finish_date,
-        personnel,
+        titleRef.current.value,
+        locationRef.current.value,
+        gender,
+        ageRef.current.value,
+        start_dateRef.current.value,
+        finish_dateRef.current.value,
+        personnelRef.current.value,
         file,
-        content,
-        tag
+        contentRef.current.value,
+        tagRef.current.value
       );
-      navigate("/Companion", { replace: true }); // 작성하는 페이지로 뒤로오기 금지
+      navigate("/Companion", { replace: true });
     }
   };
 
@@ -127,193 +109,179 @@ const Companion_Write = () => {
   return (
     <Container>
       <Section>
-        <Header>
-          <MyButton
-            className="back_btn"
-            text={"<"}
-            onClick={() => navigate(-1)}
-          />
-          <MyButton
-            className="complete_btn"
-            text={"등록"}
-            onClick={handleSubmit}
-          />
-        </Header>
+        <Navigation>
+          <Header>
+            <button className="back_btn" onClick={() => navigate(-1)}>
+              {"<"}
+            </button>
+            <button className="complete_btn" onClick={handleSubmit}>
+              등록
+            </button>
+          </Header>
+        </Navigation>
       </Section>
 
       <Section>
         <InputContainer>
-          <InputLabel>제목</InputLabel>
-          <Input
-            name="title"
-            placeholder="제목을 입력하세요"
-            ref={titleRef}
-            value={title}
-            onChange={onChange}
-          />
+          <Title>제목</Title>
+          <Input name="title" placeholder="제목을 입력하세요" ref={titleRef} />
         </InputContainer>
 
         <InputContainer>
           <InputLabel>위치</InputLabel>
-          <Input
-            name="location"
-            placeholder="위치를 입력하세요"
-            ref={locationRef}
-            value={location}
-            onChange={onChange}
-          />
+          <Input name="location" placeholder="위치를 입력하세요" ref={locationRef} />
         </InputContainer>
 
         <InputContainer>
           <InputLabel>성별</InputLabel>
           <RadioContainer>
-            <RadioButton
-              type="radio"
-              name="gender"
-              checked={gender === "man"}
-              value="man"
-              onChange={onChange}
-            />
+            <RadioButton type="radio" name="gender" checked={gender === "man"} value="남자" onChange={handleGenderChange}/>
             <RadioLabel>남성</RadioLabel>
-            <RadioButton
-              type="radio"
-              name="gender"
-              value="girl"
-              checked={gender === "girl"}
-              onChange={onChange}
-            />
+            <RadioButton type="radio" name="gender" value="여자" checked={gender === "girl"} onChange={handleGenderChange} />
             <RadioLabel>여성</RadioLabel>
           </RadioContainer>
         </InputContainer>
 
         <InputContainer>
           <InputLabel>나이</InputLabel>
-          <Select
-            name="age"
-            ref={ageRef}
-            value={age}
-            onChange={onChange}
-            error={ageError}
-          >
+          <Select name="age" ref={ageRef}>
             <option value="">선택하세요</option>
-            <option value="10s">10대</option>
-            <option value="20s">20대</option>
-            <option value="30s">30대</option>
-            <option value="40s">40대</option>
-            <option value="50s">50대</option>
-            <option value="60s">60대</option>
+            <option value="10대">10대</option>
+            <option value="20대">20대</option>
+            <option value="30대">30대</option>
+            <option value="40대">40대</option>
+            <option value="50대">50대</option>
+            <option value="60대">60대</option>
           </Select>
         </InputContainer>
 
         <InputContainer>
           <InputLabel>여행기간</InputLabel>
           <DateContainer>
-            <DateInput
-              type="date"
-              name="start_date"
-              ref={start_dateRef}
-              value={start_date}
-              onChange={onChange}
-            />
+            <DateInput type="date" name="start_date" ref={start_dateRef} />
             <DateSeparator>~</DateSeparator>
-            <DateInput
-              type="date"
-              name="finish_date"
-              ref={finish_dateRef}
-              value={finish_date}
-              onChange={onChange}
-            />
+            <DateInput type="date" name="finish_date" ref={finish_dateRef} />
           </DateContainer>
         </InputContainer>
 
         <InputContainer>
           <InputLabel>모집인원</InputLabel>
-          <Input
-            type="text"
-            name="personnel"
-            placeholder="모집인원(숫자만 입력가능)"
-            ref={personnelRef}
-            value={personnel}
-            onChange={onChange}
-          />
+          <Input type="text" name="personnel" placeholder="모집인원(숫자만 입력가능)" ref={personnelRef} />
         </InputContainer>
 
         <InputContainer>
           <PhotoContainer>
             {file ? (
               <Preview>
-                <ProfilePreview
-                  src={previewURL}
-                  alt="uploaded"
-                  ref={fileInput}
-                />
+                <ProfilePreview src={previewURL} alt="uploaded" ref={fileInput} />
+                <EditButton onClick={() => handleEdit()}> 사진수정 </EditButton>
               </Preview>
             ) : (
-              <>
-                <UploadInput
-                  type="file"
-                  name="photo"
-                  id="photo"
-                  accept="image/*"
-                  ref={fileRef}
-                  onChange={onFileInput}
-                  error={fileError}
-                />
-
-                <Upload htmlFor="photo">
-                  배경사진
-                  <p>(최소 한장을 올려주세요!)</p>
-                </Upload>
-              </>
+              <Upload>
+                <UploadInput type="file" name="photo" id="photo" accept="image/*" ref={fileRef} onChange={onFileInput} />
+                <UploadButton type="submit">
+                    <p className="text1"> 사진 올리기 </p>
+                    <p className="text2"> (1장) </p>
+                </UploadButton>
+              </Upload>
+              
             )}
           </PhotoContainer>
         </InputContainer>
 
         <InputContainer>
           <InputLabel>내용</InputLabel>
-          <ContentTextarea
-            name="content"
-            placeholder="내용 입력"
-            ref={contentRef}
-            value={content}
-            onChange={onChange}
-          />
+          <ContentTextarea name="content" placeholder="내용을 입력하세요." value={content} ref={contentRef} onChange={(e)=>handleInput(e)}/>
         </InputContainer>
 
         <InputContainer>
           <InputLabel>태그</InputLabel>
-          <Input
-            type="text"
-            name="tag"
-            placeholder="태그를 입력하세요"
-            ref={tagRef}
-            value={tag}
-            onChange={onChange}
-          />
+          <Input type="text" name="tag" placeholder="태그를 입력하세요" ref={tagRef} />
         </InputContainer>
       </Section>
+      {showModal && <Modal>{modalMessage}</Modal>}
     </Container>
   );
 };
 
 const Container = styled.div`
-  padding: 20px;
+  position: relative;
+  margin-bottom: 50px;
 `;
 
 const Section = styled.section`
   margin-bottom: 20px;
 `;
 
+const Navigation = styled.div`
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  overflow-y: auto;
+`;
+
 const Header = styled.div`
+  position: fixed;
+  top: 0;
+  width: 640px;
+  height: 70px;
+  z-index: 100; // Optional: ensure the header is always on top
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 10px;
   border-bottom: 1px solid #dadada;
+  background-color: white;
+
+  button {
+    box-sizing: border-box;
+    appearance: none;
+    background-color: transparent;
+    border: 2px solid #f97800;
+    border-radius: 0.6em;
+    color: #f97800;
+    cursor: pointer;
+    align-self: center;
+    font-size: 16px;
+    font-family: "Nanum Gothic", sans-serif;
+    line-height: 1;
+    margin: 20px;
+    padding: 0.6em 2em;
+    text-decoration: none;
+    letter-spacing: 2px;
+    font-weight: 700;
+
+    &:hover,
+    &:focus {
+      color: #fff;
+      outline: 0;
+    }
+    transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+    &:hover {
+      box-shadow: 0 0 40px 40px #f97800 inset;
+    }
+
+    &:focus:not(:hover) {
+      color: #f97800;
+      box-shadow: none;
+    }
+  }
+  button.back_btn {
+    padding: 0.6em 1em;
+  }
+`;
+const InputContainer = styled.div`
+  margin-bottom: 20px;
+  padding-right: 20px;
+  padding-left: 20px;
 `;
 
-const InputContainer = styled.div`
-  margin-bottom: 10px;
+const Title = styled.label`
+  margin-top: 100px; // Adjust as needed to account for the height of the Header
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 5px;
+  font-weight: bold;
 `;
 
 const InputLabel = styled.label`
@@ -324,9 +292,8 @@ const InputLabel = styled.label`
 
 const Input = styled.input`
   width: 100%;
-  padding: 8px;
-  border: 1px solid #dadada;
-  border-radius: 4px;
+  border:none;
+  border-bottom: 1px solid #dadada;
   outline: none;
 `;
 
@@ -361,7 +328,7 @@ const DateSeparator = styled.div`
 `;
 
 const PhotoContainer = styled.div`
-  position: relative;
+ 
 `;
 
 const UploadInput = styled.input`
@@ -371,44 +338,81 @@ const UploadInput = styled.input`
   width: 100%;
   height: 100%;
   color: transparent;
+  cursor: pointer;
 
   &::-webkit-file-upload-button {
     display: none;
   }
-
-  border: ${(props) => (props.error ? "1px solid red" : "1px solid #dadada")};
-  transition: border-color 0.3s ease;
-
-  &:focus {
-    border-color: #3875d7;
-  }
 `;
 
-const Upload = styled.label`
-  display: block;
-  margin-top: 10px;
-  padding: 8px;
+const UploadButton = styled.button`
+  flex: 1 1 auto;
+  padding: 100px 0px;
+  width: 100%;
+  height: 100%;
+  margin-right: 20px;
   text-align: center;
   color: #a4acb3;
   font-weight: bold;
-  cursor: pointer;
-  border: 1px solid #dadada;
-  border-radius: 4px;
-  background-color: ${({ theme }) => theme.backgroundGrey};
+  border: none;
 
-  i {
-    display: block;
-    font-size: 18px;
+  background: linear-gradient(to right, #ccc 50%, rgba(255, 255, 255, 0) 0%),
+    linear-gradient(#ccc 50%, rgba(255, 255, 255, 0) 0%),
+    linear-gradient(to right, #ccc 50%, rgba(255, 255, 255, 0) 0%),
+    linear-gradient(#ccc 50%, rgba(255, 255, 255, 0) 0%);
+  background-position: top, right, bottom, left;
+  background-repeat: repeat-x, repeat-y;
+  background-size: 10px 1px, 1px 10px;
+  background-color: #f0f0f0;
+
+  &:hover {
+    opacity: 0.5;
   }
 
-  p {
-    font-size: 12px;
+  p.text1 {
+    font-size: 15px;
     margin-top: 5px;
+    margin-bottom: 0px;
+    font-family: "Nanum Gothic", sans-serif;
+  }
+  p.text2 {
+    font-size: 10px;
+    margin-top: 0px;
+    font-family: "Nanum Gothic", sans-serif;
   }
 `;
 
+const Upload = styled.div`
+position: relative;
+flex: 1 1 auto;
+
+@media screen and (max-width: 64px) {
+  width: 100%;
+}
+`
+
+
 const Preview = styled.div`
   margin-bottom: 10px;
+  text-align: center;
+`;
+
+const EditButton = styled.button`
+  font-size: 15px;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #333333;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: "Nanum Gothic", sans-serif;
+  letter-spacing: 1px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    opacity: 0.5;
+  }
 `;
 
 const ProfilePreview = styled.img`
@@ -418,24 +422,46 @@ const ProfilePreview = styled.img`
 
 const ContentTextarea = styled.textarea`
   width: 100%;
-  padding: 8px;
   border: 1px solid #dadada;
   border-radius: 4px;
   outline: none;
   resize: vertical;
+  height: 50px;
+  font-size: 16px;
+
+  border: none;
+  outline: none;
+  resize: none;
+  letter-spacing: 1px;
+  line-height: 28px;
+  font-family: "Noto Sans KR", sans-serif;
 `;
+
+
 const Select = styled.select`
   width: 100%;
   padding: 8px;
   border: 1px solid #dadada;
   border-radius: 4px;
   outline: none;
-  border: ${(props) => (props.error ? "1px solid red" : "1px solid #dadada")};
   transition: border-color 0.3s ease;
 
   &:focus {
     border-color: #3875d7;
   }
+`;
+
+const Modal = styled.div`
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 80%;
+  transform: translate(-50%, -50%);
+  background-color: #333333;
+  color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 `;
 
 export default Companion_Write;

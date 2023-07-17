@@ -1,7 +1,7 @@
 const tUpload = require('../models/uploadModel');
 const cUpload = require('../models/uploadModel');
-const jwt = require("jsonwebtoken");
 const path=require('path');
+const axios = require('axios'); // HTTP 통신을 위한 라이브러리
 
 async function uploadpost(req, res) {
   if (!req.files) {
@@ -206,6 +206,31 @@ async function companionUpdatePost(req, res) {
     }
  
 }
+async function searchKeyword(req, res)  {
+  try {
+    const query = req.query.query;
+
+    const headers = {
+      Authorization: `KakaoAK ${process.env.KAKAO_API_KEY}`,
+    };
+
+    const response = await axios.get(
+      `https://dapi.kakao.com/v2/local/search/keyword.json`,
+      { params: { query }, headers }
+    );
+
+    // 각 장소의 이름, 위도, 경도를 포함한 객체를 반환
+    res.json(response.data.documents.map((document) => ({
+      place_name: document.place_name,
+      x: document.x,
+      y: document.y,
+    })));
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('주소 검색에서 문제가 발생했습니다.');
+  }
+};
 
 
-module.exports = { uploadpost, deletepost, updatePost,companionUploadpost,companionDeletepost,companionUpdatePost };
+
+module.exports = { uploadpost, deletepost, updatePost,companionUploadpost,companionDeletepost,companionUpdatePost,searchKeyword };
