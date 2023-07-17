@@ -16,7 +16,9 @@ try {
       userID: user.userID,
       postDate: new Date(),
       location: jsonData.location,
-      title: jsonData.title
+      title: jsonData.title,
+      x : jsonData.x,
+      y : jsonData.y
     });
     const tpostID = posting.getDataValue('tpostID'); // 위에서 저장한 게시물의 tpostID를 받아옴
     console.log(tpostID);
