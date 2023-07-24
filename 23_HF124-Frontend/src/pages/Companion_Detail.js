@@ -1,6 +1,5 @@
 import { useEffect, useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { CompanionStateContext } from "../App";
 import styled from "styled-components";
 import Detail_Nav from "../components/Detail_Nav";
 import axios from "axios";
