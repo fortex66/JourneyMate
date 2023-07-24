@@ -1,41 +1,90 @@
 import { useEffect, useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { CompanionStateContext } from "../App";
 import styled from "styled-components";
 import Detail_Nav from "../components/Detail_Nav";
+import axios from "axios";
 
 const Companion_Detail = () => {
-  const { id } = useParams();
-  //const companion_list = useContext(CompanionStateContext);
+  const { postId } = useParams(); 
   const navigate = useNavigate();
   const [data, setData] = useState();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
 
-  // useEffect(() => {
-  //   if (companion_list.length >= 1) {
-  //     const targetCommunity = companion_list.find(
-  //       (it) => parseInt(it.id) === parseInt(id)
-  //     );
+  const baseURL = "http://localhost:3000/";
 
-  //     if (targetCommunity) {
-  //       //일기가 존재할 때
-  //       setData(targetCommunity);
-  //     } else {
-  //       //일기가 없을 때
-  //       alert("없는 글입니다.");
-  //       navigate("/Community", { replace: true });
-  //     }
-  //   }
-  // }, [id, companion_list]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        
+        const responsePost = await axios.get(baseURL + `companion/${postId}`); // postId를 API 호출에 사용하여 게시글 데이터 가져오기
+        setData(responsePost.data);
+        console.log(responsePost);
+        const responseComments = await axios.get(baseURL + `companion/comments/${postId}`); // postId를 API 호출에 사용하여 댓글 데이터 가져오기
+        setComments(responseComments.data);
+          
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  },[]);
 
   const handleNewCommentChange = (event) => {
     setNewComment(event.target.value);
   };
 
   const addComment = () => {
-    setComments([...comments, newComment]);
-    setNewComment("");
+    const newCommentObject = {
+      contents: newComment,
+      commentDate: new Date().toISOString(),
+    };
+  
+    const cpostID = window.location.pathname.split("/").pop();
+    axios
+    .post(
+      `http://localhost:3000/companion/comments/${cpostID}`, 
+      newCommentObject,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+        },
+      }
+    )
+    .then(function (response) {
+      console.log(response);
+      setComments(prevComments => [...prevComments, response.data]);
+      setNewComment("");  // 댓글 작성 후 작성창을 비웁니다.
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  };
+
+  const deleteComment = (ccommentID) => {
+    const cpostID = window.location.pathname.split("/").pop();
+    axios
+      .delete(`http://localhost:3000/companion/comments/${cpostID}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` // JWT 토큰을 Authorization 헤더에 포함시킵니다.
+        },
+        data: {
+          ccommentID: ccommentID,
+        },
+      })
+      .then(function (response) {
+        console.log(response);
+        // 서버에서 성공적으로 삭제되면 클라이언트에서도 삭제
+        const newComments = comments.filter(comment => comment.ccommentID !== ccommentID);
+        setComments(newComments);
+      })
+      .catch(function (error) {
+        console.log(error);
+        // 권한이 없는 경우 사용자에게 알림
+        if (error.response && error.response.status === 403) {
+          alert('댓글을 삭제할 권한이 없습니다.');
+        }
+      });
   };
 
   // 데이터가 없을때
@@ -47,39 +96,32 @@ const Companion_Detail = () => {
         <Top>
           <StyledButton onClick={() => navigate(-1)}>{"<"}</StyledButton>
         </Top>
-        <Title>{data.title}</Title>
+        <Title>{data && data.post.title}</Title>
         <Info>
-          위치 : {data.location}
+          위치 : {data && data.post.location}
           <br />
-          태그 : {data.tag}
+          {/* 태그 : {data && data.post.tag} */}
           <br />
-          성별 : {data.gender}
+          성별 : {data && data.post.pgender}
           <br />
-          나이 : {data.age}
+          나이 : {data && data.post.age}
           <br />
-          여행시작날짜 : {data.start_date}
+          여행시작날짜 : {data && data.post.startDate}
           <br />
-          여행종료날짜 : {data.finish_date}
+          여행종료날짜 : {data && data.post.finishDate}
           <br />
-          여행인원 : {data.personnel}
+          여행인원 : {data && data.post.personnel}
         </Info>
         <div>
-          {data.photo && (
-            <div>
-              <Main>
-                <img
-                  src={URL.createObjectURL(data.photo)}
-                  width="250"
-                  height="250"
-                  alt="post"
-                />
-              </Main>
-              <Content>{data.content}</Content>
-            </div>
-          )}
+        {data && data.post.post_images.map((posts,index)=>(
+          <Main>
+          <img src={`${baseURL}${data && data.post.post_images[0].imageURL.replace(/\\/g, '/')}`} style={{ maxWidth: "600px", height: "auto" }} />
+          <Content>{data && data.post.content}</Content>
+        </Main>
+        ))}
         </div>
         <CommentSection>
-          <h3>댓글</h3>
+      <h3>댓글</h3>
           <CommentInput>
             <textarea
               value={newComment}
@@ -90,7 +132,24 @@ const Companion_Detail = () => {
           </CommentInput>
           <CommentList>
             {comments.map((comment, index) => (
-              <Comment key={index}>{comment}</Comment>
+              <Comment key={index}>
+                <CommentContent>
+                  {comment.userID}: {comment.contents}
+                  <CommentDate>
+                    {comment.commentDate ? new Intl.DateTimeFormat('ko-KR', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit'
+                    }).format(new Date(comment.commentDate)) : ''}
+                  </CommentDate>
+                </CommentContent>
+                <Button>
+                  <button onClick={() => deleteComment(comment.ccommentID)}>삭제</button>
+                </Button>
+              </Comment>
             ))}
           </CommentList>
         </CommentSection>
@@ -99,7 +158,10 @@ const Companion_Detail = () => {
     );
   }
 };
-
+const CommentDate = styled.div`
+  font-size: 0.8em;
+  color: gray;
+`;
 const Page = styled.div`
   margin-top: 40px;
 `;
@@ -114,7 +176,9 @@ const Title = styled.div`
   font-weight: bold;
   font-size: 20px;
 `;
-
+const CommentContent = styled.div`
+  white-space: pre-wrap; // 띄어쓰기와 줄바꿈을 유지하면서 필요한 경우에만 줄바꿈
+`;
 const Info = styled.div`
   margin-left: 20px;
   margin-right: 20px;
@@ -149,6 +213,11 @@ const CommentInput = styled.div`
     resize: none;
   }
 `;
+const Button = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 
 const CommentList = styled.div`
   margin-top: 20px;
@@ -159,6 +228,8 @@ const Comment = styled.div`
   background-color: #f0f0f0;
   margin-bottom: 10px;
   border-radius: 5px;
+  display: flex;
+  justify-content: space-between; // 삭제 버튼을 오른쪽 끝으로 밀어내기 위해 추가
 `;
 
 const StyledButton = styled.button`

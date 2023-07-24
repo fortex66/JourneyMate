@@ -107,43 +107,47 @@ async function updatePost(req, res) {
 //동행인 관련 게시글 기능
 async function companionUploadpost(req, res) {
   if (!req.files) {
-    return res.status(400).send({message: "No files uploaded"}); // 저장 폴더가 없을 시 에러
-}
+    return res.status(400).send({message: "No files uploaded"});
+  }
 
-try {
-    const user=req.decode; // 유저 토큰의 정보 저장
-    // 요청 데이터로 받은 게시물 정보를 travel_post 테이블에 저장
-    await cUpload.cPost.create({
-      cpostID: req.body.cpostID,  
+  try {
+    const user=req.decode;
+    const jsonData = JSON.parse(req.body.jsonData);
+
+    // 게시물을 생성하고 생성된 게시물의 정보를 가져옵니다.
+    const posting = await cUpload.cPost.create({
       userID: user.userID,
       postDate: new Date(),
-      startDate : req.body.startDate,
-      finishDate : req.body.finishDate,
-      location: req.body.location,
-      age : req.body.age,
-      pgender : req.body.pgender,
-      content : req.body.content,
-      personnel : req.body.personnel,
-      title: req.body.title
+      startDate: jsonData.startDate,
+      finishDate: jsonData.finishDate,
+      location: jsonData.location,
+      age: jsonData.age,
+      pgender: jsonData.pgender,
+      content: jsonData.content,
+      personnel: jsonData.personnel,
+      title: jsonData.title,
     });
-    // 게시물 이미지를 저장
+
+    // 생성된 게시물의 ID를 가져옵니다.
+    const cpostID = posting.getDataValue('cpostID');
+
+    // 이미지를 저장합니다.
     req.files.forEach(async (file, index) => {
       const imageUrl = path.join(file.destination, file.filename);
       await cUpload.cPostImage.create({
         imageURL: imageUrl,
-        cpostID: req.body.cpostID
+        cpostID: cpostID
       });
-      
-      }
-    )
-    
+    });
+
     res.status(200).send({ message: "cPosts saved successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).send({ message: "Error saving cposts" });
   }
-
 }
+
+
 // JWT 토큰으로 검증을 완료한 사용자의 게시물을 삭제하는 메서드
 async function companionDeletepost(req, res) {
   let param=req.params.cpostid;
