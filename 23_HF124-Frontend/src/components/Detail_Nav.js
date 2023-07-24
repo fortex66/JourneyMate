@@ -10,6 +10,9 @@ import { faShareSquare as faShareSquareRegular } from "@fortawesome/free-regular
 import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
 import { faBookmark as faBookmarkSolid } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+
+const baseURL = "http://localhost:3000/";
 
 const baseURL = "http://localhost:3000/";
 
@@ -84,7 +87,7 @@ const Detail_Nav = () => {
         <BottomBox>
           <NavBox>
             <FontAwesomeIcon
-              icon={activeHeart ? faHeartSolid : faHeartRegular}
+              icon={activeHeart ? faHeartRegular:faHeartSolid}
               size="2x"
               onClick={handleHeartClick}
               color={activeHeart ? "red" : ""}
