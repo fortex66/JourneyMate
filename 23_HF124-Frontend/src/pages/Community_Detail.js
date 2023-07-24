@@ -19,7 +19,7 @@ const Community_Detail = () => {
       try {
         const responsePost = await axios.get(baseURL + `community/${postId}`); // postId를 API 호출에 사용하여 게시글 데이터 가져오기
         setData(responsePost.data);
-  
+        console.log(responsePost);
         const responseComments = await axios.get(baseURL + `community/comments/${postId}`); // postId를 API 호출에 사용하여 댓글 데이터 가져오기
         setComments(responseComments.data);
           
@@ -139,7 +139,7 @@ const Community_Detail = () => {
                 </CommentDate>
               </CommentContent>
               <Button>
-                <button onClick={() => deleteComment(comment.tcommentId)}>삭제</button>
+                <button onClick={() => deleteComment(comment.ccommentID)}>삭제</button>
               </Button>
             </Comment>
           ))}
