@@ -45,38 +45,6 @@ const tComment = sequelize.define('tcomments', {
   modelName: 'tcomments'
 });
 
-// 동행인 댓글 관련
-const cComment = sequelize.define('ccomments', {
-  // Assuming postId and userId are the foreign keys from post and user table.
-  ccommentId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  userId: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  contents: {
-    type: DataTypes.TEXT,
-    allowNull: true,
-  },
-  contentDate: {
-    type: DataTypes.TIME,
-    allowNull: true,
-  },
-  cpostID: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  }
 
-  
-}, {
-  // 다른 옵션들 기입
-  timestamps: false, // 기본 옵션으로 선택되는 설정을 취소하기 위해
-  sequelize, 
-  modelName: 'ccomments'
-});
 
-module.exports = {tComment,cComment};
+module.exports = {tComment};

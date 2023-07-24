@@ -62,7 +62,7 @@ const Companion_Detail = () => {
     });
   };
 
-  const deleteComment = (ccommentId) => {
+  const deleteComment = (ccommentID) => {
     const cpostID = window.location.pathname.split("/").pop();
     axios
       .delete(`http://localhost:3000/companion/comments/${cpostID}`, {
@@ -70,13 +70,13 @@ const Companion_Detail = () => {
           'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` // JWT 토큰을 Authorization 헤더에 포함시킵니다.
         },
         data: {
-          ccommentId: ccommentId,
+          ccommentID: ccommentID,
         },
       })
       .then(function (response) {
         console.log(response);
         // 서버에서 성공적으로 삭제되면 클라이언트에서도 삭제
-        const newComments = comments.filter(comment => comment.ccommentId !== ccommentId);
+        const newComments = comments.filter(comment => comment.ccommentID !== ccommentID);
         setComments(newComments);
       })
       .catch(function (error) {
@@ -115,9 +115,9 @@ const Companion_Detail = () => {
         </Info>
         <div>
         {data && data.post.post_images.map((posts,index)=>(
-          <Main key={index}>
-          <img src={`${baseURL}${posts.imageURL.replace(/\\/g, '/')}`} style={{ maxWidth: "600px", height: "auto" }} />
-          <Content>{posts.content}</Content>
+          <Main>
+          <img src={`${baseURL}${data && data.post.post_images[0].imageURL.replace(/\\/g, '/')}`} style={{ maxWidth: "600px", height: "auto" }} />
+          <Content>{data && data.post.content}</Content>
         </Main>
         ))}
         </div>
@@ -137,18 +137,18 @@ const Companion_Detail = () => {
                 <CommentContent>
                   {comment.userID}: {comment.contents}
                   <CommentDate>
-                    {new Intl.DateTimeFormat('ko-KR', {
+                    {comment.commentDate ? new Intl.DateTimeFormat('ko-KR', {
                       year: 'numeric',
                       month: 'long',
                       day: '2-digit',
                       hour: '2-digit',
                       minute: '2-digit',
                       second: '2-digit'
-                    }).format(new Date(comment.commentDate))}
+                    }).format(new Date(comment.commentDate)) : ''}
                   </CommentDate>
                 </CommentContent>
                 <Button>
-                  <button onClick={() => deleteComment(comment.ccommentId)}>삭제</button>
+                  <button onClick={() => deleteComment(comment.ccommentID)}>삭제</button>
                 </Button>
               </Comment>
             ))}

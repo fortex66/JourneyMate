@@ -10,7 +10,7 @@ const Companion = () => {
 
   /* 상세페이지 이동 */
   const goDetail = (postId) => { // postId 인자 추가
-    console.log(postId)
+
     navigate(`/Companion_Detail/${postId}`); // postId를 경로의 일부로 사용
   };
 
@@ -21,7 +21,6 @@ const Companion = () => {
       try {
         const response = await axios.get(baseURL + "companion/");
         setData(response.data);
-        console.log(response.data.posts.rows[0].cpostID);
       } catch (error) {
         console.log(error);
       }
