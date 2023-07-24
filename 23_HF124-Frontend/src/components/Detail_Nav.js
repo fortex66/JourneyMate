@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../pages/listForm.css";
 import styled from "styled-components";
+import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { faComment as faCommentRegular } from "@fortawesome/free-regular-svg-icons";
@@ -13,17 +14,41 @@ import axios from "axios";
 
 const baseURL = "http://localhost:3000/";
 
+const baseURL = "http://localhost:3000/";
+
 const Detail_Nav = () => {
   const [activeHeart, setActiveHeart] = useState(false);
   const [activeComment, setActiveComment] = useState(false);
   const [activeBookmark, setActiveBookmark] = useState(false);
 
+  const checkLikeStatus = async () => {
+    const tpostID = window.location.pathname.split("/").pop();
+
+    try {
+      const response = await axios.get(baseURL + `like/status`, {
+        params: {
+          tpostID: tpostID,
+        },
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
+        },
+      });
+
+      setActiveHeart(response.data.isLiked);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    checkLikeStatus();
+  }, []);
+
   const handleHeartClick = async () => {
     setActiveHeart(!activeHeart);
-  
-    // 게시글 ID를 URL에서 받아옵니다.
+
     const tpostID = window.location.pathname.split("/").pop();
-  
+
     try {
       const response = await axios.post(baseURL + `like`,
         {
@@ -35,7 +60,7 @@ const Detail_Nav = () => {
           },
         }
       );
-  
+
       console.log(response.data);
     } catch (error) {
       console.error(error);
@@ -51,7 +76,7 @@ const Detail_Nav = () => {
   };
 
   const copyLinkToClipboard = async () => {
-    const url = window.location.href; // 또는 원하는 URL을 지정할 수 있습니다.
+    const url = window.location.href;
     await navigator.clipboard.writeText(url);
     alert("링크가 복사되었습니다!");
   };
@@ -64,8 +89,8 @@ const Detail_Nav = () => {
             <FontAwesomeIcon
               icon={activeHeart ? faHeartRegular:faHeartSolid}
               size="2x"
-              onClick={() => handleHeartClick()}
-              color={activeHeart ? "" : "red"}
+              onClick={handleHeartClick}
+              color={activeHeart ? "red" : ""}
             />
           </NavBox>
 
@@ -73,7 +98,7 @@ const Detail_Nav = () => {
             <FontAwesomeIcon
               icon={activeComment ? faCommentSolid : faCommentRegular}
               size="2x"
-              onClick={() => handleCommentClick()}
+              onClick={handleCommentClick}
               color={activeComment ? "#F97800" : ""}
             />
           </NavBox>
@@ -82,7 +107,7 @@ const Detail_Nav = () => {
             <FontAwesomeIcon
               icon={activeBookmark ? faBookmarkSolid : faBookmarkRegular}
               size="2x"
-              onClick={() => handleBookmarkClick()}
+              onClick={handleBookmarkClick}
               color={activeBookmark ? "#FFE600" : ""}
             />
           </NavBox>
@@ -91,7 +116,7 @@ const Detail_Nav = () => {
             <FontAwesomeIcon
               icon={faShareSquareRegular}
               size="2x"
-              onClick={() => copyLinkToClipboard()}
+              onClick={copyLinkToClipboard}
             />
           </NavBox>
         </BottomBox>
