@@ -1,6 +1,7 @@
 import React, { useContext, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import axios from "axios";
 import { CompanionDispatchContext } from "../App";
 
 const Companion_Write = () => {
@@ -13,7 +14,9 @@ const Companion_Write = () => {
   const tagRef = useRef();
   const ageRef = useRef();
   const fileRef = useRef();
+
   const navigate = useNavigate();
+  const [locationList, setLocationList] = useState([]);
 
   //const { onCreate_Companion } = useContext(CompanionDispatchContext);
 
@@ -22,9 +25,38 @@ const Companion_Write = () => {
   const [previewURL, setPreviewURL] = useState("");
   const [file, setFile] = useState();
   const fileInput = useRef();
-  const [gender, setGender] = useState("man");
+  const [gender, setGender] = useState("남자");
   const [content, setContent] = useState(""); // Set the initial value of content
+  const [selectedLocation, setSelectedLocation] = useState({});
 
+  //위치를 입력 받을때 kakaoapi를 활용하기 위함
+  const searchLocation = async () => {
+    const query = locationRef.current.value;
+  
+    if (!query.trim()) { // 입력값이 비어있는 경우 API 호출을 막습니다.
+      setLocationList([]); // 위치 목록을 초기화하면서 자동완성 리스트를 비웁니다.
+      return; // 빈 문자열인 경우 함수를 여기서 종료합니다.
+    }
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/community/posts/search-keyword?query=${locationRef.current.value}`
+      );
+      if (response.status === 200) {
+        // response.data가 배열인지 확인하고, 배열이 아니면 빈 배열로 설정
+        setLocationList(Array.isArray(response.data) ? response.data : []);
+      } else {
+        console.error("주소 검색 실패", response.status);
+      }
+    } catch (error) {
+      console.error("주소를 검색하는 도중 에러가 발생했습니다", error);
+    }
+  };
+
+  const handleLocationSelect = (location) => {
+    locationRef.current.value = location.place_name;
+    setSelectedLocation({x: location.x, y: location.y});
+    setLocationList([]);
+  };
 
   const handleGenderChange = (e) => {
     setGender(e.target.value);
@@ -78,19 +110,31 @@ const Companion_Write = () => {
       }, 2000);
       return;
     } else if (window.confirm("게시글을 등록하시겠습니까?")) {
-      // onCreate_Companion(
-      //   titleRef.current.value,
-      //   locationRef.current.value,
-      //   gender,
-      //   ageRef.current.value,
-      //   start_dateRef.current.value,
-      //   finish_dateRef.current.value,
-      //   personnelRef.current.value,
-      //   file,
-      //   contentRef.current.value,
-      //   tagRef.current.value
-      // );
-      navigate("/Companion", { replace: true });
+      const formData = new FormData();
+      formData.append("files", file);
+      const jsonData = {
+        title: titleRef.current.value,
+        location: locationRef.current.value,
+        startDate: start_dateRef.current.value,
+        finishDate: finish_dateRef.current.value,
+        pgender: gender,
+        age: ageRef.current.value,
+        personnel: personnelRef.current.value,
+        content: contentRef.current.value
+      };
+      formData.append("jsonData", JSON.stringify(jsonData));
+      axios
+      .post("http://localhost:3000/companion/cupload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data", 
+        },
+      })
+      .then(() => {
+        navigate("/Companion", { replace: true });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
     }
   };
 
@@ -129,15 +173,20 @@ const Companion_Write = () => {
 
         <InputContainer>
           <InputLabel>위치</InputLabel>
-          <Input name="location" placeholder="위치를 입력하세요" ref={locationRef} />
+          <Input name="location" placeholder="위치를 입력하세요" ref={locationRef} onChange={searchLocation} />
+          {locationList.map((location, i) => (
+                <li key={i} onClick={() => handleLocationSelect(location)}>
+                {location.place_name}
+              </li>
+          ))}
         </InputContainer>
 
         <InputContainer>
           <InputLabel>성별</InputLabel>
           <RadioContainer>
-            <RadioButton type="radio" name="gender" checked={gender === "man"} value="남자" onChange={handleGenderChange}/>
+            <RadioButton type="radio" name="gender"  value="남자" onChange={handleGenderChange}/>
             <RadioLabel>남성</RadioLabel>
-            <RadioButton type="radio" name="gender" value="여자" checked={gender === "girl"} onChange={handleGenderChange} />
+            <RadioButton type="radio" name="gender"  value="여자" onChange={handleGenderChange} />
             <RadioLabel>여성</RadioLabel>
           </RadioContainer>
         </InputContainer>

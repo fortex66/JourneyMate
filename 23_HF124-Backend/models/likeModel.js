@@ -1,3 +1,4 @@
+//likeModel.js
 require('dotenv').config();
 
 const { Sequelize, DataTypes, Model } = require('sequelize');

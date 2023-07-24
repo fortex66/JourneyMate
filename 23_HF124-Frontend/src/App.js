@@ -115,7 +115,7 @@ function App() {
           <Route path="/Home" element={<Home />} />
           <Route path="/Community" element={<Community />} />
           <Route path="/Community_Detail/:postId" element={<Community_Detail />} />
-          <Route path="/Companion_Detail/:id" element={<Companion_Detail />} />
+          <Route path="/Companion_Detail/:postId" element={<Companion_Detail />} />
           <Route path="/Companion" element={<Companion />} />
           <Route path="/Chatting" element={<Chatting />} />
           <Route path="/Chat" element={<Chat />} />

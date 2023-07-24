@@ -1,3 +1,4 @@
+//commentController.js
 const tComment = require('../models/commentModel');
 
 // 커뮤니티 댓글 가져오기
@@ -54,9 +55,6 @@ async function deleteComment(req, res) {
     res.status(500).json({ message: '댓글을 삭제하는 동안 오류가 발생하였습니다.' });
   }
 }
-
-
-
 
 
 //동행인 댓글 작성
