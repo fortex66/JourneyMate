@@ -28,6 +28,7 @@ const Community_Detail = () => {
       }
     };
     fetchData();
+    
   },[]);
   
   const handleNewCommentChange = (event) => {

@@ -38,6 +38,10 @@ const tPost = sequelize.define('travel_posts', {
   title: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  likeCount: {  // likeCount 필드를 추가합니다
+    type: DataTypes.INTEGER,
+    allowNull: false
   }
 }, {
   // 다른 옵션들 기입
@@ -45,6 +49,7 @@ const tPost = sequelize.define('travel_posts', {
   sequelize, 
   modelName: 'travel_posts'
 });
+
 
 const tPostImage = sequelize.define('post_images', {
   // Assuming postId and userId are the foreign keys from post and user table.

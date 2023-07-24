@@ -2,11 +2,20 @@
 const tComment = require('../models/commentModel');
 const cComment = require('../models/ccommentModel');
 
+const { Sequelize} = require('sequelize');
+const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USERNAME, process.env.MYSQL_PASSWORD, {
+  host: process.env.MYSQL_HOST,
+  port: process.env.MYSQL_PORT,
+  dialect: 'mysql',
+});
+
+
 // 커뮤니티 댓글 가져오기
 async function getComments(req, res) {
   const tpostId = req.params.tpostID; // URL에서 게시글 ID 가져옴
   try {
     const comments = await tComment.tComment.findAll({ where: { tpostID: tpostId } });
+    await updateCommentCounts(tpostId);
     res.status(200).json(comments);
   } catch (error) {
     console.log(error)
@@ -17,8 +26,6 @@ async function getComments(req, res) {
 //커뮤니티 댓글 작성
 async function addComment(req, res) {
   const tpostId = req.params.tpostID; // URL에서 가져옴
-  console.log(req.body);
-  console.log(tpostId);
   try {
     const comment = await tComment.tComment.create({
       tcommentId : req.body.tcommentId, 
@@ -27,6 +34,9 @@ async function addComment(req, res) {
       tpostID : tpostId,
       commentDate : new Date()
     });
+
+    await updateCommentCounts(tpostId);
+
     res.status(200).json(comment);
   } catch (error) {
     console.log(error)
@@ -38,6 +48,7 @@ async function addComment(req, res) {
 // commentController.js
 async function deleteComment(req, res) {
   const tcommentId = req.body.tcommentId;
+  const tpostId = req.params.tpostID; // 이 줄을 추가
   // const userID = req.body.userID; // 요청 본문에서 userID를 가져오는 대신 인증 미들웨어에서 설정한 값을 사용합니다.
 
   try {
@@ -51,6 +62,7 @@ async function deleteComment(req, res) {
 
     // 댓글을 삭제합니다.
     await tComment.tComment.destroy({ where: { tcommentId: tcommentId } });
+    await updateCommentCounts(tpostId);
     res.status(200).json({ message: '댓글이 정상적으로 삭제되었습니다.' });
   } catch (error) {
     res.status(500).json({ message: '댓글을 삭제하는 동안 오류가 발생하였습니다.' });
@@ -72,8 +84,6 @@ async function companionGetComments(req, res) {
 //동행인 댓글 작성
 async function companionAddComment(req, res) {
   const cpostId = req.params.cpostID; // URL에서 가져옴
-  console.log(req.body);
-  console.log(cpostId);
   try {
     const comment = await cComment.cComment.create({
       ccommentID : req.body.ccommentID, 
@@ -110,5 +120,37 @@ async function companionDeleteComment(req, res) {
   }
 }
 
+async function updateCommentCounts(tpostID) {
+  let result = 0;
+  try {
+    // tcomments 테이블에서 게시글의 댓글 수를 계산합니다.
+    const commentCount = await sequelize.query(
+      `SELECT COUNT(*) as count 
+      FROM tcomments 
+      WHERE tpostID = :tpostID`,
+      { 
+        replacements: {tpostID : tpostID} ,
+        type: sequelize.QueryTypes.SELECT 
+      }
+    );
 
-module.exports = { addComment, deleteComment, getComments, companionAddComment,companionDeleteComment, companionGetComments };
+    // 게시글의 댓글 수를 travel_posts 테이블에 업데이트합니다.
+    await sequelize.query(
+      `UPDATE travel_posts SET commentCount = :count WHERE tpostID = :tpostID`,
+      {
+        replacements: { count: commentCount[0].count, tpostID },
+        type: sequelize.QueryTypes.UPDATE
+      }
+    );
+
+    result = commentCount[0].count;
+    console.log(result);
+  } catch (error) {
+    console.error(error);
+  }
+
+  return result;
+}
+
+
+module.exports = { addComment, deleteComment, getComments, companionAddComment,companionDeleteComment, companionGetComments,updateCommentCounts };
