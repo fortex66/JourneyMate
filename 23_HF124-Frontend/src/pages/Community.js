@@ -3,6 +3,8 @@ import styled from "styled-components";
 import Navigationbar from "../components/Navigationbar";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 
 const Community = () => {
   const [data, setData] = useState(null);
@@ -43,7 +45,13 @@ const Community = () => {
                     <img src={`${baseURL}${post.post_images[0].imageURL.replace(/\\/g, '/')}`} />
                   </div>
                 </Picture>
-                <Title>{post.title}</Title>
+                <Title>
+                  {post.title}
+                  <Titlebar>
+                    <FontAwesomeIcon icon={faHeartSolid} color="red" />
+                    {post.likeCount}
+                  </Titlebar>
+                </Title>
               </div>
             </CommunityItem>
           ))}
@@ -53,6 +61,7 @@ const Community = () => {
     </div>
   );
 };
+
 
 const CommunityBox = styled.div`
   margin-right: 20px;
@@ -83,6 +92,13 @@ const Title = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const Titlebar = styled.div`
+  padding-right : 0.5px
 `;
 
 const Picture = styled.div`

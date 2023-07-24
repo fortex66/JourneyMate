@@ -1,3 +1,4 @@
+//communityRoutes.js
 const express = require('express');
 const {upload}=require('../config');
 const uploadController = require('../controllers/uploadController');
@@ -11,6 +12,7 @@ const router = express.Router();
 router.post('/upload', upload.array('photos[]', 10),authMiddleware, uploadController.uploadpost);
 router.delete('/:tpostid', authMiddleware, uploadController.deletepost);
 router.put('/:tpostID', upload.array('photos[]', 10),authMiddleware, uploadController.updatePost);
+
 router.get('/',authMiddleware, postController.getlist);
 router.get('/:tpostID', upload.array('photos[]', 10),authMiddleware, postController.getpost);
 
@@ -19,9 +21,17 @@ router.get('/comments/:tpostID', authMiddleware, commentController.getComments);
 router.post('/comments/:tpostID', authMiddleware, commentController.addComment);
 router.delete('/comments/:tpostID', authMiddleware, commentController.deleteComment);
 
+router.get('/commentCount/:tpostID', async (req, res) => {
+    const tpostID = req.query.tpostID;
+    const count = await commentController.updateCommentCounts(tpostID);
+    res.status(200).json({ message: '댓글 갯수', commentCount: count });
+});
+
+
 
 // 게시글 작성시 키워드 검색으로 위치를 받아오기
 router.get('/posts/search-keyword', uploadController.searchKeyword);
+
 router.get('/posts', postController.getlist);
 router.get('/posts/:tpostID', postController.getpost);
 
