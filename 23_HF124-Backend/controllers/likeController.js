@@ -1,3 +1,4 @@
+//likeController.js
 const LikeModel = require('../models/likeModel');
 
 exports.onLike = async (req, res) => {
@@ -41,3 +42,5 @@ exports.onLike = async (req, res) => {
     res.status(500).json({ error: '요청을 처리하는 동안 오류가 발생하였습니다.' });
   }
 };
+
+module.exports = exports;

@@ -17,60 +17,80 @@ const Community_Detail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(baseURL + `community/${postId}`); // postId를 API 호출에 사용
-        setData(response.data);
-        
+        const responsePost = await axios.get(baseURL + `community/${postId}`); // postId를 API 호출에 사용하여 게시글 데이터 가져오기
+        setData(responsePost.data);
+  
+        const responseComments = await axios.get(baseURL + `community/comments/${postId}`); // postId를 API 호출에 사용하여 댓글 데이터 가져오기
+        setComments(responseComments.data);
+          
       } catch (error) {
         console.log(error);
       }
     };
     fetchData();
   },[]);
-
+  
   const handleNewCommentChange = (event) => {
     setNewComment(event.target.value);
   };
 
   const addComment = () => {
-    const newComments = [...comments, newComment];
-    setComments(newComments);
-    setNewComment("");
-
+    const newCommentObject = {
+      contents: newComment,
+      commentDate: new Date().toISOString(),
+    };
+  
     const tpostID = window.location.pathname.split("/").pop();
-    // 서버에게 POST 요청을 하여 댓글을 추가
     axios
-      .post(`http://localhost:3000/community/comments/${tpostID}`, {
-        tcommentId: newComments.length - 1, // ID는 인덱스를 기준으로 가정
-        contents: newComment,
-      })
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    .post(
+      `http://localhost:3000/community/comments/${tpostID}`, 
+      newCommentObject,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+        },
+      }
+    )
+    .then(function (response) {
+      console.log(response);
+      setComments(prevComments => [...prevComments, response.data]);
+      setNewComment("");  // 댓글 작성 후 작성창을 비웁니다.
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
   };
+  
+  
 
-  const deleteComment = (index) => {
-    const newComments = comments.filter((_, idx) => idx !== index);
-    setComments(newComments);
+  const deleteComment = (tcommentId) => {
     const tpostID = window.location.pathname.split("/").pop();
-    // 서버에게 DELETE 요청을 하여 댓글을 삭제
     axios
       .delete(`http://localhost:3000/community/comments/${tpostID}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` // JWT 토큰을 Authorization 헤더에 포함시킵니다.
+        },
         data: {
-          tcommentId: index,
-          // userId: "userId" // 필요한 경우
+          tcommentId: tcommentId,
         },
       })
       .then(function (response) {
         console.log(response);
+        // 서버에서 성공적으로 삭제되면 클라이언트에서도 삭제
+        const newComments = comments.filter(comment => comment.tcommentId !== tcommentId);
+        setComments(newComments);
       })
       .catch(function (error) {
         console.log(error);
+        // 권한이 없는 경우 사용자에게 알림
+        if (error.response && error.response.status === 403) {
+          alert('댓글을 삭제할 권한이 없습니다.');
+        }
       });
   };
-
+  
+  
+  
   // 데이터가 없을때
   return (
     <Page>
@@ -81,7 +101,7 @@ const Community_Detail = () => {
       <Info>
         위치 : {data && data.post.location}
         <br />
-        테그 : {}
+        태그 : {}
       </Info>
       <div>
         {data && data.post.post_images.map((posts,index)=>(
@@ -93,31 +113,48 @@ const Community_Detail = () => {
         
       </div>
       <CommentSection>
-        <h3>댓글</h3>
-        <CommentInput>
-          <textarea
-            value={newComment}
-            onChange={handleNewCommentChange}
-            placeholder="댓글을 입력하세요"
-          />
-          <StyledButton onClick={addComment}>입력</StyledButton>
-        </CommentInput>
-        <CommentList>
+      <h3>댓글</h3>
+      <CommentInput>
+        <textarea
+          value={newComment}
+          onChange={handleNewCommentChange}
+          placeholder="댓글을 입력하세요"
+        />
+        <StyledButton onClick={addComment}>입력</StyledButton>
+      </CommentInput>
+      <CommentList>
           {comments.map((comment, index) => (
             <Comment key={index}>
-              {comment}
+              <CommentContent>
+                {comment.userID}: {comment.contents}
+                <CommentDate>
+                  {new Intl.DateTimeFormat('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                  }).format(new Date(comment.commentDate))}
+                </CommentDate>
+              </CommentContent>
               <Button>
-                <button onClick={() => deleteComment(index)}>삭제</button>{" "}
-                {/* 삭제 버튼 추가 */}
+                <button onClick={() => deleteComment(comment.tcommentId)}>삭제</button>
               </Button>
             </Comment>
           ))}
-        </CommentList>
-      </CommentSection>
+      </CommentList>
+    </CommentSection>
       <Detail_Nav />
     </Page>
   );
+  
 };
+
+const CommentDate = styled.div`
+  font-size: 0.8em;
+  color: gray;
+`;
 
 const Page = styled.div`
   margin-top: 40px;
@@ -179,6 +216,16 @@ const Comment = styled.div`
   margin-bottom: 10px;
   border-radius: 5px;
   display: flex;
+  justify-content: space-between; // 삭제 버튼을 오른쪽 끝으로 밀어내기 위해 추가
+`;
+
+const CommentContent = styled.div`
+  white-space: pre-wrap; // 띄어쓰기와 줄바꿈을 유지하면서 필요한 경우에만 줄바꿈
+`;
+
+const Button = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 const StyledButton = styled.button`
@@ -200,7 +247,4 @@ const StyledButton = styled.button`
   }
 `;
 
-const Button = styled.div`
-  margin-left: 550px;
-`;
 export default Community_Detail;
