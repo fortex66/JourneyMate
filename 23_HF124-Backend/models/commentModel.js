@@ -33,8 +33,8 @@ const tComment = sequelize.define('tcomments', {
   tpostID: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: { // 이 부분을 추가
-      model: 'travel_posts', // 여기에는 참조하고 있는 테이블의 이름을 넣으세요.
+    references: { 
+      model: 'travel_posts', 
       key: 'tpostID'
     }
   }
