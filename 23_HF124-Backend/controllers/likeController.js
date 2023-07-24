@@ -1,38 +1,40 @@
-//likeController.js
+const jwt = require('jsonwebtoken');
 const LikeModel = require('../models/likeModel');
 
 exports.onLike = async (req, res) => {
-  const { userId, postId } = req.body;
+
+  const postID = req.body.tpostID;
   try {
+    const user=req.decode;
     let like = await LikeModel.findOne({
       where: {
-        userId: userId,
-        tpostId: postId
+        userID: user.userID,
+        tpostID: postID
       }
     });
     if (!like) {
       like = await LikeModel.create({
-        userId: userId,
-        tpostId: postId
+        userID: user.userID,
+        tpostID: postID
       });
       // 게시글의 총 좋아요수 계산
       const likeCount = await LikeModel.count({
         where: {
-          tpostId: postId
+          tpostID: postID
         }
       });
       res.status(201).json({ message: '좋아요', like, totalLikes: likeCount });
     } else {
       await LikeModel.destroy({
         where: {
-          userId: userId,
-          tpostId: postId
+          userID: user.userID,
+          tpostID: postID
         }
       });
       // 좋아요 취소 후 총 좋아요수 재계산
       const likeCount = await LikeModel.count({
         where: {
-          tpostId: postId
+          tpostID: postID
         }
       });
       res.status(200).json({ message: '좋아요 취소', like, totalLikes: likeCount });
