@@ -54,14 +54,14 @@ app.use('/like', likeRoutes);
 
 let rooms = [];
 
-// Middleware to authenticate user from JWT token in socket handshakeeeee
+// Middleware to authenticate user from JWT token in socket handshake
 io.use(async (socket, next) => {
   if (socket.handshake.query && socket.handshake.query.token) {
     jwt.verify(socket.handshake.query.token, process.env.jwtSecretkey, async (err, decoded) => {
       if (err) return next(new Error('Authentication error'));
       let user = await User.findOne({ where: { userID: decoded.userID } });
       if (!user) {
-        return next(new Error('Authentication err
+        return next(new Error('Authentication error'));
       }
       socket.user = user;
       next();
