@@ -9,14 +9,37 @@ import { faShareSquare as faShareSquareRegular } from "@fortawesome/free-regular
 import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
 import { faBookmark as faBookmarkSolid } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+
+const baseURL = "http://localhost:3000/";
 
 const Detail_Nav = () => {
   const [activeHeart, setActiveHeart] = useState(false);
   const [activeComment, setActiveComment] = useState(false);
   const [activeBookmark, setActiveBookmark] = useState(false);
 
-  const handleHeartClick = () => {
+  const handleHeartClick = async () => {
     setActiveHeart(!activeHeart);
+  
+    // 게시글 ID를 URL에서 받아옵니다.
+    const tpostID = window.location.pathname.split("/").pop();
+  
+    try {
+      const response = await axios.post(baseURL + `like`,
+        {
+          tpostID: tpostID, 
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+          },
+        }
+      );
+  
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleCommentClick = () => {
@@ -39,10 +62,10 @@ const Detail_Nav = () => {
         <BottomBox>
           <NavBox>
             <FontAwesomeIcon
-              icon={activeHeart ? faHeartSolid : faHeartRegular}
+              icon={activeHeart ? faHeartRegular:faHeartSolid}
               size="2x"
               onClick={() => handleHeartClick()}
-              color={activeHeart ? "red" : ""}
+              color={activeHeart ? "" : "red"}
             />
           </NavBox>
 
