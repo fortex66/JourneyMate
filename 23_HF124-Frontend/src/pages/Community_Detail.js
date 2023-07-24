@@ -139,7 +139,7 @@ const Community_Detail = () => {
                 </CommentDate>
               </CommentContent>
               <Button>
-                <button onClick={() => deleteComment(comment.tcommentId)}>삭제</button>
+                <button onClick={() => deleteComment(comment.ccommentID)}>삭제</button>
               </Button>
             </Comment>
           ))}
