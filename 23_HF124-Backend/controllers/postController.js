@@ -1,5 +1,4 @@
 const tPost = require('../models/uploadModel');
-const tPostImage = require ('../models/uploadModel');
 const cPost = require('../models/uploadModel');
 
 const getlist = async (req, res) => {
