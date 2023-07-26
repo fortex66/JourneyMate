@@ -101,8 +101,6 @@ async function companionAddComment(req, res) {
 //동행인 댓글 삭제
 async function companionDeleteComment(req, res) {
   const ccommentID = req.body.ccommentID;
-  // const userID = req.body.userID; // 요청 본문에서 userID를 가져오는 대신 인증 미들웨어에서 설정한 값을 사용합니다.
-
   try {
     // 댓글을 찾아서 가져옵니다.
     const comment = await cComment.cComment.findOne({ where: { ccommentID: ccommentID } });
@@ -144,7 +142,6 @@ async function updateCommentCounts(tpostID) {
     );
 
     result = commentCount[0].count;
-    console.log(result);
   } catch (error) {
     console.error(error);
   }
