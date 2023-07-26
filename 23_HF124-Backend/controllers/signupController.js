@@ -149,8 +149,6 @@ exports.processPart1 = async (req, res) => {
 };
 
 
-  
-
 exports.sendEmail = async (req, res) => {
   // nodemailer 설정
   const transporter = nodemailer.createTransport({
