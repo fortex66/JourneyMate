@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const dotenv = require('dotenv');
 const bcrypt = require('bcrypt'); // 비밀번호 해쉬로 변경을 위한 라이브러리
 
-
 dotenv.config();
 
 const loginUser = async (req, res) => {
@@ -39,8 +38,6 @@ const loginUser = async (req, res) => {
   }
   
 };
-
-
 
 module.exports = {
   loginUser,

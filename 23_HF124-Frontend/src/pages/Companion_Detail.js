@@ -85,7 +85,7 @@ const Companion_Detail = () => {
       });
   };
 
-  // 데이터가 없을때
+  // 데이터가 없을때 나오는 상황
   if (!data) {
     return <div className="DiaryPage">로딩중입니다...</div>;
   } else {

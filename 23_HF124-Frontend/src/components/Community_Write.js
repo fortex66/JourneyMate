@@ -1,8 +1,7 @@
-import { useState, useRef, useContext } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
-import { CommunityDispatchContext } from "../App";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 
@@ -147,11 +146,6 @@ const Community_Write = () => {
       contentRefs.current.find((ref, i) => data[i].content.length < 1)?.focus();
       return;
     } else if (window.confirm("게시글을 등록하시겠습니까?")) {
-      const photos = data.map((item) => item.previewURL); // 사진을 배열로 차례로 전달
-      const contents = data.map((item) => item.content); // 내용을 배열로 차례로 전달
-      
-      // 서버로 데이터를 받으면 필요없는 부분
-      //onCreate(titleRef.current.value, locationRef.current.value, tagRef.current.value, photos, contents); 
 
       const formData = new FormData();
 
