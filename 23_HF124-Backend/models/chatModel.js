@@ -6,6 +6,7 @@ const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_US
   host: process.env.MYSQL_HOST,
   port: process.env.MYSQL_PORT,
   dialect: 'mysql',
+  logging: false,
 });
 
 class GroupChat extends Model {}

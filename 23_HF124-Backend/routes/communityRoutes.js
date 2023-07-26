@@ -5,6 +5,8 @@ const uploadController = require('../controllers/uploadController');
 const commentController = require('../controllers/commentController');
 const authMiddleware=require('../middleware/authMiddleware');
 const postController = require('../controllers/postController');
+const mapController = require('../controllers/mapController');
+const scrapController = require('../controllers/scrapController.js');
 const router = express.Router();
 
 
@@ -13,13 +15,22 @@ router.post('/upload', upload.array('photos[]', 10),authMiddleware, uploadContro
 router.delete('/:tpostid', authMiddleware, uploadController.deletepost);
 router.put('/:tpostID', upload.array('photos[]', 10),authMiddleware, uploadController.updatePost);
 
+//Home.js 마커 이미지 출력용
+router.get('/mapimage',authMiddleware, mapController.mapGetlist);
+
 router.get('/',authMiddleware, postController.getlist);
+
+
+
 router.get('/:tpostID', upload.array('photos[]', 10),authMiddleware, postController.getpost);
 
 // comment 부분
 router.get('/comments/:tpostID', authMiddleware, commentController.getComments);
 router.post('/comments/:tpostID', authMiddleware, commentController.addComment);
 router.delete('/comments/:tpostID', authMiddleware, commentController.deleteComment);
+
+//스크랩부분
+router.post('/scrap', authMiddleware, scrapController.toggleScrap);
 
 router.get('/commentCount/:tpostID', async (req, res) => {
     const tpostID = req.query.tpostID;

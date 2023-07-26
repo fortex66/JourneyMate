@@ -55,7 +55,7 @@ const Community_Write = () => {
 
   const handleLocationSelect = (location) => {
     locationRef.current.value = location.place_name;
-    setSelectedLocation({x: location.x, y: location.y});
+    setSelectedLocation({x: location.x, y: location.y, address_name:location.address_name });
     setLocationList([]);
   };
 
@@ -160,10 +160,11 @@ const Community_Write = () => {
         location: locationRef.current.value,
         x: selectedLocation.x,
         y: selectedLocation.y,
+        address_name: selectedLocation.address_name,
         // tag: tag
       };
       formData.append("jsonData", JSON.stringify(jsonData)); // 위치와 제목데이터를 formdata에 담기
-
+      console.log(jsonData);
       // 서버로 formData전송
       try {
         await axios.post("http://localhost:3000/community/upload", formData, {

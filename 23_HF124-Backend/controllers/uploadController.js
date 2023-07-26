@@ -11,6 +11,7 @@ async function uploadpost(req, res) {
 try {
     const user=req.decode; // 유저 토큰의 정보 저장
     const jsonData = JSON.parse(req.body.jsonData);
+    console.log(jsonData);
     // 요청 데이터로 받은 게시물 정보를 travel_post 테이블에 저장
     const posting=await tUpload.tPost.create({
       userID: user.userID,
@@ -18,10 +19,10 @@ try {
       location: jsonData.location,
       title: jsonData.title,
       x : jsonData.x,
-      y : jsonData.y
+      y : jsonData.y,
+      address_name: jsonData.address_name
     });
     const tpostID = posting.getDataValue('tpostID'); // 위에서 저장한 게시물의 tpostID를 받아옴
-    console.log(tpostID);
     // 게시물 이미지를 저장
     const imageSavePromises = req.files.map((file, index) => {
       const imageUrl = path.join(file.destination, file.filename);
@@ -223,11 +224,12 @@ async function searchKeyword(req, res)  {
       { params: { query }, headers }
     );
 
-    // 각 장소의 이름, 위도, 경도를 포함한 객체를 반환
+    // 각 장소의 이름, 위도, 경도, 주소를 포함한 객체를 반환
     res.json(response.data.documents.map((document) => ({
       place_name: document.place_name,
       x: document.x,
       y: document.y,
+      address_name: document.address_name,
     })));
   } catch (error) {
     console.error(error);

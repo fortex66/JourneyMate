@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Detail_Nav from "../components/Detail_Nav";
@@ -85,7 +85,7 @@ const Companion_Detail = () => {
       });
   };
 
-  // 데이터가 없을때 나오는 상황
+  // 데이터가 없을때
   if (!data) {
     return <div className="DiaryPage">로딩중입니다...</div>;
   } else {

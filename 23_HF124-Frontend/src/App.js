@@ -1,6 +1,5 @@
 // App.js
 import "./App.css";
-import React, { useRef, useReducer } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Login from "./pages/Login";
@@ -22,91 +21,9 @@ import Companion_Write from "./components/Companion_Write";
 import Community_Detail from "./pages/Community_Detail";
 import Companion_Detail from "./pages/Companion_Detail";
 import Search from "./pages/Search";
-import ScrollToTop from "./components/ScrollToTop";
 
-// export const CompanionStateContext = React.createContext();
-// export const CompanionDispatchContext = React.createContext();
-
-// export const CommunityStateContext = React.createContext();
-// export const CommunityDispatchContext = React.createContext();
-
-// const reducer = (state, action) => {
-//   let newState = [];
-//   switch (action.type) {
-//     case "INIT": {
-//       return action.data;
-//     }
-//     case "CREATE": {
-//       const newItem = {
-//         ...action.data,
-//       };
-//       newState = [newItem, ...state];
-//       break;
-//     }
-//     case "CREATE_COMPANION": {
-//       const newItem = {
-//         ...action.data,
-//       };
-//       newState = [newItem, ...state];
-//       break;
-//     }
-//     default:
-//       return state;
-//   }
-//   return newState;
-// };
 
 function App() {
-  // const [companionData, companionDispatch] = useReducer(reducer, []);
-  // const [communityData, communityDispatch] = useReducer(reducer, []);
-  // const companion_dataId = useRef(0);
-  // const dataId = useRef(0);
-
-  // const onCreate_Companion = (
-  //   title,
-  //   location,
-  //   gender,
-  //   age,
-  //   start_date,
-  //   finish_date,
-  //   personnel,
-  //   photo,
-  //   content,
-  //   tag
-  // ) => {
-  //   companionDispatch({
-  //     type: "CREATE_COMPANION",
-  //     data: {
-  //       id: companion_dataId.current,
-  //       title,
-  //       location,
-  //       gender,
-  //       age,
-  //       start_date,
-  //       finish_date,
-  //       personnel,
-  //       photo,
-  //       content,
-  //       tag,
-  //     },
-  //   });
-  //   companion_dataId.current += 1;
-  // };
-
-  // const onCreate = (title, location, tag, photos, content) => {
-  //   communityDispatch({
-  //     type: "CREATE",
-  //     data: {
-  //       id: dataId.current,
-  //       title,
-  //       location,
-  //       tag,
-  //       photos,
-  //       content,
-  //     },
-  //   });
-  //   dataId.current += 1;
-  // };
 
   return (
     <BrowserRouter>

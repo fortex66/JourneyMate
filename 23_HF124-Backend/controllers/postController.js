@@ -3,8 +3,17 @@ const cPost = require('../models/uploadModel');
 
 const getlist = async (req, res) => {
   try {
-    const { page = 1, per_page = 10 } = req.query;
-
+    const { page = 1, per_page = 10, sort = 'latest' } = req.query;
+	
+    let order;
+    switch (sort) {
+      case 'dueDate':
+        order = [['finishDate', 'DESC']];
+        break;
+      case 'latest': 
+      default:
+        order = [['postDate', 'DESC']];
+    }
     const posts = await tPost.tPost.findAndCountAll({
       offset: per_page * (page - 1),
       limit: per_page,

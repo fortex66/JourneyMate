@@ -35,13 +35,21 @@ const tPost = sequelize.define('travel_posts', {
     type: DataTypes.DOUBLE,
     allowNull: true
   },
+  address_name: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   title: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
-  likeCount: {  // likeCount 필드를 추가합니다
+  likeCount: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: true
+  },
+  commentCount: {
+    type: DataTypes.INTEGER,
+    allowNull: true
   }
 }, {
   // 다른 옵션들 기입
