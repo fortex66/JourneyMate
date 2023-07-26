@@ -22,6 +22,7 @@ import Companion_Write from "./components/Companion_Write";
 import Community_Detail from "./pages/Community_Detail";
 import Companion_Detail from "./pages/Companion_Detail";
 import Search from "./pages/Search";
+import ScrollToTop from "./components/ScrollToTop";
 
 // export const CompanionStateContext = React.createContext();
 // export const CompanionDispatchContext = React.createContext();
