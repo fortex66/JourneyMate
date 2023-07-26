@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import styled from "styled-components";
 import Navigationbar from "../components/Navigationbar";
 import { useNavigate } from "react-router-dom";
@@ -8,40 +8,56 @@ import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { faSquarePlus,} from "@fortawesome/free-solid-svg-icons";
 import Modal from "../components/Modal";
 
-
 const Community = () => {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState({ posts: { rows: [] } }); // 초기값 변경
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const [write, setWrite] = useState(false);
-
+  const observer = useRef();
+  
+  const lastPostElementRef = useCallback(node => {
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        setPage(prevPage => prevPage + 1);
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, []);
+  
   const handleSearchClick = () => {
     navigate("/Search");
   };
-  /* 상세페이지 이동 */
-  const goDetail = (postId) => { // postId 인자 추가
-    
-    navigate(`/Community_Detail/${postId}`); // postId를 경로의 일부로 사용
+  
+  const goDetail = (postId) => {
+    navigate(`/Community_Detail/${postId}`);
   };
 
   const baseURL = "http://localhost:3000/";
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(baseURL + "community/");
-      setData(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${baseURL}community/?page=${page}`);
+        setData(prevData => ({
+          ...response.data,
+          posts: {
+            ...response.data.posts,
+            rows: [...prevData.posts.rows, ...response.data.posts.rows]
+          }
+        }));
+      } catch (error) {
+        console.log(error);
+      }
+    };
     fetchData();
-  }, []); // 빈 배열은 컴포넌트가 마운트될 때 한 번만 fetchData를 실행하라는 의미
+  }, [page]);
+
+  // 아래 렌더링 부분에서 data가 아직 로딩되지 않았다면 null 반환
+  if (!data) return null;
 
   return (
-  
     <Container>
-      
       <Header>
         <SearchInput
           type="text"
@@ -56,7 +72,11 @@ const Community = () => {
       <Content>
         <CommunityList>
           {data && data.posts.rows.map((post, index) => (
-            <CommunityItem key={index} onClick={() => goDetail(data.posts.rows[index].tpostID)}> {/* postId를 goDetail에 전달 */}
+            <CommunityItem 
+              ref={index === data.posts.rows.length - 1 ? lastPostElementRef : null} 
+              key={index} 
+              onClick={() => goDetail(post.tpostID)}
+            >
               <div>
                 <Picture>
                   <div>
@@ -80,10 +100,8 @@ const Community = () => {
       </Content>
       <Navigationbar />
     </Container>
-    
   );
 };
-
 
 const Container = styled.div`
   position: relative;
@@ -113,6 +131,7 @@ const SearchInput = styled.input`
   }
   margin-top: 10px;
 `;
+
 const IconContainer = styled.div`
   display: flex;
   align-items: center;
@@ -127,9 +146,9 @@ const Content = styled.div`
 `;
 
 const CommunityList = styled.div`
-  display: flex; /* Flexbox 사용 */
-  flex-wrap: wrap; /* 창 크기에 따라 자동으로 다음 행으로 넘어가게 설정 */
-  justify-content: space-between; /* 각 아이템 사이에 공간 배분 */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 `;
 
 const CommunityItem = styled.div`
@@ -138,7 +157,7 @@ const CommunityItem = styled.div`
   background-color: rgb(240, 240, 240);
   margin-bottom: 20px;
   padding: 20px;
-  width: calc(45% - 20px); /* 두 개의 컴포넌트가 한 행에 들어갈 수 있도록 너비 설정. 간격을 고려하여 -20px 함 */
+  width: calc(45% - 20px);
 `;
 
 const Title = styled.div`
@@ -159,17 +178,18 @@ font-size:12px;
 
 const Heart = styled.div`
 font-size : 15px;
-`
+`;
+
 const Picture = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   padding-bottom: 10px;
   margin-bottom: 10px;
-  img {  // img 태그에 대한 스타일을 정의
-    width: 250px;  // 너비를 250px로 설정
-    height: 250px;  // 높이를 250px로 설정
-    object-fit: cover;  // 이미지의 비율을 유지하면서, 요소에 꽉 차게 표시
+  img {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
   }
 `;
 
