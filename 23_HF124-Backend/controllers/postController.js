@@ -1,6 +1,6 @@
 const tPost = require('../models/uploadModel');
 const cPost = require('../models/uploadModel');
-const Tag = require('../models/tagModel');
+const Tag = require('../models/uploadModel');
 
 const getlist = async (req, res) => {
   try {
