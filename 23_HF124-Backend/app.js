@@ -9,16 +9,30 @@ const signupRoutes = require('./routes/signupRoutes');
 const likeRoutes = require('./routes/likeRoutes');
 const communityRoutes = require('./routes/communityRoutes');
 const companionRoutes = require('./routes/companionRoutes');
+const mypageRoutes = require('./routes/mypageRoutes');
 const User = require('./models/userModel');
-const http = require('http');
 const socketio = require('socket.io');
 const jwt = require('jsonwebtoken');
 const { GroupChat, Message } = require('./models/chatModel');
+const http = require('http');
+
+//HTTPS 연결 테스트용
+// const https = require('https');
+// const fs = require('fs');
 
 dotenv.config();
 
 const app = express();
+
+//HTTPS 연결 테스트용
+// const options = {
+//   key: fs.readFileSync('./rootCA-key.pem'),
+//   cert: fs.readFileSync('./rootCA.pem'),
+// };
+// const server = https.createServer(options, app);
+
 const server = http.createServer(app);
+
 const io = socketio(server, {
   cors: {
     origin: "*",
@@ -51,6 +65,7 @@ app.use('/companion', companionRoutes);
 app.use('/users', userRoutes);
 app.use('/signup', signupRoutes);
 app.use('/like', likeRoutes);
+app.use('/mypage', mypageRoutes);
 
 let rooms = [];
 

@@ -28,8 +28,7 @@ LikeModel.init({
 }, {
   timestamps: false, // 기본 옵션으로 선택되는 설정을 취소하기 위해
   sequelize, 
-  modelName: 'postlikes'
-  
+  modelName: 'postlikes',
 });
 
 

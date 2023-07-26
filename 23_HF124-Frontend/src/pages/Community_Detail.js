@@ -90,9 +90,6 @@ const Community_Detail = () => {
       });
   };
   
-  
-  
-  // 데이터가 없을때
   return (
     <Page>
       <Top>
@@ -140,7 +137,9 @@ const Community_Detail = () => {
                 </CommentDate>
               </CommentContent>
               <Button>
-                <button onClick={() => deleteComment(comment.tcommentId)}>삭제</button>
+              {/* {userId === comment.userID && ( */}
+    <button onClick={() => deleteComment(comment.tcommentId)}>삭제</button>
+  {/* )} */}
               </Button>
             </Comment>
           ))}

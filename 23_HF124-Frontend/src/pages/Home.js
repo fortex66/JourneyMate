@@ -12,7 +12,8 @@ import {
 import Modal from "../components/Modal";
 
 const Home = () => {
-  const [markerUrl, setMarkerUrl] = useState(null);
+  const [markerData, setMarkerData] = useState(null);
+  const [latestMarkers, setLatestMarkers] = useState(null); // New state variable for the latest markers
   const navigate = useNavigate();
   const [write, setWrite] = useState(false);
 
@@ -20,18 +21,38 @@ const Home = () => {
     navigate("/Search");
   };
 
-  // useEffect(() => {
-  //   const fetchMarkerImage = async () => {
-  //     try {
-  //       const response = await axios.get("http://localhost:3000/home");
-  //       setMarkerUrl(response.data.url);
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   };
+  const baseURL = "http://localhost:3000/";
+  useEffect(() => {
+    const fetchMarkerData = async () => {
+      try {
+        const response = await axios.get(baseURL + "community/mapimage");
+        const markerData = response.data;
 
-  //   fetchMarkerImage();
-  // }, []);
+        // Group markers by location.
+        const markerGroups = markerData.posts.rows.reduce((groups, marker) => {
+          const key = `${marker.x},${marker.y}`;
+          if (!groups[key]) {
+            groups[key] = [];
+          }
+          groups[key].push(marker);
+          return groups;
+        }, {});
+
+        // For each group, keep only the latest marker.
+        const latestMarkers = Object.values(markerGroups).map(
+          (group) => group.sort((a, b) => b.createdAt - a.createdAt)[0] // Assuming 'createdAt' is a valid timestamp.
+        );
+
+        setMarkerData(markerData);
+        setLatestMarkers(latestMarkers); // Update the state with the latest markers
+        console.log(response.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchMarkerData();
+  }, []);
 
   return (
     <Container>
@@ -59,27 +80,31 @@ const Home = () => {
           level={13}
           maxLevel={13} //지도화면 더 이상 축소금지
         >
-          {markerUrl && (
-            <MapMarker
-              position={{
-                lat: 37.54699,
-                lng: 128,
-              }}
-              image={{
-                src: markerUrl,
-                size: {
-                  width: 164,
-                  height: 169,
-                },
-                options: {
-                  offset: {
-                    x: 27,
-                    y: 69,
-                  },
-                },
-              }}
-            />
-          )}
+          {latestMarkers &&
+            latestMarkers.map((marker, index) => (
+              <Circle>
+                <MapMarker
+                  key={index}
+                  position={{
+                    lat: marker.y,
+                    lng: marker.x,
+                  }}
+                  image={{
+                    src: marker.post_images[0].imageURL.replace(/\\/g, "/"),
+                    size: {
+                      width: 50,
+                      height: 50,
+                    },
+                    options: {
+                      offset: {
+                        x: 27,
+                        y: 69,
+                      },
+                    },
+                  }}
+                />
+              </Circle>
+            ))}
           <LocationIcon
             icon={faLocationCrosshairs}
             size="2x"
@@ -93,6 +118,10 @@ const Home = () => {
 };
 
 export default Home;
+
+const Circle = styled.div`
+  border-radius: 20px;
+`;
 
 const Container = styled.div`
   position: relative;

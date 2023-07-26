@@ -19,9 +19,6 @@ const Navigationbar = () => {
   const handleTabClick = (tabName) => {
     navigate(`/${tabName}`);
   };
-
-
-
   
   return (
     <Navigation>
@@ -58,6 +55,7 @@ const Navigationbar = () => {
 };
 
 const Navigation = styled.div`
+
 position: relative;
 min-height: 100vh;
 box-sizing: border-box;

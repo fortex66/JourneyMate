@@ -5,13 +5,18 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
-import ScrollToTop from "../components/ScrollToTop";
+import { faSquarePlus,} from "@fortawesome/free-solid-svg-icons";
+import Modal from "../components/Modal";
 
 
 const Community = () => {
   const [data, setData] = useState(null);
   const navigate = useNavigate();
+  const [write, setWrite] = useState(false);
 
+  const handleSearchClick = () => {
+    navigate("/Search");
+  };
   /* 상세페이지 이동 */
   const goDetail = (postId) => { // postId 인자 추가
     
@@ -35,11 +40,19 @@ const Community = () => {
 
   return (
   
-    <div>
-      <ScrollToTop/>
-      <CommunityBox>
-        <h1>Community</h1>
-      </CommunityBox>
+    <Container>
+      
+      <Header>
+        <SearchInput
+          type="text"
+          onClick={handleSearchClick}
+          placeholder="검색"
+        />
+        <IconContainer onClick={() => setWrite(!write)}>
+          {write && <Modal closeModal={() => setWrite(!write)}></Modal>}
+          <FontAwesomeIcon icon={faSquarePlus} size="3x" color={"#f97800"} />
+        </IconContainer>
+      </Header>
       <Content>
         <CommunityList>
           {data && data.posts.rows.map((post, index) => (
@@ -66,19 +79,51 @@ const Community = () => {
         </CommunityList>
       </Content>
       <Navigationbar />
-    </div>
+    </Container>
+    
   );
 };
 
 
-const CommunityBox = styled.div`
-  margin-right: 20px;
-  margin-left: 20px;
+const Container = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const Header = styled.div`
+  display:flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 640px;
+  position: fixed;
+  top: 0;
+  height: 90px;
+  background-color: rgb(240, 240, 240);
+  border-bottom:1px solid;
+`;
+
+const SearchInput = styled.input`
+  width: 70%;
+  height: 40px;
+  border-radius: 15px;
+  border: none;
+  padding: 0 10px;
+  &:focus {
+    outline: none;
+  }
+  margin-top: 10px;
+`;
+const IconContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  margin-right: 10px;
 `;
 
 const Content = styled.div`
   margin-right: 20px;
   margin-left: 20px;
+  margin-top: 110px;
 `;
 
 const CommunityList = styled.div`
