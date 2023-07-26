@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
+import ScrollToTop from "../components/ScrollToTop";
+
 
 const Community = () => {
   const [data, setData] = useState(null);
@@ -18,44 +20,50 @@ const Community = () => {
 
   const baseURL = "http://localhost:3000/";
 
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(baseURL + "community/");
+      setData(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(baseURL + "community/");
-        setData(response.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
     fetchData();
   }, []); // 빈 배열은 컴포넌트가 마운트될 때 한 번만 fetchData를 실행하라는 의미
 
   return (
+  
     <div>
+      <ScrollToTop/>
       <CommunityBox>
         <h1>Community</h1>
       </CommunityBox>
       <Content>
-        <Community_List>
+        <CommunityList>
           {data && data.posts.rows.map((post, index) => (
             <CommunityItem key={index} onClick={() => goDetail(data.posts.rows[index].tpostID)}> {/* postId를 goDetail에 전달 */}
               <div>
                 <Picture>
                   <div>
-                    <img src={`${baseURL}${post.post_images[0].imageURL.replace(/\\/g, '/')}`} />
+                    <img src={`${baseURL}${post.post_images[0].imageURL.replace(/\\/g, '/')}`}  />
                   </div>
                 </Picture>
                 <Title>
                   {post.title}
                   <Titlebar>
-                    <FontAwesomeIcon icon={faHeartSolid} color="red" />
+                    {post.userID}
+                    <Heart>
+                      <FontAwesomeIcon icon={faHeartSolid} color="red" />
                     {post.likeCount}
+                    </Heart>
                   </Titlebar>
                 </Title>
               </div>
             </CommunityItem>
           ))}
-        </Community_List>
+        </CommunityList>
       </Content>
       <Navigationbar />
     </div>
@@ -73,7 +81,7 @@ const Content = styled.div`
   margin-left: 20px;
 `;
 
-const Community_List = styled.div`
+const CommunityList = styled.div`
   display: flex; /* Flexbox 사용 */
   flex-wrap: wrap; /* 창 크기에 따라 자동으로 다음 행으로 넘어가게 설정 */
   justify-content: space-between; /* 각 아이템 사이에 공간 배분 */
@@ -89,18 +97,24 @@ const CommunityItem = styled.div`
 `;
 
 const Title = styled.div`
+  font-size : 20px;
+  font-weight : bold;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  display: flex;
-  justify-content: space-between;
+  display: block;
   align-items: center;
 `;
 
 const Titlebar = styled.div`
-  padding-right : 0.5px
+display : flex;
+justify-content : space-between;
+font-size:12px;
 `;
 
+const Heart = styled.div`
+font-size : 15px;
+`
 const Picture = styled.div`
   display: flex;
   justify-content: center;

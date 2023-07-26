@@ -16,13 +16,11 @@ const Companion_Detail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        
         const responsePost = await axios.get(baseURL + `companion/${postId}`); // postId를 API 호출에 사용하여 게시글 데이터 가져오기
         setData(responsePost.data);
         console.log(responsePost);
         const responseComments = await axios.get(baseURL + `companion/comments/${postId}`); // postId를 API 호출에 사용하여 댓글 데이터 가져오기
         setComments(responseComments.data);
-          
       } catch (error) {
         console.log(error);
       }

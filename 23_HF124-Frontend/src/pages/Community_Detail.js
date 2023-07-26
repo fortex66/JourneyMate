@@ -13,14 +13,15 @@ const Community_Detail = () => {
 
   const baseURL = "http://localhost:3000/";
 
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const responsePost = await axios.get(baseURL + `community/${postId}`); // postId를 API 호출에 사용하여 게시글 데이터 가져오기
+        console.log(responsePost)
         setData(responsePost.data);
         
         const responseComments = await axios.get(baseURL + `community/comments/${postId}`); // postId를 API 호출에 사용하여 댓글 데이터 가져오기
+        console.log(responseComments)
         setComments(responseComments.data);
           
       } catch (error) {
