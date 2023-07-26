@@ -6,13 +6,7 @@ import "./listForm.css";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faGlobe,
-  faUserGroup,
-  faPen,
-  faUser,
-  faScroll,
-} from "@fortawesome/free-solid-svg-icons";
+import {faGlobe, faUserGroup, faPen, faUser, faScroll,} from "@fortawesome/free-solid-svg-icons";
 
 const baseURL = "http://localhost:3000/";
 
@@ -32,27 +26,32 @@ function MyPage() {
   const getCommunity = async () => {
     try {
       const resCommunity = await axios.get(baseURL + `mypage/community`);
-      console.log(resCommunity)
       setCommunityData(resCommunity.data);
     } catch (error) {
       console.log(error);
     }
   };
 
-  // const getCompanion = async () => {
-  //   try {
-  //     const resCompanion = await axios.get(baseURL + "mypage/");
-
-  //   }
-  // }
-
-
+  const getCompanion = async () => {
+    try {
+      const resCompanion = await axios.get(baseURL + `mypage/companion`);
+      console.log(resCompanion.data)
+      setCompanionData(resCompanion.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
 
   useEffect(() => {
+    if (selectedColor === "faGlobe") {
+      getCommunity();
+    } else if (selectedColor === "faUserGroup") {
+      getCompanion();
+    }
     getCommunity();
-  }, []); 
-
+  }, [selectedColor]);
+  
   
   return (
     <div className="Wrap">
@@ -64,14 +63,7 @@ function MyPage() {
           <MyInfoBox>
             <div style={{ display: "flex", alignItems: "center" }}>
               <Circle>
-                <FontAwesomeIcon
-                  icon={faUser}
-                  size="2x"
-                  color={"#f97800"}
-                  onClick={() => {
-                    navigate("/Profile");
-                  }}
-                />
+                <FontAwesomeIcon icon={faUser} size="2x" color={"#f97800"} onClick={() => {navigate("/Profile");}}/>
               </Circle>
             </div>
           </MyInfoBox>
@@ -84,11 +76,7 @@ function MyPage() {
               글쓰기
             </div>
             <div>
-              <Circle
-                onClick={() => {
-                  navigate("/Scrap");
-                }}
-              >
+              <Circle onClick={() => { navigate("/Scrap"); }}>
                 <FontAwesomeIcon icon={faScroll} size="2x" color={"#f97800"} />
               </Circle>
               스크랩
@@ -98,38 +86,38 @@ function MyPage() {
       </div>
       <MyList>
         <div>
-          <FontAwesomeIcon
-            icon={faGlobe}
-            size="2x"
-            color={selectedColor === "faGlobe" ? "#f97800" : "black"}
-            onClick={() => {
-              setSelectedColor("faGlobe");
-            }}
-          />
+          <FontAwesomeIcon icon={faGlobe} size="2x" color={selectedColor === "faGlobe" ? "#f97800" : "black"}
+            onClick={() => { setSelectedColor("faGlobe"); }} />
         </div>
 
         <div>
-          <FontAwesomeIcon
-            icon={faUserGroup}
-            size="2x"
-            color={selectedColor === "faUserGroup" ? "#f97800" : "black"}
-            onClick={() => {
-              setSelectedColor("faUserGroup");
-            }}
-          />
+          <FontAwesomeIcon icon={faUserGroup} size="2x" color={selectedColor === "faUserGroup" ? "#f97800" : "black"}
+            onClick={() => { setSelectedColor("faUserGroup");}} />
         </div>
       </MyList>
       <Content>
         <CommunityList>
-          {CommunityData && CommunityData.posts.rows.map((post, index) => (
-            <CommunityItem key={index} onClick={() => goDetail(CommunityData.posts.rows[index].tpostID)}> {/* postId를 goDetail에 전달 */}
-              <div>
-                <Picture>
-                    <img src={`${baseURL}${post.post_images[0].imageURL.replace(/\\/g, '/')}`} />
-                </Picture>
-              </div>
-            </CommunityItem>
-          ))}
+          {/* faGlobe 선택됐을 때 (CommunityData) */}
+          {selectedColor === "faGlobe" && CommunityData && CommunityData.posts.rows.map((post, index) => (
+              <CommunityItem key={index} onClick={() => goDetail(CommunityData.posts.rows[index].tpostID)}>
+                <div>
+                  <Picture>
+                    <img src={`${baseURL}${post.post_images[0].imageURL.replace(/\\/g, "/")}`} />
+                  </Picture>
+                </div>
+              </CommunityItem>
+            ))}
+
+          {/* faUserGroup 선택됐을 때 (companionData) */}
+          {selectedColor === "faUserGroup" && companionData && companionData.posts.rows.map((post, index) => (
+                <CompanionItem key={index} onClick={() => goDetail(companionData.posts.rows[index].cpostID)}>
+                  <div>
+                    <Picture>
+                      <img src={`${baseURL}${post.post_images[0].imageURL.replace( /\\/g, "/" )}`}/>
+                    </Picture>
+                  </div>
+                </CompanionItem>
+            ))}
         </CommunityList>
       </Content>
 
@@ -189,12 +177,14 @@ const Content = styled.div`
 const CommunityList = styled.div`
   display: flex; /* Flexbox 사용 */
   flex-wrap: wrap; /* 창 크기에 따라 자동으로 다음 행으로 넘어가게 설정 */
-  justify-content: space-between; /* 각 아이템 사이에 공간 배분 */
+
 `;
 
 const CommunityItem = styled.div`
-
 `;
+
+const CompanionItem = styled.div`
+`
 const Picture = styled.div`
   display: flex;
   justify-content: center;
