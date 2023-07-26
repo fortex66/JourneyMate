@@ -16,15 +16,17 @@ const Community_Write = () => {
   const contentRefs = useRef([]);
   const navigate = useNavigate();
   const [locationList, setLocationList] = useState([]);
-
-
+  const [selectedLocation, setSelectedLocation] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [data, setData] = useState([{ photo: "", content: "", file: null }]);
-  const [selectedLocation, setSelectedLocation] = useState({});
 
 
+  const [tagItem, setTagItem] = useState(""); // 태그 입력값
+  const [tagList, setTagList] = useState([]); // 태그 리스트
 
+
+  
   //위치를 입력 받을때 kakaoapi를 활용하기 위함
   const searchLocation = async () => {
     const query = locationRef.current.value;
@@ -49,10 +51,29 @@ const Community_Write = () => {
   };
 
 
+   // 태그 입력 처리
+   const onKeyPress = (e) => {
+    if (e.target.value.length !== 0 && e.key === "Enter") {
+      submitTagItem();
+    }
+  };
+
+  // 태그 추가 처리
+  const submitTagItem = () => {
+    let updatedTagList = [...tagList];
+    updatedTagList.push(tagItem);
+    setTagList(updatedTagList);
+    setTagItem("");
+  };
+
+  // 태그 삭제 처리
+  const deleteTagItem = (e) => {
+    const deleteTagItem = e.target.parentElement.firstChild.innerText;
+    const filteredTagList = tagList.filter((tagItem) => tagItem !== deleteTagItem);
+    setTagList(filteredTagList);
+  };
 
   // 선택한 위치를 사용하기 위함
-
-
   const handleLocationSelect = (location) => {
     locationRef.current.value = location.place_name;
     setSelectedLocation({x: location.x, y: location.y, address_name:location.address_name });
@@ -135,9 +156,6 @@ const Community_Write = () => {
     } else if (locationRef.current.value.length < 1) {
       locationRef.current.focus();
       return;
-    } else if (tagRef.current.value.length < 1) {
-      tagRef.current.focus();
-      return;
     } else if (data.some((item, i) => !item.file)) {
       setModalMessage("사진을 올려주세요."); setShowModal(true);
       setTimeout(() => { setShowModal(false); }, 2000);
@@ -161,7 +179,7 @@ const Community_Write = () => {
         x: selectedLocation.x,
         y: selectedLocation.y,
         address_name: selectedLocation.address_name,
-        // tag: tag
+        tags: tagList,
       };
       formData.append("jsonData", JSON.stringify(jsonData)); // 위치와 제목데이터를 formdata에 담기
       console.log(jsonData);
@@ -189,24 +207,34 @@ const Community_Write = () => {
           <button className="complete_btn" onClick={handleSubmit}> 등록 </button>
         </Header>
       </Navigation>
-
       <div>
         <Title>
           <input type="text" name="title" placeholder="제목을 입력하세요" ref={titleRef} />
         </Title>
         <Info>
           <input name="location" placeholder="위치 입력" ref={locationRef} onChange={searchLocation} />
-
           {locationList.map((location, i) => (
-                <li key={i} onClick={() => handleLocationSelect(location)}>
-                {location.place_name}
-              </li>
+            <li key={i} onClick={() => handleLocationSelect(location)}>
+              {location.place_name}
+            </li>
           ))}
-          
-          <input name="tag" placeholder="태그 입력" ref={tagRef} />
+          {tagList.map((tagItem, index) => {
+            return (
+              <TagItem key={index}>
+                <Text>{tagItem}</Text>
+                <tagButton onClick={deleteTagItem}>X</tagButton>
+              </TagItem>
+            );
+          })}
+          <TagInput
+            type="text"
+            placeholder="태그를 입력해주세요!"
+            onChange={(e) => setTagItem(e.target.value)}
+            value={tagItem}
+            onKeyPress={onKeyPress}
+          />
         </Info>
       </div>
-
       <Addform>
         {data.map((val, i) => (
           <RepeatWrapper key={i}>
@@ -507,6 +535,41 @@ const Modal = styled.div`
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+`;
+
+const TagItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 5px;
+  padding: 5px;
+  background-color: tomato;
+  border-radius: 5px;
+  color: white;
+  font-size: 13px;
+`;
+
+const Text = styled.span``;
+
+const tagButton = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 15px;
+  height: 15px;
+  margin-left: 5px;
+  background-color: white;
+  border-radius: 50%;
+  color: tomato;
+`;
+
+const TagInput = styled.input`
+  display: inline-flex;
+  min-width: 200px;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: text;
 `;
 
 export default Community_Write;

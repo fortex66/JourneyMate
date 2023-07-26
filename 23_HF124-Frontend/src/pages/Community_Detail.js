@@ -99,7 +99,7 @@ const Community_Detail = () => {
       <Info>
         위치 : {data && data.post.location}
         <br />
-        태그 : {}
+        태그 : {data && data.post.tags.map(tag => tag.content).join(', ')}
       </Info>
       <div>
         {data && data.post.post_images.map((posts,index)=>(

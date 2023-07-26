@@ -10,7 +10,7 @@ const scrapController = require('../controllers/scrapController.js');
 const router = express.Router();
 
 
-// authMiddleware를 통과후 controller로 이동
+// 커뮤니티 게시글 작성, 삭제, 수정
 router.post('/upload', upload.array('photos[]', 10),authMiddleware, uploadController.uploadpost);
 router.delete('/:tpostid', authMiddleware, uploadController.deletepost);
 router.put('/:tpostID', upload.array('photos[]', 10),authMiddleware, uploadController.updatePost);
@@ -18,31 +18,27 @@ router.put('/:tpostID', upload.array('photos[]', 10),authMiddleware, uploadContr
 //Home.js 마커 이미지 출력용
 router.get('/mapimage',authMiddleware, mapController.mapGetlist);
 
+//커뮤니티 게시글 불러오기
 router.get('/',authMiddleware, postController.getlist);
 
-
-
+//커뮤니티 게시글 상세정보
 router.get('/:tpostID', upload.array('photos[]', 10),authMiddleware, postController.getpost);
 
-// comment 부분
+// 댓글 관련
 router.get('/comments/:tpostID', authMiddleware, commentController.getComments);
 router.post('/comments/:tpostID', authMiddleware, commentController.addComment);
 router.delete('/comments/:tpostID', authMiddleware, commentController.deleteComment);
-
-//스크랩부분
-router.post('/scrap', authMiddleware, scrapController.toggleScrap);
-
 router.get('/commentCount/:tpostID', async (req, res) => {
     const tpostID = req.query.tpostID;
     const count = await commentController.updateCommentCounts(tpostID);
     res.status(200).json({ message: '댓글 갯수', commentCount: count });
 });
 
-
+//스크랩 관련
+router.post('/scrap', authMiddleware, scrapController.toggleScrap);
 
 // 게시글 작성시 키워드 검색으로 위치를 받아오기
 router.get('/posts/search-keyword', uploadController.searchKeyword);
-
 router.get('/posts', postController.getlist);
 router.get('/posts/:tpostID', postController.getpost);
 

@@ -1,22 +1,29 @@
 import Navigationbar from "../components/Navigationbar";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import SearchModal from "../components/SearchModal";
+import React, { useState } from "react";
 
 const Search = () => {
-  const navigate = useNavigate();
-  const handleSearchClick = () => {
-    navigate("/Home");
+  const [write, setWrite] = useState(false);
+
+  const handleModalOpen = () => {
+    setWrite(true);
   };
 
   return (
     <div>
       <Header>
-        <FontAwesomeIcon icon={faMagnifyingGlass} size="1x" color={"#f97800"} />
+        <IconContainer onClick={() => setWrite(!write)}>
+          {write && (
+            <SearchModal closeModal={() => setWrite(!write)}></SearchModal>
+          )}
+          <SearchIcon icon={faMagnifyingGlass} size="2x" color={"#f97800"} />
+        </IconContainer>
         <SearchInput
           type="text"
-          onClick={handleSearchClick}
+          onClick={handleModalOpen}
           placeholder="검색어를 입력하세요"
         />
       </Header>
@@ -26,6 +33,8 @@ const Search = () => {
 };
 
 export default Search;
+
+const IconContainer = styled.div``;
 
 const Header = styled.div`
   position: relative;
@@ -51,4 +60,9 @@ const SearchInput = styled.input`
   &:focus {
     outline: none;
   }
+  cursor: pointer;
+`;
+
+const SearchIcon = styled(FontAwesomeIcon)`
+  margin-right: 10px;
 `;

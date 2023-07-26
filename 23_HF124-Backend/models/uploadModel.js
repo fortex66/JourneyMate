@@ -1,5 +1,5 @@
 //uploadModel.js
-const { Sequelize, DataTypes } = require('sequelize');
+const { Sequelize, DataTypes, Model } = require('sequelize');
 const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USERNAME, process.env.MYSQL_PASSWORD, {
   host: process.env.MYSQL_HOST,
   port: process.env.MYSQL_PORT,
@@ -214,9 +214,99 @@ const cPostImage = sequelize.define('post_images', {
   sequelize, 
   modelName: 'post_images'
 });
+// tags 테이블에 대한 모델
+class Tag extends Model {}
+
+Tag.init({
+  tagID: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false
+  },
+  content: {
+    type: DataTypes.STRING(15),
+    allowNull: true
+  },
+  type: {
+    type: DataTypes.STRING(10),
+    allowNull: true
+  },
+}, {
+  sequelize,
+  modelName: 'Tag',
+  tableName: 'tags',
+  timestamps: false
+});
+
+// ttagging 테이블에 대한 모델
+class TTagging extends Model {}
+
+TTagging.init({
+  tagID: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    allowNull: false
+  },
+  tpostID: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'travel_posts',
+      key: 'tpostID'
+    }
+  }
+}, {
+  sequelize,
+  modelName: 'TTagging',
+  tableName: 'ttaggings',
+  timestamps: false
+});
+
+// ctaggings 테이블에 대한 모델
+class CTagging extends Model {}
+
+CTagging.init({
+  tagID: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    allowNull: false
+  },
+  cpostID: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+}, {
+  sequelize,
+  modelName: 'CTagging',
+  tableName: 'ctaggings',
+  timestamps: false
+});
+
+// 모델들 간의 관계 설정
+Tag.hasMany(TTagging, { foreignKey: 'tagID' });
+TTagging.belongsTo(Tag, { foreignKey: 'tagID' });
+
+tPost.belongsToMany(Tag, {
+  through: TTagging,
+  foreignKey: 'tpostID',
+  otherKey: 'tagID',
+  as: 'tags'
+});
+
+// Tag와 tPost 사이의 관계 설정
+Tag.belongsToMany(tPost, {
+  through: TTagging,
+  foreignKey: 'tagID',
+  otherKey: 'tpostID',
+  as: 'posts'
+});
+
+Tag.hasMany(CTagging, { foreignKey: 'tagID' });
+CTagging.belongsTo(Tag, { foreignKey: 'tagID' });
 
 
 cPostImage.belongsTo(cPost, { foreignKey: 'cpostID',onDelete: 'CASCADE' });
 cPost.hasMany(cPostImage, { foreignKey: 'cpostID' });
 
-module.exports = {tPost, tPostImage, cPost, cPostImage };
+module.exports = {tPost, tPostImage, cPost, cPostImage,Tag, TTagging,CTagging };

@@ -1,5 +1,6 @@
 const tPost = require('../models/uploadModel');
 const cPost = require('../models/uploadModel');
+const Tag = require('../models/tagModel');
 
 const getlist = async (req, res) => {
   try {
@@ -34,10 +35,19 @@ const getlist = async (req, res) => {
 
 const getpost = async (req, res) => {
   try {
-    const post = await tPost.tPost.findOne({ where: { tpostID: req.params.tpostID }
-    ,include: [{
-        model: tPost.tPostImage, as:"post_images",
-    }] });
+    const post = await tPost.tPost.findOne({
+      where: { tpostID: req.params.tpostID },
+      include: [
+        {
+          model: tPost.tPostImage,
+          as:"post_images",
+        },
+        {
+          model: Tag.Tag,
+          as: "tags",  // 여기에는 설정한 관계의 이름이 들어가야 합니다.
+        },
+      ],
+    });
     res.status(200).json({ post });
   } catch (err) {
     console.error(err);

@@ -2,18 +2,20 @@ const tUpload = require('../models/uploadModel');
 const cUpload = require('../models/uploadModel');
 const path=require('path');
 const axios = require('axios'); // HTTP 통신을 위한 라이브러리
+const { Tag, TTagging } = require('../models/uploadModel');
 
 async function uploadpost(req, res) {
   if (!req.files) {
-    return res.status(400).send({message: "No files uploaded"}); // 저장 폴더가 없을 시 에러
-}
+    return res.status(400).send({message: "No files uploaded"});
+  }
 
-try {
-    const user=req.decode; // 유저 토큰의 정보 저장
+  try {
+    const user=req.decode;
     const jsonData = JSON.parse(req.body.jsonData);
-    console.log(jsonData);
-    // 요청 데이터로 받은 게시물 정보를 travel_post 테이블에 저장
-    const posting=await tUpload.tPost.create({
+    const tags = jsonData.tags;
+    let savedTags = [];
+    // 게시물을 생성하고 생성된 게시물의 정보를 가져옵니다.
+    const posting = await tUpload.tPost.create({
       userID: user.userID,
       postDate: new Date(),
       location: jsonData.location,
@@ -22,8 +24,11 @@ try {
       y : jsonData.y,
       address_name: jsonData.address_name
     });
-    const tpostID = posting.getDataValue('tpostID'); // 위에서 저장한 게시물의 tpostID를 받아옴
-    // 게시물 이미지를 저장
+
+    // 생성된 게시물의 ID를 가져옵니다.
+    const tpostID = posting.getDataValue('tpostID');
+
+    // 이미지를 저장합니다.
     const imageSavePromises = req.files.map((file, index) => {
       const imageUrl = path.join(file.destination, file.filename);
       return tUpload.tPostImage.create({
@@ -34,13 +39,29 @@ try {
     });
   
     await Promise.all(imageSavePromises);
+    
+    // 태그 저장 로직 추가
+    for (const tagName of tags) {
+      const [tag, created] = await Tag.findOrCreate({
+        where: { content: tagName },
+        defaults: { content: tagName }
+      });
+
+      const tagging = await TTagging.create({
+        tpostID: tpostID,
+        tagID: tag.tagID,
+      });
+
+      savedTags.push(tag);
+    }
+
     res.status(200).send({ message: "Posts saved successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).send({ message: "Error saving posts" });
   }
-
 }
+
 // JWT 토큰으로 검증을 완료한 사용자의 게시물을 삭제하는 메서드
 async function deletepost(req, res) {
   let param=req.params.tpostid;
@@ -148,7 +169,6 @@ async function companionUploadpost(req, res) {
   }
 }
 
-
 // JWT 토큰으로 검증을 완료한 사용자의 게시물을 삭제하는 메서드
 async function companionDeletepost(req, res) {
   let param=req.params.cpostid;
@@ -238,5 +258,4 @@ async function searchKeyword(req, res)  {
 };
 
 
-
-module.exports = { uploadpost, deletepost, updatePost,companionUploadpost,companionDeletepost,companionUpdatePost,searchKeyword };
+module.exports = { uploadpost,deletepost, updatePost,companionUploadpost,companionDeletepost,companionUpdatePost,searchKeyword };
