@@ -1,3 +1,4 @@
+//likeController.js
 const jwt = require('jsonwebtoken');
 const LikeModel = require('../models/likeModel');
 const tPost = require('../models/uploadModel').tPost;  // tPost 모델을 가져옵니다.
