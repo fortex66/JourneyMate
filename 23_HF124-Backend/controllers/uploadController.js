@@ -2,6 +2,7 @@ const tUpload = require('../models/uploadModel');
 const cUpload = require('../models/uploadModel');
 const path=require('path');
 const comment = require('../models/commentModel');
+const ccomment = require('../models/ccommentModel');
 const LikeModel = require('../models/likeModel');
 const axios = require('axios'); // HTTP 통신을 위한 라이브러리
 const { Tag, TTagging, CTagging } = require('../models/uploadModel');
@@ -211,16 +212,26 @@ async function companionUploadpost(req, res) {
 
 // JWT 토큰으로 검증을 완료한 사용자의 게시물을 삭제하는 메서드
 async function companionDeletepost(req, res) {
-  let param=req.params.cpostid;
-
+  let param=req.params.cpostID;
+  const result=await cUpload.cPost.findOne({ where: { cpostID: param} }); // postID 파라메터와 같은 게시물 찾기
+  if(result.userID!==req.decode.userID){
+    res.json({
+      result: false,
+      message: "삭제 권한이 없거나 존재하지 않는 게시물입니다."
+    });
+  } else{
     try {
-      const result=await cUpload.cPost.destroy({ where: { cpostID: param/*, userID:req.body.userID */} }); // postID 파라메터와 같은 게시물 삭제
+      await CTagging.destroy({where:{cpostID: param}});
+      await ccomment.cComment.destroy({where:{cpostID:param}});
+      await cUpload.cPostImage.destroy({where:{cpostID: param}});
+      await cUpload.cPost.destroy({ where: { cpostID: param} }); // postID 파라메터와 같은 게시물 찾기
       console.log(result);
       res.status(200).json({ message: '동행인 게시물이 정상적으로 삭제되었습니다.' });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: '동행인 게시물 삭제 오류!' });
     }
+  }
   }
 
 // 사용자 검증 통과후 게시물 수정하는 메서드

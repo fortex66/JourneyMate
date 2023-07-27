@@ -24,7 +24,6 @@ const Community_Detail = () => {
         setData(responsePost.data);
         console.log(responsePost.data)
         const responseComments = await axios.get(baseURL + `community/comments/${postId}`); // postId를 API 호출에 사용하여 댓글 데이터 가져오기
-       
         setComments(responseComments.data);
       } catch (error) {
         console.log(error);
@@ -62,7 +61,7 @@ const Community_Detail = () => {
       console.log(error);
     });
   };
-  
+
   const deleteCommunity = async () => {
     const postID = window.location.pathname.split("/").pop();
     try {

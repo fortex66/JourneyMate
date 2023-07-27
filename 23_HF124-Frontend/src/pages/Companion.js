@@ -3,6 +3,8 @@ import styled from "styled-components";
 import Navigationbar from "../components/Navigationbar";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const baseURL = "http://localhost:3000/";
 
@@ -11,6 +13,7 @@ const Companion = () => {
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const observer = useRef();
+
 
   const lastPostElementRef = useCallback(node => {
     if (observer.current) observer.current.disconnect();
@@ -30,6 +33,7 @@ const Companion = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+
       try {
         const response = await axios.get(`${baseURL}companion/?page=${page}`);
         setData(prevData => ({
@@ -67,7 +71,16 @@ const Companion = () => {
                     <img src={`${baseURL}${post.post_images[0] ? post.post_images[0].imageURL.replace(/\\/g, '/') : ''}`} />
                   </div>
                 </Picture>
-                <Title>{post.title}</Title>
+                <Title>
+                  {post.title}
+                  <Titlebar>
+                    {post.userID}
+                    <Heart>
+                    <FontAwesomeIcon icon={faCommentSolid} color="F97800" />
+
+                    </Heart>
+                  </Titlebar>
+                </Title>
               </div>
             </CompanionItem>
           ))}
@@ -119,5 +132,15 @@ const Picture = styled.div`
     object-fit: cover;  // 이미지의 비율을 유지하면서, 요소에 꽉 차게 표시
   }
 `;
+const Titlebar = styled.div`
+display : flex;
+justify-content : space-between;
+font-size:12px;
+`;
+
+const Heart = styled.div`
+font-size : 15px;
+`;
+
 
 export default Companion;
