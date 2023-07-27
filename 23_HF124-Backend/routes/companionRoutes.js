@@ -22,7 +22,11 @@ router.get('/:cpostID', upload.array('files', 1),authMiddleware, postController.
 router.get('/comments/:cpostID', authMiddleware, commentController.companionGetComments);
 router.post('/comments/:cpostID',authMiddleware, commentController.companionAddComment);
 router.delete('/comments/:cpostID',authMiddleware, commentController.companionDeleteComment);
-
+router.get('/commentCount/:cpostID', async (req, res) => {
+    const cpostID = req.query.cpostID;
+    const count = await commentController.updateCCommentCounts(cpostID);
+    res.status(200).json({ message: '댓글 갯수', commentCount: count });
+});
 
 router.get('/posts/search-keyword', uploadController.searchKeyword);
 router.get('/posts', postController.getclist);

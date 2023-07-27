@@ -150,4 +150,37 @@ async function updateCommentCounts(tpostID) {
 }
 
 
-module.exports = { addComment, deleteComment, getComments, companionAddComment,companionDeleteComment, companionGetComments,updateCommentCounts };
+async function updateCCommentCounts(cpostID) {
+  let result = 0;
+  try {
+    // tcomments 테이블에서 게시글의 댓글 수를 계산합니다.
+    const commentCount = await sequelize.query(
+      `SELECT COUNT(*) as count 
+      FROM ccomments 
+      WHERE cpostID = :cpostID`,
+      { 
+        replacements: {cpostID : cpostID} ,
+        type: sequelize.QueryTypes.SELECT 
+      }
+    );
+
+    // 게시글의 댓글 수를 companion posts 테이블에 업데이트합니다.
+    await sequelize.query(
+      `UPDATE \`companion posts\` SET commentCount = :count WHERE cpostID = :cpostID`,
+      {
+        replacements: { count: commentCount[0].count, cpostID },
+        type: sequelize.QueryTypes.UPDATE
+      }
+    );
+
+    result = commentCount[0].count;
+  } catch (error) {
+    console.error(error);
+  }
+
+  return result;
+}
+
+
+
+module.exports = { updateCCommentCounts, addComment, deleteComment, getComments, companionAddComment,companionDeleteComment, companionGetComments,updateCommentCounts };

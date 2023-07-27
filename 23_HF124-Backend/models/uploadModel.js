@@ -174,6 +174,10 @@ const cPost = sequelize.define('companion posts', {
     type: DataTypes.STRING,
     allowNull: true
   },
+  commentCount: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
   title: {
     type: DataTypes.STRING,
     allowNull: false

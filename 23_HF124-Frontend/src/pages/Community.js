@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
+import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
 import { faSquarePlus,} from "@fortawesome/free-solid-svg-icons";
 import Modal from "../components/Modal";
 
@@ -90,6 +91,9 @@ const Community = () => {
                     <Heart>
                       <FontAwesomeIcon icon={faHeartSolid} color="red" />
                     {post.likeCount}
+
+                    <FontAwesomeIcon icon={faCommentSolid} color="F97800" />
+                    {post.commentCount}
                     </Heart>
                   </Titlebar>
                 </Title>
@@ -177,8 +181,16 @@ font-size:12px;
 `;
 
 const Heart = styled.div`
+font-size: 15px;
+display: flex;
+justify-content: flex-end; // 아이콘을 우측으로 정렬
+gap: 3px; // 아이콘 사이의 간격 조정
+
+`;
+const Comment = styled.div`
 font-size : 15px;
 `;
+
 
 const Picture = styled.div`
   display: flex;
