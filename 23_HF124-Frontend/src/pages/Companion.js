@@ -77,7 +77,7 @@ const Companion = () => {
                     {post.userID}
                     <Heart>
                     <FontAwesomeIcon icon={faCommentSolid} color="F97800" />
-
+                    
                     </Heart>
                   </Titlebar>
                 </Title>

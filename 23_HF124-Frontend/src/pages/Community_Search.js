@@ -1,3 +1,4 @@
+//Community_Search.js
 import React, { useState, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +15,8 @@ const Community_Search = () => {
   const [tagList, setTagList] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState({});
   const [posts, setPosts] = useState([]);
+  const [searchTriggered, setSearchTriggered] = useState(true); //Community에 searchTriggered값을 true로
+  //날려서 검색 useeffect가 실행되게 하기 위함
 
   const searchLocation = async () => {
     const query = locationRef.current.value;
@@ -59,35 +62,10 @@ const Community_Search = () => {
   const handleLocationSelect = (location) => {
     locationRef.current.value = location.place_name;
     setSelectedLocation({
-      address_name: location.address_name,
+      address_name: location.place_name,
     });
     setLocationList([]);
   };
-
-  const baseURL = "http://localhost:3000/";
-
-  const getPostsByLocationAndTags = async () => {
-    try {
-      // 클라이언트에서 tag와 location을 쿼리 매개변수로 보내도록 수정
-      const response = await axios.get(`${baseURL}community/search`, {
-        params: {
-          tags: tagList.join(","),
-          location: locationRef.current.value, // location을 주소 이름으로 설정
-        },
-      });
-  
-      if (response.status === 200) {
-        setPosts(response.data);
-        navigate("/community", { state: { posts } });
-        console.log(response.data);
-      } else {
-        console.error("게시물 검색 실패", response.status);
-      }
-    } catch (error) {
-      console.error("게시물을 검색하는 도중 에러가 발생했습니다", error);
-    }
-  };
-  
 
   return (
     <div>
@@ -131,9 +109,15 @@ const Community_Search = () => {
           onKeyPress={onKeyPress}
         />
       </Info>
-
       <Button>
-        <button className="complete_btn" onClick={getPostsByLocationAndTags}>
+        <button
+          className="complete_btn"
+          onClick={() => {
+            navigate("/Community", {
+              state: { posts, location: selectedLocation,searchTriggered,tagList },
+            });
+          }}
+        >
           찾기
         </button>
       </Button>
