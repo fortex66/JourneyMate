@@ -175,7 +175,6 @@ const Companion_Detail = () => {
             ))}
           </CommentList>
         </CommentSection>
-        <Detail_Nav />
       </Page>
     );
   }

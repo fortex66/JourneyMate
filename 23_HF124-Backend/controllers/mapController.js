@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 const mapGetlist = async (req, res) => {
     try {
       const date = new Date();
-      date.setDate(date.getDate() - 7); // 특정 날짜보다 오래된 날짜는 출력하지 않는 기능 ex) 7로 설정시 오늘 날짜를 기준으로 7일 이상 지난 게시글을 조회하지 않음
+      date.setDate(date.getDate() - 7); // 특정 날짜보다 오래된 날짜는 출력하지 않는 기능 ex) 7로 설정시 일주일간의 데이터만 보여줌
 
       const posts = await tPost.tPost.findAndCountAll({
         where: {

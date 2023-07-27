@@ -25,9 +25,8 @@ const getlist = async (req, res) => {
       include: [{model: tPost.tPostImage, as: "post_images",},],
     });
     const total_pages = Math.ceil(posts.count / per_page);
- 
-
     res.status(200).json({ posts, total_pages });
+    console.log(posts);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "게시글 조회에 실패하였습니다" });
@@ -87,7 +86,8 @@ const getSearchlist = async (req, res) => {
 
     const total_pages = Math.ceil(posts.count / per_page);
  
-    res.status(200).json({ posts: posts.rows, total_pages });
+    res.status(200).json({ posts, total_pages });  // 수정된 부분
+    console.log(posts);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "게시글 조회에 실패하였습니다" });
