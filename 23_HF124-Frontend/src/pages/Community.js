@@ -80,7 +80,7 @@ const Community = () => {
               <div>
                 <Picture>
                   <div>
-                    <img src={`${baseURL}${post.post_images[0].imageURL.replace(/\\/g, '/')}`}  />
+                    <img src={`${baseURL}${post.post_images[0] ? post.post_images[0].imageURL.replace(/\\/g, '/') : ''}`} />
                   </div>
                 </Picture>
                 <Title>

@@ -1,32 +1,52 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import styled from "styled-components";
 import Navigationbar from "../components/Navigationbar";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
 import axios from "axios";
 
+const baseURL = "http://localhost:3000/";
+
 const Companion = () => {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState({ posts: { rows: [] } }); // 초기값 변경
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
+  const observer = useRef();
 
-  /* 상세페이지 이동 */
-  const goDetail = (postId) => { // postId 인자 추가
+  const lastPostElementRef = useCallback(node => {
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        setPage(prevPage => prevPage + 1);
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, []);
 
-    navigate(`/Companion_Detail/${postId}`); // postId를 경로의 일부로 사용
+  const goDetail = (postId) => {
+    navigate(`/Companion_Detail/${postId}`);
   };
 
-  const baseURL = "http://localhost:3000/";
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(baseURL + "companion/");
-        setData(response.data);
+        const response = await axios.get(`${baseURL}companion/?page=${page}`);
+        setData(prevData => ({
+          ...response.data,
+          posts: {
+            ...response.data.posts,
+            rows: [...prevData.posts.rows, ...response.data.posts.rows]
+          }
+        }));
       } catch (error) {
         console.log(error);
       }
     };
     fetchData();
-  }, []); // 빈 배열은 컴포넌트가 마운트될 때 한 번만 fetchData를 실행하라는 의미
+  }, [page]);
+
+  if (!data) return null;
 
   return (
     <div>
@@ -36,11 +56,15 @@ const Companion = () => {
       <Content>
         <Companion_List>
           {data && data.posts.rows.map((post, index) => (
-            <CompanionItem key={index} onClick={() => goDetail(data.posts.rows[index].cpostID)}> {/* postId를 goDetail에 전달 */}
+            <CompanionItem 
+              ref={index === data.posts.rows.length - 1 ? lastPostElementRef : null} 
+              key={index} 
+              onClick={() => goDetail(data.posts.rows[index].cpostID)}
+            >
               <div>
                 <Picture>
                   <div>
-                    <img src={post.post_images && post.post_images[0] ? `${baseURL}${post.post_images[0].imageURL.replace(/\\/g, '/')}` : "default_image_url"} />
+                    <img src={`${baseURL}${post.post_images[0] ? post.post_images[0].imageURL.replace(/\\/g, '/') : ''}`} />
                   </div>
                 </Picture>
                 <Title>{post.title}</Title>

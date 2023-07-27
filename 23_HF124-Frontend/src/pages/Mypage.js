@@ -42,7 +42,7 @@ function MyPage() {
     }
   }
 
-
+  
   useEffect(() => {
     if (selectedColor === "faGlobe") {
       getCommunity();
@@ -50,7 +50,7 @@ function MyPage() {
       getCompanion();
     }
     getCommunity();
-  }, [selectedColor]);
+  }, [selectedColor]); // 이 부분은 selectedColor가 변경될 때마다 실행됩니다.
   
   
   return (
@@ -102,7 +102,8 @@ function MyPage() {
               <CommunityItem key={index} onClick={() => goDetail(CommunityData.posts.rows[index].tpostID)}>
                 <div>
                   <Picture>
-                    <img src={`${baseURL}${post.post_images[0].imageURL.replace(/\\/g, "/")}`} />
+                    
+                    <img src={`${baseURL}${post.post_images[0] ? post.post_images[0].imageURL.replace(/\\/g, '/') : ''}`} />
                   </Picture>
                 </div>
               </CommunityItem>

@@ -274,7 +274,11 @@ CTagging.init({
   },
   cpostID: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'companion posts',
+      key: 'cpostID'
+    }
   },
 }, {
   sequelize,
@@ -299,8 +303,25 @@ Tag.belongsToMany(tPost, {
   through: TTagging,
   foreignKey: 'tagID',
   otherKey: 'tpostID',
-  as: 'posts'
+  as: 'tPosts'
 });
+
+// cPost와 Tag 사이의 관계 설정
+cPost.belongsToMany(Tag, {
+  through: CTagging,
+  foreignKey: 'cpostID',
+  otherKey: 'tagID',
+  as: 'tags'
+});
+
+// Tag와 cPost 사이의 관계 설정
+Tag.belongsToMany(cPost, {
+  through: CTagging,
+  foreignKey: 'tagID',
+  otherKey: 'cpostID',
+  as: 'cPosts'
+});
+
 
 Tag.hasMany(CTagging, { foreignKey: 'tagID' });
 CTagging.belongsTo(Tag, { foreignKey: 'tagID' });

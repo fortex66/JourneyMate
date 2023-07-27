@@ -1,6 +1,7 @@
 const tPost = require('../models/uploadModel');
 const cPost = require('../models/uploadModel');
 const Tag = require('../models/uploadModel');
+const { Op } = require('sequelize');
 
 const getlist = async (req, res) => {
   try {
@@ -33,10 +34,11 @@ const getlist = async (req, res) => {
   }
 };
 
+
 const getSearchlist = async (req, res) => {
   try {
     const { page = 1, per_page = 10, sort = 'latest', tags, location } = req.query;
-	
+
     let order;
     switch (sort) {
       case 'dueDate':
@@ -47,13 +49,12 @@ const getSearchlist = async (req, res) => {
         order = [['postDate', 'DESC']];
     }
 
-    // tag를 배열로 변환
-    let tagList = tags ? tags.split(",") : null;
-	
-    const posts = await tPost.tPost.findAndCountAll({
-      offset: per_page * (page - 1),
-      limit: per_page,
-      order: order,
+    // location 검색 조건
+    const locationCondition = location ? { location: { [Op.like]: `%${location}%` } } : {};
+
+    // 먼저 location을 기반으로 게시물 찾기
+    let posts = await tPost.tPost.findAndCountAll({
+      where: locationCondition,
       include: [
         {
           model: tPost.tPostImage, 
@@ -66,26 +67,32 @@ const getSearchlist = async (req, res) => {
             model: Tag.TTagging,
             attributes: [],
           },
-          where: tagList ? { content: tagList } : null,
+          required: false
         },
       ],
-      where: location ? { location: location } : null, // 게시물을 location으로 필터링
+      order: order,
+      offset: per_page * (page - 1),
+      limit: per_page,
     });
 
-    // 게시물이 모든 태그를 가지고 있는지 확인하고, 그렇지 않은 경우 필터링
-    const filteredPosts = tagList
-      ? posts.rows.filter(post => tagList.every(tag => post.tags.map(t => t.content).includes(tag)))
-      : posts.rows;
+    // tag를 배열로 변환
+    let tagList = tags ? tags.split(",") : null;
 
-    const total_pages = Math.ceil(filteredPosts.length / per_page);
+    // tag가 제공된 경우, tag를 기반으로 게시물을 필터링
+    if (tagList) {
+      posts.rows = posts.rows.filter(post =>
+        post.tags.some(tag => tagList.includes(tag.content))
+      );
+    }
+
+    const total_pages = Math.ceil(posts.count / per_page);
  
-    res.status(200).json({ posts: filteredPosts, total_pages });
+    res.status(200).json({ posts: posts.rows, total_pages });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "게시글 조회에 실패하였습니다" });
   }
 };
-
 
 
 
@@ -100,7 +107,7 @@ const getpost = async (req, res) => {
         },
         {
           model: Tag.Tag,
-          as: "tags",  // 여기에는 설정한 관계의 이름이 들어가야 합니다.
+          as: "tags",  
         },
       ],
     });
@@ -113,7 +120,17 @@ const getpost = async (req, res) => {
 
 const getclist = async (req, res) => {
   try {
-    const { page = 1, per_page = 10 } = req.query;
+    const { page = 1, per_page = 10, sort = 'latest' } = req.query;
+
+    let order;
+    switch (sort) {
+      case 'dueDate':
+        order = [['finishDate', 'DESC']];
+        break;
+      case 'latest': 
+      default:
+        order = [['postDate', 'DESC']];
+    }
 
     const posts = await cPost.cPost.findAndCountAll({
       offset: per_page * (page - 1),
@@ -136,10 +153,17 @@ const getclist = async (req, res) => {
 const getcpost = async (req, res) => {
   try {
     const post = await cPost.cPost.findOne({ where: { cpostID: req.params.cpostID }
-    ,include: [{
-        model: cPost.cPostImage, as:"post_images",
-    }] });
-    
+    ,include: [
+      {
+        model: cPost.cPostImage, 
+        as:"post_images",
+       },
+     {
+      model: Tag.Tag,
+      as: "tags",  
+     },
+    ] });
+
     res.status(200).json({ post });
   } catch (err) {
     console.error(err);
