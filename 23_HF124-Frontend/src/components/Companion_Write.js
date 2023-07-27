@@ -14,6 +14,8 @@ const Companion_Write = () => {
   const tagRef = useRef();
   const ageRef = useRef();
   const fileRef = useRef();
+  const [tagItem, setTagItem] = useState(""); // 태그 입력값
+  const [tagList, setTagList] = useState([]); // 태그 리스트
 
   const navigate = useNavigate();
   const [locationList, setLocationList] = useState([]);
@@ -52,6 +54,25 @@ const Companion_Write = () => {
     }
   };
 
+  const onKeyPress = (e) => {
+    if (e.target.value.length !== 0 && e.key === "Enter") {
+      submitTagItem();
+    }
+  };
+   // 태그 추가 처리
+   const submitTagItem = () => {
+    let updatedTagList = [...tagList];
+    updatedTagList.push(tagItem);
+    setTagList(updatedTagList);
+    setTagItem("");
+  };
+
+  // 태그 삭제 처리
+  const deleteTagItem = (e) => {
+    const deleteTagItem = e.target.parentElement.firstChild.innerText;
+    const filteredTagList = tagList.filter((tagItem) => tagItem !== deleteTagItem);
+    setTagList(filteredTagList);
+  };
   const handleLocationSelect = (location) => {
     locationRef.current.value = location.place_name;
     setSelectedLocation({x: location.x, y: location.y});
@@ -120,13 +141,14 @@ const Companion_Write = () => {
         pgender: gender,
         age: ageRef.current.value,
         personnel: personnelRef.current.value,
-        content: contentRef.current.value
+        content: contentRef.current.value,
+        tags: tagList,  // 태그 리스트 추가
       };
       formData.append("jsonData", JSON.stringify(jsonData));
       axios
       .post("http://localhost:3000/companion/cupload", formData, {
         headers: {
-          "Content-Type": "multipart/form-data", 
+          "Content-Type": "multipart/form-data",
         },
       })
       .then(() => {
@@ -242,10 +264,23 @@ const Companion_Write = () => {
           <InputLabel>내용</InputLabel>
           <ContentTextarea name="content" placeholder="내용을 입력하세요." value={content} ref={contentRef} onChange={(e)=>handleInput(e)}/>
         </InputContainer>
-
         <InputContainer>
           <InputLabel>태그</InputLabel>
-          <Input type="text" name="tag" placeholder="태그를 입력하세요" ref={tagRef} />
+          {tagList.map((tagItem, index) => {
+            return (
+              <TagItem key={index}>
+                <Text>{tagItem}</Text>
+                <tagButton onClick={deleteTagItem}>X</tagButton>
+              </TagItem>
+            );
+          })}
+          <TagInput
+            type="text"
+            placeholder="태그를 입력해주세요!"
+            onChange={(e) => setTagItem(e.target.value)}
+            value={tagItem}
+            onKeyPress={onKeyPress}
+          />
         </InputContainer>
       </Section>
       {showModal && <Modal>{modalMessage}</Modal>}
@@ -511,6 +546,40 @@ const Modal = styled.div`
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+`;
+const TagItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 5px;
+  padding: 5px;
+  background-color: tomato;
+  border-radius: 5px;
+  color: white;
+  font-size: 13px;
+`;
+
+const Text = styled.span``;
+
+const tagButton = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 15px;
+  height: 15px;
+  margin-left: 5px;
+  background-color: white;
+  border-radius: 50%;
+  color: tomato;
+`;
+
+const TagInput = styled.input`
+  display: inline-flex;
+  min-width: 200px;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: text;
 `;
 
 export default Companion_Write;

@@ -3,7 +3,6 @@ import axios from 'axios'; // 추가
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
-
 function Login() {
   const [userID, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -17,27 +16,28 @@ function Login() {
   };
 
 
-
   const handleSubmit = async (e) => { // async 추가
     e.preventDefault();
     if (userID && password) {
       try {
-        const response = await axios.post('http://localhost:3000/users/login', {
+        const response = await axios.post("http://localhost:3000/users/login", {
           userID: userID,
           password: password,
         });
-        
-        if(response.data.result) {
-          
-          // const { accessToken } = response.data.token;
+        console.log(response.data)
+        if (response.data.result) {
+          // 토큰을 로컬 스토리지에 저장
+          localStorage.setItem("jwtToken", response.data.userID);
 
-		      // API 요청하는 콜마다 헤더에 accessToken 담아 보내도록 설정
+          // axios 기본 헤더에 토큰 설정
+          axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.userID}`;
+
+          // API 요청하는 콜마다 헤더에 accessToken 담아 보내도록 설정
           console.log(response.data.message);
           navigate("/Home"); // 로그인이 성공하면 Home 페이지로 이동
         } else {
           alert(response.data.message);
         }
-        
       } catch (error) {
         console.error(error);
       }

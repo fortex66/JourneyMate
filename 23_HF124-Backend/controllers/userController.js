@@ -8,7 +8,6 @@ dotenv.config();
 
 const loginUser = async (req, res) => {
   const { userID, password } = req.body;
-
   try {
     const user = await User.findOne({ where: { userID } });
 
@@ -31,7 +30,7 @@ const loginUser = async (req, res) => {
       httpOnly:true, //콘솔창에서 토큰을 수정하는거 방지하는 옵션
       secure:false, // HTTPS에 해당하면 true로 설정
       maxAge:24*60*60*1000 // 24h과 동일한 의미
-    }).status(200).json({ result: true, message: `${user.user}님이 로그인했습니다.` });
+    }).status(200).json({ result: true, message: `${user.user}님이 로그인했습니다.`,  userID: user.userID });
   } catch (err) {
     console.log(err);
     res.status(500).json({ result: false, message: "Server error" });

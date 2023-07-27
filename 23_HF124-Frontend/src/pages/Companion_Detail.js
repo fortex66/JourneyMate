@@ -98,7 +98,7 @@ const Companion_Detail = () => {
         <Info>
           위치 : {data && data.post.location}
           <br />
-          {/* 태그 : {data && data.post.tag} */}
+          태그 : {data && data.post.tags && data.post.tags.map(tag => tag.content).join(', ')}
           <br />
           성별 : {data && data.post.pgender}
           <br />

@@ -90,7 +90,7 @@ const Home = () => {
                     lng: marker.x,
                   }}
                   image={{
-                    src: marker.post_images[0].imageURL.replace(/\\/g, "/"),
+                    src: marker.post_images[0] ? marker.post_images[0].imageURL.replace(/\\/g, "/") : '',
                     size: {
                       width: 50,
                       height: 50,

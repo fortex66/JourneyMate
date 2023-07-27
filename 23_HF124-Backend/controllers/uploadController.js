@@ -1,8 +1,17 @@
 const tUpload = require('../models/uploadModel');
 const cUpload = require('../models/uploadModel');
 const path=require('path');
+const comment = require('../models/commentModel');
+const LikeModel = require('../models/likeModel');
 const axios = require('axios'); // HTTP 통신을 위한 라이브러리
-const { Tag, TTagging } = require('../models/uploadModel');
+const { Tag, TTagging, CTagging } = require('../models/uploadModel');
+const { Sequelize, DataTypes, Model } = require('sequelize');
+
+const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USERNAME, process.env.MYSQL_PASSWORD, {
+  host: process.env.MYSQL_HOST,
+  port: process.env.MYSQL_PORT,
+  dialect: 'mysql',
+});
 
 async function uploadpost(req, res) {
   if (!req.files) {
@@ -65,16 +74,29 @@ async function uploadpost(req, res) {
 // JWT 토큰으로 검증을 완료한 사용자의 게시물을 삭제하는 메서드
 async function deletepost(req, res) {
   let param=req.params.tpostid;
-
-    try {
-      const result=await tUpload.tPost.destroy({ where: { tpostID: param/*, userID:req.body.userID */} }); // postID 파라메터와 같은 게시물 삭제
-      console.log(result);
-      res.status(200).json({ message: '게시물이 정상적으로 삭제되었습니다.' });
+    const result=await tUpload.tPost.findOne({ where: { tpostID: param} }); // postID 파라메터와 같은 게시물 찾기
+    if(result.userID!==req.decode.userID){
+      res.json({
+        result: false,
+        message: "삭제 권한이 없거나 존재하지 않는 게시물입니다."
+      });
+    }
+    else{
+      try {
+        await LikeModel.destroy({where:{tpostID: param}});
+        await TTagging.destroy({where:{tpostID: param}});
+        await comment.tComment.destroy({where:{tpostID:param}});
+        await tUpload.tPostImage.destroy({where:{tpostID: param}});
+        await tUpload.tPost.destroy({ where: { tpostID: param} }); // postID 파라메터와 같은 게시물 찾기
+        console.log(result);
+        res.status(200).json({ message: '게시물이 정상적으로 삭제되었습니다.' });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: '게시물 삭제 오류!' });
+        console.error(error);
+        res.status(500).json({ message: '게시물 삭제 오류!' });
+    }
     }
   }
+
 
 // 사용자 검증 통과후 게시물 수정하는 메서드
 async function updatePost(req, res) {
@@ -135,7 +157,8 @@ async function companionUploadpost(req, res) {
   try {
     const user=req.decode;
     const jsonData = JSON.parse(req.body.jsonData);
-
+    const tags = jsonData.tags;
+    let savedTags = [];
     // 게시물을 생성하고 생성된 게시물의 정보를 가져옵니다.
     const posting = await cUpload.cPost.create({
       userID: user.userID,
@@ -154,13 +177,30 @@ async function companionUploadpost(req, res) {
     const cpostID = posting.getDataValue('cpostID');
 
     // 이미지를 저장합니다.
-    req.files.forEach(async (file, index) => {
+    const imageSavePromises = req.files.map(async (file) => {
       const imageUrl = path.join(file.destination, file.filename);
       await cUpload.cPostImage.create({
         imageURL: imageUrl,
         cpostID: cpostID
       });
     });
+
+    await Promise.all(imageSavePromises);
+    
+     // 태그 저장 로직 추가
+     for (const tagName of tags) {
+      const [tag, created] = await Tag.findOrCreate({
+        where: { content: tagName },
+        defaults: { content: tagName }
+      });
+
+      const ctagging = await CTagging.create({
+        cpostID: cpostID,
+        tagID: tag.tagID,
+      });
+
+      savedTags.push(tag);
+    }
 
     res.status(200).send({ message: "cPosts saved successfully" });
   } catch (err) {
@@ -216,12 +256,9 @@ async function companionUpdatePost(req, res) {
               imageURL: imageUrl,
               cpostID: cpostID
             }
-            
           );
           console.log(index);
         }
-        
-       
         res.status(200).json({ result: true, message: "동행인 게시글 수정 완료" });
       }
     
@@ -231,6 +268,7 @@ async function companionUpdatePost(req, res) {
     }
  
 }
+
 async function searchKeyword(req, res)  {
   try {
     const query = req.query.query;
