@@ -20,6 +20,7 @@ router.get('/mapimage',authMiddleware, mapController.mapGetlist);
 
 //커뮤니티 게시글 불러오기
 router.get('/',authMiddleware, postController.getlist);
+router.get('/search',authMiddleware, postController.getSearchlist);
 
 //커뮤니티 게시글 상세정보
 router.get('/:tpostID', upload.array('photos[]', 10),authMiddleware, postController.getpost);

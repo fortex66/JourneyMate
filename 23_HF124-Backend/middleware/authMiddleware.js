@@ -11,7 +11,6 @@ module.exports = authMiddleware = (req, res, next) => {
     }
     const decodedToken = jwt.verify(reqToken, process.env.jwtSecretkey); // 토큰 검증
     req.decode = { userID: decodedToken.userID }; // 토큰에 있는 userID 값 저장
-    console.log(req.params);
     next(); // 다음 메서드로 이동
   } catch (err) {
     res.send(403).json({message: "error"});

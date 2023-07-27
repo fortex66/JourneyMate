@@ -182,7 +182,6 @@ const Community_Write = () => {
         tags: tagList,
       };
       formData.append("jsonData", JSON.stringify(jsonData)); // 위치와 제목데이터를 formdata에 담기
-      console.log(jsonData);
       // 서버로 formData전송
       try {
         await axios.post("http://localhost:3000/community/upload", formData, {

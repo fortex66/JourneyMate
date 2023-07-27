@@ -9,6 +9,7 @@ import { faSquarePlus,} from "@fortawesome/free-solid-svg-icons";
 import Modal from "../components/Modal";
 
 const Community = () => {
+
   const [data, setData] = useState({ posts: { rows: [] } }); // 초기값 변경
   const [page, setPage] = useState(1);
   const navigate = useNavigate();

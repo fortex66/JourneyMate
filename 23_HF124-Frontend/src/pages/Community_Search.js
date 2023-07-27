@@ -1,8 +1,8 @@
-import Navigationbar from "../components/Navigationbar";
+import React, { useState, useRef } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import axios from "axios";
-import { useState, useRef } from "react";
+import Navigationbar from "../components/Navigationbar";
 
 axios.defaults.withCredentials = true;
 
@@ -10,24 +10,22 @@ const Community_Search = () => {
   const navigate = useNavigate();
   const locationRef = useRef();
   const [locationList, setLocationList] = useState([]);
-  const [tagItem, setTagItem] = useState(""); // 태그 입력값
-  const [tagList, setTagList] = useState([]); // 태그 리스트
+  const [tagItem, setTagItem] = useState("");
+  const [tagList, setTagList] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState({});
+  const [posts, setPosts] = useState([]);
 
   const searchLocation = async () => {
     const query = locationRef.current.value;
-
     if (!query.trim()) {
-      // 입력값이 비어있는 경우 API 호출을 막습니다.
-      setLocationList([]); // 위치 목록을 초기화하면서 자동완성 리스트를 비웁니다.
-      return; // 빈 문자열인 경우 함수를 여기서 종료합니다.
+      setLocationList([]);
+      return;
     }
     try {
       const response = await axios.get(
         `http://localhost:3000/community/posts/search-keyword?query=${locationRef.current.value}`
       );
       if (response.status === 200) {
-        // response.data가 배열인지 확인하고, 배열이 아니면 빈 배열로 설정
         setLocationList(Array.isArray(response.data) ? response.data : []);
       } else {
         console.error("주소 검색 실패", response.status);
@@ -37,14 +35,12 @@ const Community_Search = () => {
     }
   };
 
-  // 태그 입력 처리
   const onKeyPress = (e) => {
     if (e.target.value.length !== 0 && e.key === "Enter") {
       submitTagItem();
     }
   };
 
-  // 태그 추가 처리
   const submitTagItem = () => {
     let updatedTagList = [...tagList];
     updatedTagList.push(tagItem);
@@ -52,7 +48,6 @@ const Community_Search = () => {
     setTagItem("");
   };
 
-  // 태그 삭제 처리
   const deleteTagItem = (e) => {
     const deleteTagItem = e.target.parentElement.firstChild.innerText;
     const filteredTagList = tagList.filter(
@@ -61,16 +56,38 @@ const Community_Search = () => {
     setTagList(filteredTagList);
   };
 
-  // 선택한 위치를 사용하기 위함
   const handleLocationSelect = (location) => {
     locationRef.current.value = location.place_name;
     setSelectedLocation({
-      x: location.x,
-      y: location.y,
       address_name: location.address_name,
     });
     setLocationList([]);
   };
+
+  const baseURL = "http://localhost:3000/";
+
+  const getPostsByLocationAndTags = async () => {
+    try {
+      // 클라이언트에서 tag와 location을 쿼리 매개변수로 보내도록 수정
+      const response = await axios.get(`${baseURL}community/search`, {
+        params: {
+          tags: tagList.join(","),
+          location: locationRef.current.value, // location을 주소 이름으로 설정
+        },
+      });
+  
+      if (response.status === 200) {
+        setPosts(response.data);
+        navigate("/community", { state: { posts } });
+        console.log(response.data);
+      } else {
+        console.error("게시물 검색 실패", response.status);
+      }
+    } catch (error) {
+      console.error("게시물을 검색하는 도중 에러가 발생했습니다", error);
+    }
+  };
+  
 
   return (
     <div>
@@ -115,12 +132,58 @@ const Community_Search = () => {
         />
       </Info>
 
+      <Button>
+        <button className="complete_btn" onClick={getPostsByLocationAndTags}>
+          찾기
+        </button>
+      </Button>
+
       <Navigationbar />
     </div>
   );
 };
 
 export default Community_Search;
+
+const Button = styled.div`
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+
+  button.complete_btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+    appearance: none;
+    background-color: transparent;
+    border: 2px solid #f97800;
+    border-radius: 0.6em;
+    color: #f97800;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: "Nanum Gothic", sans-serif;
+    line-height: 1;
+    padding: 0.6em 1em;
+    text-decoration: none;
+    letter-spacing: 2px;
+    font-weight: 700;
+
+    &:hover,
+    &:focus {
+      color: #fff;
+      outline: 0;
+    }
+    &:hover {
+      box-shadow: 0 0 40px 40px #f97800 inset;
+    }
+
+    &:focus:not(:hover) {
+      color: #f97800;
+      box-shadow: none;
+    }
+  }
+`;
 
 const Title = styled.div`
   color: #f97800;
@@ -200,12 +263,14 @@ const Info = styled.div`
   margin-top: 80px;
   margin-bottom: 20px;
   border-bottom: 1px solid rgb(234, 235, 239);
+  cursor: pointer;
 
   input {
     border: 0;
     outline: none;
     padding: 10px;
     font-family: "Nanum Gothic", sans-serif;
+    cursor: pointer;
   }
 `;
 
