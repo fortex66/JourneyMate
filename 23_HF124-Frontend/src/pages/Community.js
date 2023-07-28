@@ -9,12 +9,15 @@ import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
 import { faSquarePlus } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../components/Modal";
 
+const baseURL = "http://localhost:3000/";
+
 const Community = () => {
   const [data, setData] = useState({ posts: { rows: [] } });
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const [write, setWrite] = useState(false);
   const observer = useRef();
+
   const location = useLocation();
   const searchTriggered = location.state?.searchTriggered || false;
   const tagList = location.state ? location.state.tagList : [];
@@ -38,9 +41,6 @@ const Community = () => {
     navigate(`/Community_Detail/${postId}`);
   };
 
-  const baseURL = "http://localhost:3000/";
-
-
   useEffect(() => {
     if (searchTriggered) return;  // 검색이 실행되면 아무 것도 하지 않습니다.
     console.log(`그냥 시작전 ${page}, ${searchTriggered} `);
@@ -59,7 +59,6 @@ const Community = () => {
       } catch (error) {
         console.log(error);
       }
-      
     };
     if (page > 1 || !searchTriggered) {  // 페이지가 1보다 크거나, 검색이 실행되지 않은 경우에 추가 결과를 불러옵니다.
       fetchMoreData();
@@ -68,7 +67,7 @@ const Community = () => {
   
   useEffect(() => {
     if (!searchTriggered) return;
-    console.log(`서치 시작전 ${page},${searchTriggered}`);
+    console.log(`서치 시작전 페이지 :  ${page},${searchTriggered}`);
     const fetchData = async () => {
       try {
         if (selectedLocation ||tagList) {
@@ -76,23 +75,31 @@ const Community = () => {
           console.log(`서치 ${page}`);
           const response = await axios.get(`${baseURL}community/search`, {
             params: {
+              page,
               tags: tagList.join(","),
               location: selectedLocation ? selectedLocation.address_name : null,
             },
           });
-          setData(response.data);  // 검색 결과를 설정합니다.
-        } 
+          if (page > 1) { // 페이지가 1보다 크면 기존 데이터에 추가
+            setData((prevData) => ({
+              ...prevData,
+              posts: {
+                ...prevData.posts,
+                rows: [...prevData.posts.rows, ...response.data.posts.rows],
+              },
+            }));
+          } else { // 페이지가 1이면 새로운 데이터로 설정
+            setData(response.data);
+            console.log(`서치 커뮤니티 결과 ${response.data.posts.rows}`);
+          }
+        }
       } catch (error) {
         console.log(error);
       }
     };
     fetchData();
-    return () => {};
-  }, [selectedLocation, tagList, searchTriggered]);  
+  }, [selectedLocation, tagList, searchTriggered,page]);  
 
-
-  
-  
 
   if (!data || !data.posts || !data.posts.rows) return null;
 
@@ -110,6 +117,11 @@ const Community = () => {
         </IconContainer>
       </Header>
       <Content>
+      <Sort>
+          <button>최신순</button>
+          <button>인기순</button>
+          <button>댓글순</button>
+      </Sort>
         <CommunityList>
         {data && data.posts.rows.map((post, index) => (
             <CommunityItem
@@ -167,7 +179,7 @@ const Header = styled.div`
   position: fixed;
   top: 0;
   height: 90px;
-  background-color: rgb(240, 240, 240);
+  background-color: #fff;
   border-bottom: 1px solid;
 `;
 
@@ -175,7 +187,7 @@ const SearchInput = styled.input`
   width: 70%;
   height: 40px;
   border-radius: 15px;
-  border: none;
+  border: 1px solid #DADDE0;
   padding: 0 10px;
   &:focus {
     outline: none;
@@ -183,18 +195,45 @@ const SearchInput = styled.input`
   margin-top: 10px;
 `;
 
+
 const IconContainer = styled.div`
   display: flex;
   align-items: center;
   margin-top: 10px;
   margin-right: 10px;
+  cursor: pointer;
 `;
+const Sort = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin:0px 50px 20px 50px;
+  button{
+    box-sizing: border-box;
+    appearance: none;
+    background-color: #f97800;
+    border: 1px solid #f97800;
+    border-radius: 0.6em;
+    color: #fff;
+    cursor: pointer;
+    align-self: center;
+    font-size: 12px;
+    font-family: "Nanum Gothic", sans-serif;
+    line-height: 1;
+    margin: 10px;
+    padding: 0.6em 2em;
+    text-decoration: none;
+    letter-spacing: 2px;
+    font-weight: bold;
+  }
+`;
+
 
 const Content = styled.div`
   margin-right: 20px;
   margin-left: 20px;
-  margin-top: 110px;
+  margin-top: 100px;
 `;
+
 
 const CommunityList = styled.div`
   display: flex;

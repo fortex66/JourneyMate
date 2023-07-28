@@ -38,7 +38,7 @@ const Community_Search = () => {
     }
   };
 
-  const onKeyPress = (e) => {
+  const onKeyDown = (e) => {
     if (e.target.value.length !== 0 && e.key === "Enter") {
       submitTagItem();
     }
@@ -97,7 +97,7 @@ const Community_Search = () => {
           return (
             <TagItem key={index}>
               <Text>{tagItem}</Text>
-              <tagButton onClick={deleteTagItem}>X</tagButton>
+              <TagButton onClick={deleteTagItem}>X</TagButton>
             </TagItem>
           );
         })}
@@ -106,7 +106,7 @@ const Community_Search = () => {
           placeholder="태그를 입력해주세요!"
           onChange={(e) => setTagItem(e.target.value)}
           value={tagItem}
-          onKeyPress={onKeyPress}
+          onKeyDown={onKeyDown}
         />
       </Info>
       <Button>
@@ -114,7 +114,7 @@ const Community_Search = () => {
           className="complete_btn"
           onClick={() => {
             navigate("/Community", {
-              state: { posts, location: selectedLocation,searchTriggered,tagList },
+              state: { posts, location: selectedLocation, searchTriggered,tagList },
             });
           }}
         >
@@ -128,6 +128,17 @@ const Community_Search = () => {
 };
 
 export default Community_Search;
+const TagButton = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 15px;
+  height: 15px;
+  margin-left: 5px;
+  background-color: white;
+  border-radius: 50%;
+  color: tomato;
+`;
 
 const Button = styled.div`
   display: flex;

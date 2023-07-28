@@ -12,4 +12,8 @@ router.get('/:userID/scraps', scrapController.getScrapList);
 router.get('/community', upload.array('photos[]', 10),authMiddleware, mypageController.getCommunityList);
 router.get('/companion', upload.array('photos[]', 10),authMiddleware, mypageController.getCompanionList);
 
+// 7/28 라우팅 설정
+router.get('/profile',authMiddleware,mypageController.getProfile);
+router.put('/passwordChange',authMiddleware,mypageController.updatePassword);
+
 module.exports = router;

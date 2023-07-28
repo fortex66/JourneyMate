@@ -37,6 +37,7 @@ const getlist = async (req, res) => {
 const getSearchlist = async (req, res) => {
   try {
     const { page = 1, per_page = 10, sort = 'latest', tags, location } = req.query;
+    console.log(req.query);
 
     let order;
     switch (sort) {
@@ -171,8 +172,75 @@ const getcpost = async (req, res) => {
   }
 };
 
+const getCSearchlist = async (req, res) => {
+  try {
+    const { page = 1, per_page = 10, sort = 'latest', tags, location, pgender, age, startDate, finishDate } = req.query;
+    console.log(req.query);
+    let order;
+    switch (sort) {
+      case 'dueDate':
+        order = [['finishDate', 'DESC']];
+        break;
+      case 'latest': 
+      default:
+        order = [['postDate', 'DESC']];
+    }
+
+    // location 검색 조건
+    const locationCondition = location ? { location: { [Op.like]: `%${location}%` } } : {};
+    const genderCondition = pgender ? { pgender: { [Op.eq]: pgender } } : {};
+    const ageCondition = age ? { age: { [Op.like]: `%${age}%` } } : {};
+    const startDateCondition = startDate ? { startDate: { [Op.gte]: startDate } } : {};
+    const endDateCondition = finishDate ? { finishDate: { [Op.lte]: finishDate } } : {};
+
+    // 먼저 location을 기반으로 게시물 찾기
+    let posts = await cPost.cPost.findAndCountAll({
+      where: { ...locationCondition, ...genderCondition, ...ageCondition, ...startDateCondition, ...endDateCondition },
+      include: [
+        {
+          model: cPost.cPostImage, 
+          as: "post_images",
+        },
+        {
+          model: Tag.Tag,
+          as: 'tags',
+          through: {
+            model: Tag.CTagging,
+            attributes: [],
+          },
+          required: false
+        },
+      ],
+      order: order,
+      offset: per_page * (page - 1),
+      limit: per_page,
+    });
+
+    // tag를 배열로 변환
+    let tagList = tags ? tags.split(",") : null;
+
+    // tag가 제공된 경우, tag를 기반으로 게시물을 필터링
+    if (tagList) {
+      posts.rows = posts.rows.filter(post =>
+        post.tags.some(tag => tagList.includes(tag.content))
+      );
+    }
+
+    const total_pages = Math.ceil(posts.count / per_page);
+ 
+    res.status(200).json({ posts, total_pages });
+    console.log(posts);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "게시글 조회에 실패하였습니다" });
+  }
+};
+
+
+
+
 
 
 module.exports = {
-    getlist, getpost, getclist, getcpost,getSearchlist
+    getlist, getpost, getclist, getcpost,getSearchlist,getCSearchlist
 };

@@ -137,8 +137,6 @@ async function updatePost(req, res) {
           );
           console.log(index);
         }
-        
-       
         res.status(200).json({ result: true, message: "게시글 수정 완료" });
       }
     
@@ -146,7 +144,6 @@ async function updatePost(req, res) {
       console.log(err);
       res.status(400).json({ result: false });
     }
- 
 }
 
 //동행인 관련 게시글 기능

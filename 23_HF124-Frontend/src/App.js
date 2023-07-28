@@ -15,6 +15,8 @@ import Area from "./pages/Area";
 import Tag from "./pages/Tag";
 import Start from "./pages/Start";
 import Profile from "./pages/Profile";
+import ProfileDetail from "./pages/ProfileDetail";
+import PasswordChange from "./pages/PasswordChange"
 import Scrap from "./pages/Scrap";
 import Community_Write from "./components/Community_Write";
 import Companion_Write from "./components/Companion_Write";
@@ -50,6 +52,8 @@ function App() {
           <Route path="/Tag" element={<Tag />} />
           <Route path="/" element={<Start />} />
           <Route path="/Profile" element={<Profile />} />
+          <Route path="/ProfileDetail" element={<ProfileDetail/>}/>
+          <Route path="/PasswordChange" element={<PasswordChange/>}/>
           <Route path="/Scrap" element={<Scrap />} />
           <Route path="/Search" element={<Search />} />
           <Route path="/Community_Write" element={<Community_Write />} />
