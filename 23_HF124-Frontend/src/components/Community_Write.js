@@ -52,7 +52,7 @@ const Community_Write = () => {
 
 
    // 태그 입력 처리
-   const onKeyPress = (e) => {
+   const onKeyDown = (e) => {
     if (e.target.value.length !== 0 && e.key === "Enter") {
       submitTagItem();
     }
@@ -221,7 +221,7 @@ const Community_Write = () => {
             return (
               <TagItem key={index}>
                 <Text>{tagItem}</Text>
-                <tagButton onClick={deleteTagItem}>X</tagButton>
+                <TagButton onClick={deleteTagItem}>X</TagButton>
               </TagItem>
             );
           })}
@@ -230,7 +230,7 @@ const Community_Write = () => {
             placeholder="태그를 입력해주세요!"
             onChange={(e) => setTagItem(e.target.value)}
             value={tagItem}
-            onKeyPress={onKeyPress}
+            onKeyDown={onKeyDown}
           />
         </Info>
       </div>
@@ -550,7 +550,7 @@ const TagItem = styled.div`
 
 const Text = styled.span``;
 
-const tagButton = styled.button`
+const TagButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;

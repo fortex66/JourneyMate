@@ -16,7 +16,9 @@ router.put('/:cpostID', upload.array('files', 1),authMiddleware, uploadControlle
 
 //동행인 게시글 조회
 router.get('/',authMiddleware, postController.getclist);
+router.get('/search',authMiddleware, postController.getCSearchlist);
 router.get('/:cpostID', upload.array('files', 1),authMiddleware, postController.getcpost);
+
 
 // 동행인 댓글 작성, 삭제
 router.get('/comments/:cpostID', authMiddleware, commentController.companionGetComments);

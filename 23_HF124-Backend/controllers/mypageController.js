@@ -1,5 +1,5 @@
 const Post = require('../models/uploadModel');
-const user=require('../models/userModel');
+const user=require('../models/signupModel');
 
 const getCommunityList = async (req, res) => {
   try {
@@ -49,12 +49,41 @@ const getCompanionList = async (req, res) => {
       res.status(500).json({ message: "동행인 게시글 조회에 실패하였습니다" });
     }
   };
-// const getProfile = async (req, res)=>{
-//     try{
-        
-//     }
-// };
-
-module.exports = {
-    getCommunityList, getCompanionList
+  const getProfile = async (req, res)=>{
+    try{
+        const profile= await user.User.findAll({
+          where: {
+            userID: req.decode.userID
+          }
+        });
+        console.log(profile);
+        const userTag=await user.UserTagging.findAll({
+          where: {
+            userID: req.decode.userID
+          }
+        });
+        console.log(userTag);
+        res.status(200).json({ profile, userTag });
+    } catch (err){
+      console.error(err);
+      res.status(500).json({message: "유저 정보 조회에 실패했습니다."});
+    }
 };
+
+const updatePassword=async(req, res)=>{
+  try{
+    await user.User.update({
+      password: req.body.password
+    },{where: {userID: req.decode.userID}});
+  
+    res.status(200).json({result: true, message: "비밀번호 변경에 성공하였습니다"});
+    
+  }catch(err){
+    res.status(500).json({resutl: false, message: "비밀번호 변경에 실패하였습니다."});
+  }
+  
+  }
+  
+  module.exports = {
+      getCommunityList, getCompanionList,updatePassword,getProfile
+  };

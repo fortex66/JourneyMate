@@ -54,7 +54,7 @@ const Companion_Write = () => {
     }
   };
 
-  const onKeyPress = (e) => {
+  const onKeyDown = (e) => {
     if (e.target.value.length !== 0 && e.key === "Enter") {
       submitTagItem();
     }
@@ -210,6 +210,8 @@ const Companion_Write = () => {
             <RadioLabel>남성</RadioLabel>
             <RadioButton type="radio" name="gender"  value="여자" onChange={handleGenderChange} />
             <RadioLabel>여성</RadioLabel>
+            <RadioButton type="radio" name="gender"  value="상관없음" onChange={handleGenderChange} />
+            <RadioLabel>상관없음</RadioLabel>
           </RadioContainer>
         </InputContainer>
 
@@ -270,7 +272,7 @@ const Companion_Write = () => {
             return (
               <TagItem key={index}>
                 <Text>{tagItem}</Text>
-                <tagButton onClick={deleteTagItem}>X</tagButton>
+                <TagButton onClick={deleteTagItem}>X</TagButton>
               </TagItem>
             );
           })}
@@ -279,7 +281,7 @@ const Companion_Write = () => {
             placeholder="태그를 입력해주세요!"
             onChange={(e) => setTagItem(e.target.value)}
             value={tagItem}
-            onKeyPress={onKeyPress}
+            onKeyDown={onKeyDown}
           />
         </InputContainer>
       </Section>
@@ -561,7 +563,7 @@ const TagItem = styled.div`
 
 const Text = styled.span``;
 
-const tagButton = styled.button`
+const TagButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
