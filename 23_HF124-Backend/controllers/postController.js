@@ -2,26 +2,34 @@ const tPost = require('../models/uploadModel');
 const cPost = require('../models/uploadModel');
 const Tag = require('../models/uploadModel');
 const { Op } = require('sequelize');
+const { Sequelize} = require('sequelize');
 
-const getlist = async (req, res) => {
+const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USERNAME, process.env.MYSQL_PASSWORD, {
+  host: process.env.MYSQL_HOST,
+  port: process.env.MYSQL_PORT,
+  dialect: 'mysql',
+});
+
+const getlist = async (req, res) => { //커뮤니티 게시글 받아오기
   try {
     const { page = 1, per_page = 10, sort = 'latest' } = req.query;
 	
     let order;
     switch (sort) {
-      case 'dueDate':
-        order = [['finishDate', 'DESC']];
+      case 'popular':
+        order = [['likeCount', 'DESC']];
         break;
-      case 'latest': 
+      case 'comments': 
+        order = [['commentCount', 'DESC']];
+        break;
+      case 'latest':
       default:
         order = [['postDate', 'DESC']];
     }
     const posts = await tPost.tPost.findAndCountAll({
       offset: per_page * (page - 1),
       limit: per_page,
-      order: [
-        ['postDate', 'DESC']
-      ],
+      order: order,
       include: [{model: tPost.tPostImage, as: "post_images",},],
     });
     const total_pages = Math.ceil(posts.count / per_page);
@@ -32,6 +40,39 @@ const getlist = async (req, res) => {
     res.status(500).json({ message: "게시글 조회에 실패하였습니다" });
   }
 };
+
+// 주변 위치 조회 API
+const getNearbylist = async (req, res) => {
+  try {
+    const { page = 1, per_page = 10, sort = 'latest', x, y, radius } = req.query;
+
+    let order;
+    switch (sort) {
+      case 'popular':
+        order = [['likeCount', 'DESC']];
+        break;
+      case 'latest':
+      default:
+        order = [['postDate', 'DESC']];
+    }
+
+    // Use the Haversine formula in the where clause to get posts within the specified radius
+    const posts = await tPost.tPost.findAndCountAll({
+      offset: per_page * (page - 1),
+      limit: per_page,
+      order: order,
+      where: sequelize.literal(`(6371 * acos(cos(radians(${y})) * cos(radians(y)) * cos(radians(x) - radians(${y})) + sin(radians(${x})) * sin(radians(y)))) < ${radius}`),
+      include: [{model: tPost.tPostImage, as: "post_images",},],
+    });
+
+    const total_pages = Math.ceil(posts.count / per_page);
+    res.status(200).json({ posts, total_pages });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "게시글 조회에 실패하였습니다" });
+  }
+};
+
 
 
 const getSearchlist = async (req, res) => {
@@ -136,9 +177,7 @@ const getclist = async (req, res) => {
     const posts = await cPost.cPost.findAndCountAll({
       offset: per_page * (page - 1),
       limit: per_page,
-      order: [
-        ['postDate', 'DESC']
-      ],
+      order: order,
       include: [{model: cPost.cPostImage, as: "post_images",},],
     });
     const total_pages = Math.ceil(posts.count / per_page);
@@ -242,5 +281,5 @@ const getCSearchlist = async (req, res) => {
 
 
 module.exports = {
-    getlist, getpost, getclist, getcpost,getSearchlist,getCSearchlist
+    getlist, getpost, getclist, getcpost,getSearchlist,getCSearchlist,getNearbylist
 };

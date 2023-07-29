@@ -10,7 +10,6 @@ dotenv.config();
 const { User, UserTagging } = require('../models/signupModel');
 
 
-
 exports.processPart1 = async (req, res) => {
     try {
       // 입력 받은 정보 가져오기
@@ -60,10 +59,9 @@ exports.processPart1 = async (req, res) => {
   exports.processPart2 = async (req, res) => {
     try {
       console.log('세션정보 = '+ req.session.user);
-  
       // 입력 받은 주소 가져오기
       const { address } = req.body;
-  
+
       // 세션에서 사용자 ID 가져오기
       const userId = req.session.user.userID;
       console.log('세션 userID 정보 = '+ userId);
@@ -93,7 +91,6 @@ exports.processPart1 = async (req, res) => {
   exports.searchAddress = async (req, res) => {
     try {
       const query = req.query.query;
-  
       const headers = {
         Authorization: `KakaoAK ${process.env.KAKAO_API_KEY}`,
       };

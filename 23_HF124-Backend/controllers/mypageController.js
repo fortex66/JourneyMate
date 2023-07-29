@@ -83,7 +83,38 @@ const updatePassword=async(req, res)=>{
   }
   
   }
+
+  const updateUser=async(req, res)=>{
+    console.log('도착완료');
+    try{
+      const userProfile=await user.User.findOne({where: {userID: req.decode.userID}});
+    //const userTaggingProfile=await user.UserTagging.findAndCountAll({where: {userID: req.decode.userID}});
+    const tags = req.body.tags;
+    
+      await userProfile.update({
+        user: req.body.user,
+        region: req.body.address,
+        email: req.body.email
+      });
+      console.log(req.body.address);
+      await user.UserTagging.destroy({where: {userID:req.decode.userID}});
+      for (const tagName of tags) {
+        const userTag = await user.UserTagging.create({
+          userID: req.decode.userID,
+          tagName: tagName
+        });
+        console.log(userTag);
+  
+      }
+      res.status(200).json({message: "update success"});
+    
+    
+    }catch(err){
+      console.error(err);
+    }
+    
+  }
   
   module.exports = {
-      getCommunityList, getCompanionList,updatePassword,getProfile
+      getCommunityList, getCompanionList,updatePassword,getProfile, updateUser
   };
