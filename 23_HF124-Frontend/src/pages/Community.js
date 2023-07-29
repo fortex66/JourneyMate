@@ -6,22 +6,47 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
-import { faSquarePlus } from "@fortawesome/free-solid-svg-icons";
+import { faSquarePlus,faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../components/Modal";
 
 const baseURL = "http://localhost:3000/";
 
 const Community = () => {
+  const navigate = useNavigate();
+
   const [data, setData] = useState({ posts: { rows: [] } });
   const [page, setPage] = useState(1);
-  const navigate = useNavigate();
+  const [sort, setSort] = useState('latest');
   const [write, setWrite] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
   const observer = useRef();
 
   const location = useLocation();
   const searchTriggered = location.state?.searchTriggered || false;
   const tagList = location.state ? location.state.tagList : [];
   const selectedLocation = location.state ? location.state.location : "";
+
+  const toggleVisibility = () => {
+    if (window.scrollY > 300) {
+      setIsVisible(true);
+    } else {
+      setIsVisible(false);
+    }
+  };
+  
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"  // optional
+    });
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", toggleVisibility);
+    return () => window.removeEventListener("scroll", toggleVisibility);
+  }, []);
 
   const lastPostElementRef = useCallback(node => {
     if (observer.current) observer.current.disconnect();
@@ -41,14 +66,12 @@ const Community = () => {
     navigate(`/Community_Detail/${postId}`);
   };
 
+ 
   useEffect(() => {
     if (searchTriggered) return;  // 검색이 실행되면 아무 것도 하지 않습니다.
-    console.log(`그냥 시작전 ${page}, ${searchTriggered} `);
     const fetchMoreData = async () => {
       try {
-        console.log(`그냥 ${page}`);
-        const response = await axios.get(`${baseURL}community/?page=${page}`);
-        console.log(response.data);
+        const response = await axios.get(`${baseURL}community/?page=${page}&sort=${sort}`);
         setData((prevData) => ({
           ...prevData,
           posts: {
@@ -63,21 +86,19 @@ const Community = () => {
     if (page > 1 || !searchTriggered) {  // 페이지가 1보다 크거나, 검색이 실행되지 않은 경우에 추가 결과를 불러옵니다.
       fetchMoreData();
     }
-  }, [page,searchTriggered]);  // 의존성 배열에 page를 추가합니다.
+  }, [page,searchTriggered,sort]);  // 의존성 배열에 page를 추가합니다.
   
   useEffect(() => {
     if (!searchTriggered) return;
-    console.log(`서치 시작전 페이지 :  ${page},${searchTriggered}`);
     const fetchData = async () => {
       try {
         if (selectedLocation ||tagList) {
-          console.log(`${selectedLocation}, ${tagList}`);
-          console.log(`서치 ${page}`);
           const response = await axios.get(`${baseURL}community/search`, {
             params: {
               page,
               tags: tagList.join(","),
               location: selectedLocation ? selectedLocation.address_name : null,
+              sort
             },
           });
           if (page > 1) { // 페이지가 1보다 크면 기존 데이터에 추가
@@ -90,7 +111,6 @@ const Community = () => {
             }));
           } else { // 페이지가 1이면 새로운 데이터로 설정
             setData(response.data);
-            console.log(`서치 커뮤니티 결과 ${response.data.posts.rows}`);
           }
         }
       } catch (error) {
@@ -98,7 +118,7 @@ const Community = () => {
       }
     };
     fetchData();
-  }, [selectedLocation, tagList, searchTriggered,page]);  
+  }, [selectedLocation, tagList, searchTriggered,page,sort]);  
 
 
   if (!data || !data.posts || !data.posts.rows) return null;
@@ -106,39 +126,27 @@ const Community = () => {
   return (
     <Container>
       <Header>
-        <SearchInput
-          type="text"
-          onClick={handleSearchClick}
-          placeholder="검색"
-        />
+        <SearchInput type="text" onClick={handleSearchClick} placeholder="검색"/>
         <IconContainer onClick={() => setWrite(!write)}>
           {write && <Modal closeModal={() => setWrite(!write)}></Modal>}
-          <FontAwesomeIcon icon={faSquarePlus} size="3x" color={"#f97800"} />
+          <FontAwesomeIcon icon={faSquarePlus} size="3x" color={"#f97800"}/>
         </IconContainer>
       </Header>
       <Content>
-      <Sort>
-          <button>최신순</button>
-          <button>인기순</button>
-          <button>댓글순</button>
-      </Sort>
+        <Sort>
+          <button onClick={() => {setSort('latest'); setPage(1); setData({ posts: { rows: [] } });}}>최신순</button>
+          <button onClick={() => {setSort('popular'); setPage(1); setData({ posts: { rows: [] } });}}>인기순</button>
+          <button onClick={() => {setSort('comments'); setPage(1); setData({ posts: { rows: [] } });}}>댓글순</button>
+        </Sort>
+
         <CommunityList>
         {data && data.posts.rows.map((post, index) => (
-            <CommunityItem
-              ref={index === data.posts.rows.length - 1 ? lastPostElementRef : null}
-              key={index}
-              onClick={() => goDetail(post.tpostID)}
-            >
+            <CommunityItem ref={index === data.posts.rows.length - 1 ? lastPostElementRef : null} key={index}
+              onClick={() => goDetail(post.tpostID)} >
                 <div>
                   <Picture>
                     <div>
-                      <img
-                        src={`${baseURL}${
-                          post.post_images[0]
-                            ? post.post_images[0].imageURL.replace(/\\/g, "/")
-                            : ""
-                        }`}
-                      />
+                      <img src={`${baseURL}${ post.post_images[0] ? post.post_images[0].imageURL.replace(/\\/g, "/") : "" }`}/>
                     </div>
                   </Picture>
                   <Title>
@@ -158,6 +166,9 @@ const Community = () => {
             ))}
         </CommunityList>
       </Content>
+
+      <ScrollToTopButton onClick={scrollToTop} style={{display: isVisible ? 'block' : 'none'}}>
+        <FontAwesomeIcon icon={faChevronUp} size="3x" /></ScrollToTopButton>
       <Navigationbar />
     </Container>
   );
@@ -289,4 +300,14 @@ const Picture = styled.div`
     height: 250px;
     object-fit: cover;
   }
+`;
+
+const ScrollToTopButton = styled.button`
+  border-radius:50px;
+  border:none;
+  background-color: #fff;
+  position: fixed;
+  bottom: 100px;
+  right: 400px;
+  // 이 밑으로는 원하는 스타일을 지정해주세요
 `;

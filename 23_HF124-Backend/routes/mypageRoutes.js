@@ -15,5 +15,6 @@ router.get('/companion', upload.array('photos[]', 10),authMiddleware, mypageCont
 // 7/28 라우팅 설정
 router.get('/profile',authMiddleware,mypageController.getProfile);
 router.put('/passwordChange',authMiddleware,mypageController.updatePassword);
+router.put('/profileChange',authMiddleware, mypageController.updateUser);
 
 module.exports = router;
