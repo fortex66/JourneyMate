@@ -1,6 +1,6 @@
 import Navigationbar from "../components/Navigationbar";
-import { Map, MapMarker } from "react-kakao-maps-sdk";
-import React, { useEffect, useState } from "react";
+import { Map, MapMarker, MapInfoWindow } from "react-kakao-maps-sdk";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
@@ -25,7 +25,9 @@ const NearbyModal = (props) => {
   return (
     <NearbyModalStyled>
       <div>
-        <button className="close-button" onClick={closeModal}>✖</button>
+        <button className="close-button" onClick={closeModal}>
+          ✖
+        </button>
         <div className="sorting-buttons">
           <button onClick={() => handleSortChange("popular")}>인기순</button>
           <button onClick={() => handleSortChange("recent")}>최신순</button>
@@ -43,11 +45,34 @@ const Home = () => {
   const [write, setWrite] = useState(false);
   const [showNearbyModal, setShowNearbyModal] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState(null);
+  const [isMarkerHovered, setMarkerHovered] = useState(false);
+  const [isMarkerClicked, setMarkerClicked] = useState(false);
 
+  const markerHoverTimeout = useRef();
+
+  const handleMouseOverMarker = (marker) => {
+    if (markerHoverTimeout.current) {
+      clearTimeout(markerHoverTimeout.current);
+    }
+    setMarkerHovered(marker);
+  };
+
+  const handleMouseOutMarker = () => {
+    markerHoverTimeout.current = setTimeout(() => {
+      setMarkerHovered(null);
+    }, 300); // 마우스가 마커 밖으로 벗어났을 때 딜레이를 주는 시간 (ms 단위)
+  };
   const handleSearchClick = () => {
     navigate("/Search");
   };
 
+  useEffect(() => {
+    return () => {
+      if (markerHoverTimeout.current) {
+        clearTimeout(markerHoverTimeout.current);
+      }
+    };
+  }, []);
   const baseURL = "http://localhost:3000/";
   useEffect(() => {
     const fetchMarkerData = async () => {
@@ -82,6 +107,11 @@ const Home = () => {
   }, []);
 
   const handleMarkerClick = (marker) => {
+    if (markerHoverTimeout.current) {
+      clearTimeout(markerHoverTimeout.current);
+    }
+    setMarkerHovered(null);
+    setMarkerClicked(true);
     setSelectedMarker(marker);
     setShowNearbyModal(true);
   };
@@ -89,6 +119,8 @@ const Home = () => {
   const closeNearbyModal = () => {
     setSelectedMarker(null);
     setShowNearbyModal(false);
+    setMarkerClicked(false);
+    setMarkerHovered(null);
   };
 
   return (
@@ -120,30 +152,35 @@ const Home = () => {
           >
             {latestMarkers &&
               latestMarkers.map((marker, index) => (
-                <Circle>
+                <Circle key={index}>
                   <MapMarker
-                    key={index}
                     position={{
                       lat: marker.y,
                       lng: marker.x,
                     }}
-                    image={{
-                      src: marker.post_images[0]
-                        ? marker.post_images[0].imageURL.replace(/\\/g, "/")
-                        : "",
-                      size: {
-                        width: 50,
-                        height: 50,
-                      },
-                      options: {
-                        offset: {
-                          x: 27,
-                          y: 69,
-                        },
-                      },
-                    }}
+                    clickable={true}
+                    onMouseOver={() => handleMouseOverMarker(marker)}
+                    onMouseOut={handleMouseOutMarker}
                     onClick={() => handleMarkerClick(marker)}
                   />
+                  {isMarkerHovered === marker && isMarkerClicked === false && (
+                    <MapInfoWindow
+                      position={{
+                        lat: marker.y + 0.37, // latitude 값을 증가시켜 정보창을 위로 이동시킵니다.
+                        lng: marker.x,
+                      }}
+                    >
+                      <img
+                        src={
+                          marker.post_images[0]
+                            ? marker.post_images[0].imageURL.replace(/\\/g, "/")
+                            : ""
+                        }
+                        alt="post"
+                        style={{ width: "150px", height: "100px" }}
+                      />
+                    </MapInfoWindow>
+                  )}
                 </Circle>
               ))}
             <LocationIcon
@@ -161,9 +198,7 @@ const Home = () => {
     </div>
   );
 };
-
 export default Home;
-
 
 const NearbyModalStyled = styled.div`
   position: fixed;

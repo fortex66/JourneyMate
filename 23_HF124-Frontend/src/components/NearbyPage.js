@@ -1,17 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const baseURL = "http://localhost:3000/";
 
 const Nearby = ({ marker }) => {
   const [data, setData] = useState({ posts: { rows: [] } });
-  const radius = 8000;  // 원래 5로 설정 하면 5km 반경의 게시글만 불러와야되는데 안되서 그냥 8000넣어둠
+  const [page, setPage] = useState(1);  // 페이지 상태 추가
+  const radius = 10; // 10으로 설정하면 10km반경으로 조회, 그리고 지도에 표시되지 않는 일주일 이상된 게시글도 목록에 나옴
   const navigate = useNavigate();
+  
+  const observer = useRef();
+
   const goDetail = (postId) => {
     navigate(`/Community_Detail/${postId}`);
   };
+
+  const lastPostElementRef = useCallback(node => { // 마지막 요소에 대한 참조 생성
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        setPage(prevPage => prevPage + 1);
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, []);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -20,7 +34,8 @@ const Nearby = ({ marker }) => {
           params: {
             x: marker.x,
             y: marker.y,
-            radius: radius
+            radius: radius,
+            page: page  // 페이지 번호를 요청에 추가
           }
         });
         console.log(response.data);
@@ -36,7 +51,7 @@ const Nearby = ({ marker }) => {
       }
     };
     fetchPosts();
-  }, [marker]);
+  }, [marker, page]);  // 페이지 번호가 변경될 때마다 요청 실행
 
   return (
     <div>
@@ -45,6 +60,7 @@ const Nearby = ({ marker }) => {
           <CommunityItem
             key={index}
             onClick={() => goDetail(post.tpostID)}
+            ref={index === data.posts.rows.length - 1 ? lastPostElementRef : null} // 마지막 요소에 대한 참조 붙이기
           >
             <div>
               <Picture>
@@ -65,15 +81,14 @@ const Nearby = ({ marker }) => {
   );
 };
 
-
 export default Nearby;
-
 const CommunityList = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  max-height: 500px;  // 모달의 높이에 따라 조정
+  overflow-y: auto;   // 스크롤 가능하게 설정
 `;
-
 const CommunityItem = styled.div`
   cursor: pointer;
 

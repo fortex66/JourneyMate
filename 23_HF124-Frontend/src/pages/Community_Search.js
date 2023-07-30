@@ -6,7 +6,7 @@ import styled from "styled-components";
 import Navigationbar from "../components/Navigationbar";
 
 axios.defaults.withCredentials = true;
-
+const baseURL = "http://localhost:3000/";
 const Community_Search = () => {
   const navigate = useNavigate();
   const locationRef = useRef();
@@ -59,6 +59,29 @@ const Community_Search = () => {
     setTagList(filteredTagList);
   };
 
+  const handleCompleteBtnClick = async () => {
+    // Send a GET request to server
+    try {
+      const response = await axios.get(
+        `${baseURL}community/searchcount`,
+        {
+          params: {
+            location: selectedLocation.address_name
+          }
+        }
+      );
+      console.log(response);
+      if (response.status === 200) {
+        return true; // Return true on success
+      } else {
+        console.error('Failed to update search count', response.status);
+        return false; // Return false on failure
+      }
+    } catch (error) {
+      console.error('An error occurred while updating search count', error);
+      return false; // Return false on error
+    }
+  };
   const handleLocationSelect = (location) => {
     locationRef.current.value = location.place_name;
     setSelectedLocation({
@@ -66,6 +89,7 @@ const Community_Search = () => {
     });
     setLocationList([]);
   };
+
 
   return (
     <div>
@@ -112,16 +136,18 @@ const Community_Search = () => {
       <Button>
         <button
           className="complete_btn"
-          onClick={() => {
-            navigate("/Community", {
-              state: { posts, location: selectedLocation, searchTriggered,tagList },
-            });
+          onClick={async () => {
+            const isSuccess = await handleCompleteBtnClick();
+            if (isSuccess) {
+              navigate("/Community", {
+                state: { posts, location: selectedLocation, searchTriggered, tagList },
+              });
+            }
           }}
         >
           찾기
         </button>
       </Button>
-
       <Navigationbar />
     </div>
   );
