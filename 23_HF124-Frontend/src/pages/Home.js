@@ -38,6 +38,22 @@ const NearbyModal = (props) => {
   );
 };
 
+const latChangeByLevel = {
+  13: 0.37,
+  12: 0.19,
+  11: 0.09,
+  10: 0.05,
+  9: 0.025,
+  8: 0.011,
+  7: 0.006,
+  6: 0.003,
+  5: 0.0015,
+  4: 0.0007,
+  3: 0.00035,
+  2: 0.00018,
+  1: 0.00009,
+};
+
 const Home = () => {
   const [markerData, setMarkerData] = useState(null);
   const [latestMarkers, setLatestMarkers] = useState(null);
@@ -49,14 +65,16 @@ const Home = () => {
   const [isMarkerClicked, setMarkerClicked] = useState(false);
 
   const markerHoverTimeout = useRef();
-
+  const [currentLevel, setCurrentLevel] = useState(13);
   const handleMouseOverMarker = (marker) => {
     if (markerHoverTimeout.current) {
       clearTimeout(markerHoverTimeout.current);
     }
     setMarkerHovered(marker);
   };
-
+  const handleZoomChange = (newLevel) => {
+    setCurrentLevel(newLevel);
+  };
   const handleMouseOutMarker = () => {
     markerHoverTimeout.current = setTimeout(() => {
       setMarkerHovered(null);
@@ -149,6 +167,7 @@ const Home = () => {
             }}
             level={13}
             maxLevel={13}
+            onZoomChanged={(map) => setCurrentLevel(map.getLevel())} // 지도 줌 변경 시 핸들러 함수
           >
             {latestMarkers &&
               latestMarkers.map((marker, index) => (
@@ -166,7 +185,7 @@ const Home = () => {
                   {isMarkerHovered === marker && isMarkerClicked === false && (
                     <MapInfoWindow
                       position={{
-                        lat: marker.y + 0.37, // latitude 값을 증가시켜 정보창을 위로 이동시킵니다.
+                        lat: marker.y + latChangeByLevel[currentLevel], // latitude 값을 조정하여 정보창을 위로 이동시킵니다.
                         lng: marker.x,
                       }}
                     >
@@ -183,11 +202,6 @@ const Home = () => {
                   )}
                 </Circle>
               ))}
-            <LocationIcon
-              icon={faLocationCrosshairs}
-              size="2x"
-              color={"#f97800"}
-            />
           </Map>
         </MapContainer>
         <Navigationbar />
