@@ -1,8 +1,11 @@
 const tPost = require('../models/uploadModel');
 const cPost = require('../models/uploadModel');
 const Tag = require('../models/uploadModel');
+const SearchHistories = require('../models/uploadModel');
 const { Op } = require('sequelize');
 const { Sequelize} = require('sequelize');
+
+
 
 const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USERNAME, process.env.MYSQL_PASSWORD, {
   host: process.env.MYSQL_HOST,
@@ -44,7 +47,7 @@ const getlist = async (req, res) => { //커뮤니티 게시글 받아오기
 // 주변 위치 조회 API
 const getNearbylist = async (req, res) => {
   try {
-    const { page = 1, per_page = 10, sort = 'latest', x, y, radius } = req.query;
+    const { page = 1, per_page = 9, sort = 'latest', x, y, radius } = req.query;  //경도 : x, 위도 : y, 반경 : radius(km), 정렬방식 : sort
 
     let order;
     switch (sort) {
@@ -55,13 +58,15 @@ const getNearbylist = async (req, res) => {
       default:
         order = [['postDate', 'DESC']];
     }
+  
 
     // Use the Haversine formula in the where clause to get posts within the specified radius
     const posts = await tPost.tPost.findAndCountAll({
       offset: per_page * (page - 1),
       limit: per_page,
       order: order,
-      where: sequelize.literal(`(6371 * acos(cos(radians(${y})) * cos(radians(y)) * cos(radians(x) - radians(${y})) + sin(radians(${x})) * sin(radians(y)))) < ${radius}`),
+      //하버사인 공식
+      where: sequelize.literal(`(6371 * acos(cos(radians(${y})) * cos(radians(y)) * cos(radians(x) - radians(${x})) + sin(radians(${y})) * sin(radians(y)))) < ${radius}`),
       include: [{model: tPost.tPostImage, as: "post_images",},],
     });
 
@@ -74,7 +79,25 @@ const getNearbylist = async (req, res) => {
 };
 
 
+const searchCount = async (req, res) => {
+  try {
+    const { location } = req.query;
+    console.log("서버로부터 날아온 값 : ",location);
+    // Search History 테이블에 새로운 레코드 추가
+    if (location) {
+      const newSearchHistory = await SearchHistories.SearchHistories.create({
+        location,
+        searchDate: new Date()
+      });
+    }
+    res.status(200).json(true);  // 수정된 부분
+  }catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "테이블에 추가 실패" });
+  }
+};
 
+//검색을 받고 검색 조건에 해당하는 게시글을 반환하는 API
 const getSearchlist = async (req, res) => {
   try {
     const { page = 1, per_page = 10, sort = 'latest', tags, location } = req.query;
@@ -135,6 +158,28 @@ const getSearchlist = async (req, res) => {
     res.status(500).json({ message: "게시글 조회에 실패하였습니다" });
   }
 };
+
+//24시간 동안 가장 많이 검색된 키워드 위치 Top10 출력
+const getTopSearches = async (req, res) => {
+  try {
+    const oneDayAgo = new Date(Date.now() - 24*60*60*1000); // 24 hours ago
+    const topSearches = await SearchHistories.SearchHistories.findAll({
+      where: {
+        searchDate: {
+          [Op.gt]: oneDayAgo
+        }
+      },
+      attributes: ['location', [Sequelize.fn('COUNT', Sequelize.col('location')), 'count']],
+      group: ['location'],
+      order: [[Sequelize.fn('COUNT', Sequelize.col('location')), 'DESC']],
+      limit: 10
+    });
+
+    res.status(200).json(topSearches);
+  } catch (err) {
+    console.error(err);
+  }
+}
 
 
 
@@ -281,5 +326,5 @@ const getCSearchlist = async (req, res) => {
 
 
 module.exports = {
-    getlist, getpost, getclist, getcpost,getSearchlist,getCSearchlist,getNearbylist
+    getlist, getpost, getclist, getcpost,getSearchlist,getCSearchlist,getNearbylist,getTopSearches,searchCount
 };

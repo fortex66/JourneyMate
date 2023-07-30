@@ -291,6 +291,30 @@ CTagging.init({
   timestamps: false
 });
 
+
+class SearchHistories extends Model {}
+
+SearchHistories.init({
+  searchId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  location: {
+    type: DataTypes.STRING(100),
+    allowNull: true
+  },
+  searchDate: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+}, {
+  sequelize, 
+  modelName: 'search_histories',
+  timestamps: false
+});
+
 // 모델들 간의 관계 설정
 Tag.hasMany(TTagging, { foreignKey: 'tagID' });
 TTagging.belongsTo(Tag, { foreignKey: 'tagID' });
@@ -327,6 +351,7 @@ Tag.belongsToMany(cPost, {
 });
 
 
+
 Tag.hasMany(CTagging, { foreignKey: 'tagID' });
 CTagging.belongsTo(Tag, { foreignKey: 'tagID' });
 
@@ -334,4 +359,4 @@ CTagging.belongsTo(Tag, { foreignKey: 'tagID' });
 cPostImage.belongsTo(cPost, { foreignKey: 'cpostID',onDelete: 'CASCADE' });
 cPost.hasMany(cPostImage, { foreignKey: 'cpostID' });
 
-module.exports = {tPost, tPostImage, cPost, cPostImage,Tag, TTagging,CTagging };
+module.exports = {tPost, tPostImage, cPost, cPostImage,Tag, TTagging,CTagging,SearchHistories };

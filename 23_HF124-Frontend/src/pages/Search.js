@@ -3,14 +3,39 @@ import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import SearchModal from "../components/SearchModal";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from 'axios'; // Assuming you are using axios for HTTP requests
+
+const baseURL = "http://localhost:3000/";
 
 const Search = () => {
   const [write, setWrite] = useState(false);
+  const [topSearches, setTopSearches] = useState([]);
 
   const handleModalOpen = () => {
     setWrite(true);
   };
+
+  useEffect(() => {
+    getTopSearches();
+  }, []);
+
+  useEffect(() => {
+    console.log("useEffect에서 출력된 데이터 정보 :",topSearches);
+  }, [topSearches]);
+
+  const getTopSearches = async () => {
+    try {
+      const response = await axios.get(`${baseURL}community/topkeyword`);
+      console.log("getTopSearches에서 출력된 데이터 정보 :",response.data);
+      if (Array.isArray(response.data)) {
+        setTopSearches(response.data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  
 
   return (
     <div>
@@ -27,15 +52,40 @@ const Search = () => {
           placeholder="검색어를 입력하세요"
         />
       </Header>
+      <TopSearches>
+        {topSearches && topSearches.map((search, index) => (
+          <SearchItem key={index}>
+            <span>{index+1}. {search.location}</span> 
+            <span>{search.count} 검색</span>
+          </SearchItem>
+        ))}
+      </TopSearches>
       <Navigationbar />
+
     </div>
   );
 };
 
+
+
 export default Search;
 
-const IconContainer = styled.div``;
 
+const IconContainer = styled.div``;
+const SearchItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin: 10px 0;
+  font-size: 1rem;
+  color: #333;
+
+  span:first-child {
+    font-weight: bold;
+  }
+`;
 const Header = styled.div`
   position: relative;
   display: flex;
@@ -65,4 +115,23 @@ const SearchInput = styled.input`
 
 const SearchIcon = styled(FontAwesomeIcon)`
   margin-right: 10px;
+`;
+
+const TopSearches = styled.div`
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #f2f2f2;
+  
+  p {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 1rem;
+    color: #333;
+  }
 `;
