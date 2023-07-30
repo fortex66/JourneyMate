@@ -19,6 +19,8 @@ const Community = () => {
   const [sort, setSort] = useState('latest');
   const [write, setWrite] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [buttonPosition, setButtonPosition] = useState('20px');
+
 
   const observer = useRef();
 
@@ -26,6 +28,31 @@ const Community = () => {
   const searchTriggered = location.state?.searchTriggered || false;
   const tagList = location.state ? location.state.tagList : [];
   const selectedLocation = location.state ? location.state.location : "";
+
+  useEffect(() => {
+    const updateButtonPosition = () => {
+      const windowWidth = window.innerWidth;
+      const breakpoint = 600;
+      if (windowWidth > breakpoint) {
+        setButtonPosition(`${(windowWidth - breakpoint) / 2}px`);
+      } else {
+        setButtonPosition('0px');
+      }
+    }
+
+    // Set initial position
+    updateButtonPosition();
+
+    // Update position on window resize
+    window.addEventListener('resize', updateButtonPosition);
+
+    // Clean up
+    return () => {
+      window.removeEventListener('resize', updateButtonPosition);
+    }
+  }, []);
+
+
 
   const toggleVisibility = () => {
     if (window.scrollY > 300) {
@@ -134,11 +161,13 @@ const Community = () => {
       </Header>
       <Content>
         <Sort>
-          <button onClick={() => {setSort('latest'); setPage(1); setData({ posts: { rows: [] } });}}>최신순</button>
-          <button onClick={() => {setSort('popular'); setPage(1); setData({ posts: { rows: [] } });}}>인기순</button>
-          <button onClick={() => {setSort('comments'); setPage(1); setData({ posts: { rows: [] } });}}>댓글순</button>
+          <button onClick={() => {
+             if (sort === 'latest') return; setSort('latest'); setPage(1); setData({ posts: { rows: [] } });}}>최신순</button>
+          <button onClick={() => { 
+            if (sort === 'popular') return; setSort('popular'); setPage(1); setData({ posts: { rows: [] } });}}>인기순</button>
+          <button onClick={() => {
+            if (sort === 'comments') return; setSort('comments'); setPage(1); setData({ posts: { rows: [] } });}}>댓글순</button>
         </Sort>
-
         <CommunityList>
         {data && data.posts.rows.map((post, index) => (
             <CommunityItem ref={index === data.posts.rows.length - 1 ? lastPostElementRef : null} key={index}
@@ -167,8 +196,11 @@ const Community = () => {
         </CommunityList>
       </Content>
 
-      <ScrollToTopButton onClick={scrollToTop} style={{display: isVisible ? 'block' : 'none'}}>
-        <FontAwesomeIcon icon={faChevronUp} size="3x" /></ScrollToTopButton>
+      <ScrollToTopButton 
+        onClick={scrollToTop} 
+        style={{display: isVisible ? 'block' : 'none', right: buttonPosition}}
+      >
+        <FontAwesomeIcon icon={faChevronUp} size="3x" color="#f97800" /></ScrollToTopButton>
       <Navigationbar />
     </Container>
   );
@@ -303,11 +335,9 @@ const Picture = styled.div`
 `;
 
 const ScrollToTopButton = styled.button`
-  border-radius:50px;
+  border-radius: 50%;
   border:none;
   background-color: #fff;
   position: fixed;
-  bottom: 100px;
-  right: 400px;
-  // 이 밑으로는 원하는 스타일을 지정해주세요
-`;
+  bottom: 120px;
+`
