@@ -60,7 +60,6 @@ const Community_Search = () => {
   };
 
   const handleCompleteBtnClick = async () => {
-    // Send a GET request to server
     try {
       const response = await axios.get(
         `${baseURL}community/searchcount`,
@@ -82,6 +81,7 @@ const Community_Search = () => {
       return false; // Return false on error
     }
   };
+  
   const handleLocationSelect = (location) => {
     locationRef.current.value = location.place_name;
     setSelectedLocation({
