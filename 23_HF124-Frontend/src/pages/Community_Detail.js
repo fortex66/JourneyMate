@@ -18,11 +18,11 @@ const Community_Detail = () => {
     const jwtToken = localStorage.getItem("jwtToken");
 
     setCurrentUser(jwtToken);
+
     const fetchData = async () => {
       try {
         const responsePost = await axios.get(baseURL + `community/${postId}`); // postId를 API 호출에 사용하여 게시글 데이터 가져오기
         setData(responsePost.data);
-        console.log(responsePost.data)
         const responseComments = await axios.get(baseURL + `community/comments/${postId}`); // postId를 API 호출에 사용하여 댓글 데이터 가져오기
         setComments(responseComments.data);
       } catch (error) {
@@ -60,6 +60,11 @@ const Community_Detail = () => {
     .catch(function (error) {
       console.log(error);
     });
+  };
+  
+  const EditCommunity = () => {
+    const postID = window.location.pathname.split("/").pop();
+    navigate("/Community_Write", { state: { data: data, mode: 'edit', postId: postID } });
   };
 
   const deleteCommunity = async () => {
@@ -106,10 +111,16 @@ const Community_Detail = () => {
         <StyledButton onClick={() => navigate(-1)}>{"<"}</StyledButton>
         <Button>
           {currentUser && data?.post.userID === currentUser && ( 
+            <button onClick={EditCommunity}>
+              수정
+            </button>
+          )}
+          {currentUser && data?.post.userID === currentUser && ( 
             <button onClick={() => deleteCommunity(data.post.tpostID)}>
               삭제
             </button>
           )}
+          
         </Button>
       </Top>
       <Title>{data && data.post.title}</Title>
@@ -182,6 +193,12 @@ const Page = styled.div`
 const Top = styled.div`
   margin-left: 20px;
   margin-right: 20px;
+  display: flex;
+  justify-content: space-between;
+
+  button{
+    margin-right:5px;
+  }
 `;
 
 const Title = styled.div`

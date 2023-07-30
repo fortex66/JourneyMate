@@ -14,50 +14,52 @@ const Profile = () => {
 
   const [userData, setUserData] = useState(null);
 
-    const getCommunity = async () => {
-        try {
-          const resUser = await axios.get(baseURL + `mypage/profile`);
-          console.log(resUser)
-          setUserData(resUser.data);
-        } catch (error) {
-          console.log(error);
-        }
-      };
-      const pwVerify =  ()=>{
-        const userPw = prompt("비밀번호를 입력하세요:");
-        
-        const promise=bcrypt.compare(userPw, userData.profile[0].password);
-        promise.then((comparePW) => {
-          if(!comparePW || userPw===null){
-            alert("비밀번호 오류");
-            console.log('비밀번호오류');
-          }else{
-            navigate("/ProfileDetail");
-          }
-        }).catch(err=> {
-          alert("비밀번호가 입력되지 않았습니다.");
-          console.error(err)
-        });
-      };
-      const changePW =  ()=>{
-        const userPw = prompt("비밀번호를 입력하세요:");
+  const getCommunity = async () => {
+      try {
+        const resUser = await axios.get(baseURL + `mypage/profile`);
+        console.log(resUser)
+        setUserData(resUser.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-        const promise=bcrypt.compare(userPw, userData.profile[0].password);
-        promise.then((comparePW) => {
-          if(!comparePW || userPw===null){
-            alert("비밀번호 오류");
-            console.log('비밀번호오류');
-          }else{
-            navigate("/passwordChange");
-          }
-        }).catch(err=> {
-          alert("비밀번호가 입력되지 않았습니다.");
-          console.error(err)});
-       
-      };
-      useEffect(() => {
-          getCommunity();
-      }, []); 
+  const pwVerify =  ()=>{
+    const userPw = prompt("비밀번호를 입력하세요:");
+    
+    const promise=bcrypt.compare(userPw, userData.profile[0].password);
+    promise.then((comparePW) => {
+      if(!comparePW || userPw===null){
+        alert("비밀번호 오류");
+        console.log('비밀번호오류');
+      }else{
+        navigate("/ProfileDetail");
+      }
+    }).catch(err=> {
+      alert("비밀번호가 입력되지 않았습니다.");
+      console.error(err)
+    });
+  };
+
+  const changePW =  ()=>{
+    const userPw = prompt("비밀번호를 입력하세요:");
+
+    const promise=bcrypt.compare(userPw, userData.profile[0].password);
+    promise.then((comparePW) => {
+      if(!comparePW || userPw===null){
+        alert("비밀번호 오류");
+        console.log('비밀번호오류');
+      }else{
+        navigate("/passwordChange");
+      }
+    }).catch(err=> {
+      alert("비밀번호가 입력되지 않았습니다.");
+      console.error(err)});
+    
+  };
+  useEffect(() => {
+      getCommunity();
+  }, []); 
 
   return (
     <Container>
@@ -97,7 +99,7 @@ const Profile = () => {
             <Tag>관심사</Tag> 
               <TagDataBar>
                 {userData && userData.userTag.map((tag)=>(
-                <TagData>{tag.tagName},</TagData>
+                <TagData>{tag.tagName}</TagData>
                   ))}
               </TagDataBar>
           </TagBar>
@@ -269,7 +271,7 @@ const TagDataBar = styled.div`
   display: flex;
 `
 const TagData = styled.div`
-  margin-right: 5px;
+  margin-right: 9px;
 `
 
 const PasswordContainer = styled.div`
@@ -283,6 +285,7 @@ const PasswordChange = styled.div`
   margin-left: 20px;
   font-size: 20px;
   font-weight: bold;
+  cursor:pointer;
 `
 
 const ServiceContainer = styled.div`

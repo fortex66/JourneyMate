@@ -1,30 +1,34 @@
 import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
-
 // const token=localStorage.getItem('jwtToken');
 axios.defaults.withCredentials = true;
 
 const Community_Write = () => {
+  const navigate = useNavigate();
+  const detail_data = useLocation();
+
   const titleRef = useRef();
   const locationRef = useRef();
   const tagRef = useRef();
   const photoRefs = useRef([]);
   const contentRefs = useRef([]);
-  const navigate = useNavigate();
   const [locationList, setLocationList] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [data, setData] = useState([{ photo: "", content: "", file: null }]);
-
-
+  
   const [tagItem, setTagItem] = useState(""); // 태그 입력값
-  const [tagList, setTagList] = useState([]); // 태그 리스트
 
+
+  const [data, setData] = useState([{ photo: "", content: "", file: null }]);
+  //const [data, setData] = useState(location.state ? location.state.data : [{ photo: "", content: "", file: null }]);
+
+  const [tagList, setTagList] = useState([]); // 태그 리스트
+  //const [tagList, setTagList] = useState(location.state ? location.state.data.tags : []); 
 
   
   //위치를 입력 받을때 kakaoapi를 활용하기 위함

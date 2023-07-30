@@ -293,10 +293,11 @@ font-weight: bold
 `
 
 const Info = styled.div`
-margin-top : 20px;
+margin-top : 25px;
 margin-left : 10px;
 `
 const NameBar = styled.div`
+
 display : flex;
 `
 const Name = styled.div`
@@ -309,7 +310,7 @@ margin-left: 50px;
 
 const EmailBar = styled.div`
 display : flex;
-margin-top : 15px;
+margin-top : 25px;
 `
 const Email = styled.div`
 font-weight: bold
@@ -318,13 +319,18 @@ const EmailData = styled.input`
 margin-left: 36px;
 `
 const EmailButton = styled.button`
-
+  margin-left: 20px;
+  border:none;
+  border-radius: 5px;
+  background-color: #f97800;
+  color: #fff;
+  cursor:pointer;
 `
 
 
 const RegionBar = styled.div`
 display : flex;
-margin-top : 15px;
+margin-top : 25px;
 
 `
 const Region = styled.div`
@@ -346,6 +352,7 @@ const TagBar = styled.div`
   margin-top : 15px;
 `
 const Tag = styled.div`
+  margin-top: 7px;
   font-weight: bold
 `
 const TagDataBar = styled.div`
@@ -384,7 +391,7 @@ const TagButton = styled.button`
 
 const TagInput = styled.input`
   display: flex;
-  min-width: 200px;
+  min-width: 150px;
   align-items: center;
   height: 20px;
   border: 1px solid #f97800;
