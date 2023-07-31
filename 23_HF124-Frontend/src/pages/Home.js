@@ -77,15 +77,9 @@ const Home = () => {
     }
     setMarkerHovered(marker);
   };
-<<<<<<< HEAD
   // const handleZoomChange = (newLevel) => {
   //   setCurrentLevel(newLevel);
   // };
-=======
-  const handleZoomChange = (newLevel) => {
-    setCurrentLevel(newLevel);
-  };
->>>>>>> 3879089d8f3670bbd95340500d6dc52f48af5b50
   const handleMouseOutMarker = () => {
     markerHoverTimeout.current = setTimeout(() => {
       setMarkerHovered(null);
@@ -180,7 +174,6 @@ const Home = () => {
             maxLevel={13}
             onZoomChanged={(map) => setCurrentLevel(map.getLevel())} // 지도 줌 변경 시 핸들러 함수
           >
-<<<<<<< HEAD
             <MarkerClusterer
               averageCenter={true} // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
               minLevel={10} // 클러스터 할 최소 지도 레벨
@@ -223,41 +216,6 @@ const Home = () => {
                   </Circle>
                 ))}
             </MarkerClusterer>
-=======
-            {latestMarkers &&
-              latestMarkers.map((marker, index) => (
-                <Circle key={index}>
-                  <MapMarker
-                    position={{
-                      lat: marker.y,
-                      lng: marker.x,
-                    }}
-                    clickable={true}
-                    onMouseOver={() => handleMouseOverMarker(marker)}
-                    onMouseOut={handleMouseOutMarker}
-                    onClick={() => handleMarkerClick(marker)}
-                  />
-                  {isMarkerHovered === marker && isMarkerClicked === false && (
-                    <MapInfoWindow
-                      position={{
-                        lat: marker.y + latChangeByLevel[currentLevel], // latitude 값을 조정하여 정보창을 위로 이동시킵니다.
-                        lng: marker.x,
-                      }}
-                    >
-                      <img
-                        src={
-                          marker.post_images[0]
-                            ? marker.post_images[0].imageURL.replace(/\\/g, "/")
-                            : ""
-                        }
-                        alt="post"
-                        style={{ width: "150px", height: "100px" }}
-                      />
-                    </MapInfoWindow>
-                  )}
-                </Circle>
-              ))}
->>>>>>> 3879089d8f3670bbd95340500d6dc52f48af5b50
           </Map>
         </MapContainer>
         <Navigationbar />
