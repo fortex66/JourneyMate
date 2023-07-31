@@ -16,5 +16,6 @@ router.get('/companion', upload.array('photos[]', 10),authMiddleware, mypageCont
 router.get('/profile',authMiddleware,mypageController.getProfile);
 router.put('/passwordChange',authMiddleware,mypageController.updatePassword);
 router.put('/profileChange',authMiddleware, mypageController.updateUser);
+router.delete('/logout',authMiddleware,mypageController.logout);
 
 module.exports = router;

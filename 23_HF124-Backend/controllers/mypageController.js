@@ -114,7 +114,11 @@ const updatePassword=async(req, res)=>{
     }
     
   }
+
+  const logout=async (req,res)=>{
+    return res.clearCookie('token').end();
+  }
   
   module.exports = {
-      getCommunityList, getCompanionList,updatePassword,getProfile, updateUser
+      getCommunityList, getCompanionList,updatePassword,getProfile, updateUser,logout
   };

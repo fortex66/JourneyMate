@@ -23,6 +23,19 @@ const Profile = () => {
         console.log(error);
       }
     };
+  const logout = async () => {
+    try {
+      const userLogout = await axios.delete(baseURL + 'mypage/logout');
+      if (!userLogout) {
+        alert('로그아웃에 실패하였습니다');
+      }
+      alert('로그아웃을 완료하였습니다!');
+      navigate("/Login");
+    } catch (err) {
+      console.error(err);
+    }
+
+  }
 
   const pwVerify =  ()=>{
     const userPw = prompt("비밀번호를 입력하세요:");
@@ -66,7 +79,7 @@ const Profile = () => {
       <Navigation>
         <Header>
           <button className="back_btn" onClick={() => navigate(-1)}> {"<"} </button>
-          <button className="complete_btn" onClick={()=>navigate("/Login")}> 로그아웃 </button>
+          <button className="complete_btn" onClick={()=>logout()}> 로그아웃 </button>
         </Header>
       </Navigation>
       

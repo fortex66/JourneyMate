@@ -1,5 +1,10 @@
 import Navigationbar from "../components/Navigationbar";
-import { Map, MapMarker, MapInfoWindow } from "react-kakao-maps-sdk";
+import {
+  Map,
+  MapMarker,
+  MapInfoWindow,
+  MarkerClusterer,
+} from "react-kakao-maps-sdk";
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -10,16 +15,16 @@ import {
   faLocationCrosshairs,
 } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../components/Modal";
-import Nearby from "../components/NearbyPage";
+import Nearby from "../components/Nearby";
 
 // NearbyModal 컴포넌트 선언
 const NearbyModal = (props) => {
   const { closeModal, marker } = props;
+  const [sortType, setSortType] = useState("latest");
 
   // 정렬 방식 변경 핸들러
-  const handleSortChange = (sortType) => {
-    console.log(`Sorting by ${sortType}`);
-    // TODO: 이곳에서 실제로 게시글 정렬을 수행합니다.
+  const handleSortChange = (newSortType) => {
+    setSortType(newSortType);
   };
 
   return (
@@ -30,9 +35,9 @@ const NearbyModal = (props) => {
         </button>
         <div className="sorting-buttons">
           <button onClick={() => handleSortChange("popular")}>인기순</button>
-          <button onClick={() => handleSortChange("recent")}>최신순</button>
+          <button onClick={() => handleSortChange("latest")}>최신순</button>
         </div>
-        <Nearby marker={marker} />
+        <Nearby marker={marker} sortType={sortType} />
       </div>
     </NearbyModalStyled>
   );
@@ -72,9 +77,9 @@ const Home = () => {
     }
     setMarkerHovered(marker);
   };
-  const handleZoomChange = (newLevel) => {
-    setCurrentLevel(newLevel);
-  };
+  // const handleZoomChange = (newLevel) => {
+  //   setCurrentLevel(newLevel);
+  // };
   const handleMouseOutMarker = () => {
     markerHoverTimeout.current = setTimeout(() => {
       setMarkerHovered(null);
@@ -169,39 +174,48 @@ const Home = () => {
             maxLevel={13}
             onZoomChanged={(map) => setCurrentLevel(map.getLevel())} // 지도 줌 변경 시 핸들러 함수
           >
-            {latestMarkers &&
-              latestMarkers.map((marker, index) => (
-                <Circle key={index}>
-                  <MapMarker
-                    position={{
-                      lat: marker.y,
-                      lng: marker.x,
-                    }}
-                    clickable={true}
-                    onMouseOver={() => handleMouseOverMarker(marker)}
-                    onMouseOut={handleMouseOutMarker}
-                    onClick={() => handleMarkerClick(marker)}
-                  />
-                  {isMarkerHovered === marker && isMarkerClicked === false && (
-                    <MapInfoWindow
+            <MarkerClusterer
+              averageCenter={true} // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
+              minLevel={10} // 클러스터 할 최소 지도 레벨
+            >
+              {latestMarkers &&
+                latestMarkers.map((marker, index) => (
+                  <Circle key={index}>
+                    <MapMarker
                       position={{
-                        lat: marker.y + latChangeByLevel[currentLevel], // latitude 값을 조정하여 정보창을 위로 이동시킵니다.
+                        lat: marker.y,
                         lng: marker.x,
                       }}
-                    >
-                      <img
-                        src={
-                          marker.post_images[0]
-                            ? marker.post_images[0].imageURL.replace(/\\/g, "/")
-                            : ""
-                        }
-                        alt="post"
-                        style={{ width: "150px", height: "100px" }}
-                      />
-                    </MapInfoWindow>
-                  )}
-                </Circle>
-              ))}
+                      clickable={true}
+                      onMouseOver={() => handleMouseOverMarker(marker)}
+                      onMouseOut={handleMouseOutMarker}
+                      onClick={() => handleMarkerClick(marker)}
+                    />
+                    {isMarkerHovered === marker &&
+                      isMarkerClicked === false && (
+                        <MapInfoWindow
+                          position={{
+                            lat: marker.y + latChangeByLevel[currentLevel], // latitude 값을 조정하여 정보창을 위로 이동시킵니다.
+                            lng: marker.x,
+                          }}
+                        >
+                          <img
+                            src={
+                              marker.post_images[0]
+                                ? marker.post_images[0].imageURL.replace(
+                                    /\\/g,
+                                    "/"
+                                  )
+                                : ""
+                            }
+                            alt="post"
+                            style={{ width: "150px", height: "100px" }}
+                          />
+                        </MapInfoWindow>
+                      )}
+                  </Circle>
+                ))}
+            </MarkerClusterer>
           </Map>
         </MapContainer>
         <Navigationbar />
