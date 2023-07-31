@@ -33,7 +33,7 @@ router.get("/search", authMiddleware, postController.getSearchlist);
 router.get("/nearby", authMiddleware, postController.getNearbylist);
 router.get("/topkeyword", authMiddleware, postController.getTopSearches);
 router.get("/searchcount", authMiddleware, postController.searchCount);
-router.get("/status", authMiddleware, scrapController.checkScrapStatus);
+router.get("/status", authMiddleware, scrapController.checkScrapStatus); // 스크랩 상태 저장
 
 //커뮤니티 게시글 상세정보
 router.get(

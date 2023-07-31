@@ -6,7 +6,7 @@ const scrapController = require('../controllers/scrapController.js');
 const router = express.Router();
 
 // // 스크랩 라우터
-router.get('/:userID/scraps', scrapController.getScrapList);
+router.get('/scrap',authMiddleware, scrapController.getScrapList);
 
 // authMiddleware를 통과후 controller로 이동
 router.get('/community', upload.array('photos[]', 10),authMiddleware, mypageController.getCommunityList);

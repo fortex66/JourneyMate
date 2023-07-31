@@ -59,6 +59,39 @@ const tPost = sequelize.define('travel_posts', {
 });
 
 
+const scraps = sequelize.define('scraps', {
+  scrapsID: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true
+  },
+  userID: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  tpostID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'travel_posts',
+      key: 'tpostID',
+      onDelete: 'CASCADE'  // CASCADE DELETE 적용
+    }
+  }
+}, {
+  // 다른 옵션들 기입
+  timestamps: false,
+  onUpdate: "CASCADE",
+  onDelete: 'CASCADE',
+  sequelize, 
+  modelName: 'scraps'
+});
+
+scraps.belongsTo(tPost, { foreignKey: 'tpostID', onDelete: 'CASCADE' });
+tPost.hasMany(scraps, { foreignKey: 'tpostID' });
+
+
 const tPostImage = sequelize.define('post_images', {
   // Assuming postId and userId are the foreign keys from post and user table.
   imageURL: {
@@ -359,4 +392,4 @@ CTagging.belongsTo(Tag, { foreignKey: 'tagID' });
 cPostImage.belongsTo(cPost, { foreignKey: 'cpostID',onDelete: 'CASCADE' });
 cPost.hasMany(cPostImage, { foreignKey: 'cpostID' });
 
-module.exports = {tPost, tPostImage, cPost, cPostImage,Tag, TTagging,CTagging,SearchHistories };
+module.exports = {tPost, tPostImage, cPost, cPostImage,Tag, TTagging,CTagging,SearchHistories,scraps };
