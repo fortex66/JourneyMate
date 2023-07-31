@@ -10,7 +10,7 @@ const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_US
 
 
 const scraps = sequelize.define('scraps', {
-    scrapID: {
+    scrapsID: {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,

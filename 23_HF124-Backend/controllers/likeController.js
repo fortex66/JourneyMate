@@ -64,6 +64,8 @@ exports.onLike = async (req, res) => {
 };
 
 
+
+
 exports.checkLikeStatus = async (req, res) => {
   const postID = req.query.tpostID;
   const user = req.decode;

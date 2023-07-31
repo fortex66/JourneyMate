@@ -18,21 +18,25 @@ const Detail_Nav = () => {
   const [activeComment, setActiveComment] = useState(false);
   const [activeBookmark, setActiveBookmark] = useState(false);
   const [likeCount, setLikeCount] = useState();
-  const [commentCount, setCommentCount] = useState();  // 댓글 수를 저장할 상태를 추가
+  const [commentCount, setCommentCount] = useState(); // 댓글 수를 저장할 상태를 추가
+  const [modalMessage, setModalMessage] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
-  
   const getCommentCount = async () => {
     const tpostID = window.location.pathname.split("/").slice(-1)[0];
-    
+
     try {
-      const response = await axios.get(baseURL + `community/commentCount/${tpostID}`, {
-        params: {
-          tpostID: tpostID,
-        }, // URL 수정
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
-        },
-      });
+      const response = await axios.get(
+        baseURL + `community/commentCount/${tpostID}`,
+        {
+          params: {
+            tpostID: tpostID,
+          }, // URL 수정
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+        }
+      );
       setCommentCount(response.data.commentCount);
     } catch (error) {
       console.error(error);
@@ -41,18 +45,19 @@ const Detail_Nav = () => {
 
   const checkLikeStatus = async () => {
     const tpostID = window.location.pathname.split("/").pop();
-
+    console.log("하트 스테이터스:", tpostID);
     try {
       const response = await axios.get(baseURL + `like/status`, {
         params: {
           tpostID: tpostID,
         },
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
         },
       });
 
       setActiveHeart(response.data.isLiked);
+      console.log("하트 스테이터스 2차:", response);
     } catch (error) {
       console.error(error);
     }
@@ -67,41 +72,78 @@ const Detail_Nav = () => {
           tpostID: tpostID,
         },
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
         },
       });
 
       setLikeCount(response.data.likeCount);
-  
     } catch (error) {
       console.error(error);
     }
   };
 
-  useEffect(() => {
-    checkLikeStatus(); // 좋아요 상태 체크
-    getLikeCount(); // 좋아요 수
-    getCommentCount();  // 댓글 수
-  }, []);
-
   const handleHeartClick = async () => {
     const tpostID = window.location.pathname.split("/").pop();
 
     try {
-      const response = await axios.post(baseURL + `like`,
+      const response = await axios.post(
+        baseURL + `like`,
         {
-          tpostID: tpostID, 
+          tpostID: tpostID,
         },
         {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
           },
         }
       );
 
       console.log(response.data);
       setActiveHeart(!activeHeart);
-      getLikeCount();  // 좋아요 수를 업데이트합니다.
+      getLikeCount(); // 좋아요 수를 업데이트합니다.
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleBookmarkClick = async () => {
+    const tpostID = window.location.pathname.split("/").pop();
+
+    try {
+      const response = await axios.post(
+        baseURL + `community/scrap`,
+        {
+          tpostID: tpostID,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+        }
+      );
+
+      console.log(response.data);
+      setActiveBookmark(!activeBookmark);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const checkScrapStatus = async () => {
+    const tpostID = window.location.pathname.split("/").pop();
+    console.log("스테이터스:", tpostID);
+    try {
+      const response = await axios.get(baseURL + `community/status`, {
+        params: {
+          tpostID: tpostID,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+        },
+      });
+
+      setActiveBookmark(response.data.isScrap);
+      console.log("스테이터스 2차:", response);
     } catch (error) {
       console.error(error);
     }
@@ -109,11 +151,7 @@ const Detail_Nav = () => {
 
   const handleCommentClick = () => {
     setActiveComment(!activeComment);
-    getCommentCount();  // 댓글 수를 업데이트합니다.
-  };
-
-  const handleBookmarkClick = () => {
-    setActiveBookmark(!activeBookmark);
+    getCommentCount(); // 댓글 수를 업데이트합니다.
   };
 
   const copyLinkToClipboard = async () => {
@@ -121,6 +159,13 @@ const Detail_Nav = () => {
     await navigator.clipboard.writeText(url);
     alert("링크가 복사되었습니다!");
   };
+
+  useEffect(() => {
+    checkScrapStatus(); // 스크랩 상태 체크
+    checkLikeStatus(); // 좋아요 상태 체크
+    getLikeCount(); // 좋아요 수
+    getCommentCount(); // 댓글 수
+  }, []);
 
   return (
     <Navigation>
@@ -163,10 +208,10 @@ const Detail_Nav = () => {
           </NavBox>
         </BottomBox>
       </Bottomview>
+      {showModal && <Modal>{modalMessage}</Modal>}
     </Navigation>
   );
 };
-
 
 const Navigation = styled.div`
   position: relative;
@@ -202,6 +247,19 @@ const NavBox = styled.div`
   align-items: center;
   justify-content: center;
   background-color: white;
+`;
+
+const Modal = styled.div`
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 80%;
+  transform: translate(-50%, -50%);
+  background-color: #333333;
+  color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 `;
 
 export default Detail_Nav;
