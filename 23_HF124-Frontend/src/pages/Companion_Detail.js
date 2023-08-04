@@ -99,10 +99,13 @@ const Companion_Detail = () => {
         }
       });
   };
-  const EditCompanion = async () => {
-    const postID = window.location.pathname.split("/").pop();
-    navigate("/Companion_Write", { state: { data: data, mode: 'edit', postId: postID } });
-  };
+
+  const formatText = (text) => {
+    return text.split('\n').map((line, index) => <span key={index}>{line}<br /></span>);
+  }
+
+  console.log(data)
+
   // 데이터가 없을때
   if (!data) {
     return <div className="DiaryPage">로딩중입니다...</div>;
@@ -111,46 +114,54 @@ const Companion_Detail = () => {
       <Page>
         <Top>
           <StyledButton onClick={() => navigate(-1)}>{"<"}</StyledButton>
-          <Button>
-            {currentUser && data?.post.userID === currentUser && ( 
-            <button onClick={EditCompanion}>
-              수정
-            </button>
-          )}
           {currentUser && data?.post.userID === currentUser && ( 
             <button onClick={() => deleteCompanion(data.post.tpostID)}>
               삭제
             </button>
           )}
-          </Button>
-          
         </Top>
         <Title>{data && data.post.title}</Title>
-        <Info>
-          위치 : {data && data.post.location}
-          <br />
-          태그 : {data && data.post.tags && data.post.tags.map(tag => tag.content).join(', ')}
-          <br />
-          성별 : {data && data.post.pgender}
-          <br />
-          나이 : {data && data.post.age}
-          <br />
-          여행시작날짜 : {data && data.post.startDate}
-          <br />
-          여행종료날짜 : {data && data.post.finishDate}
-          <br />
-          여행인원 : {data && data.post.personnel}
-        </Info>
-        <div>
-        {data && data.post.post_images.map((posts,index)=>(
-          <Main>
+        <ImageContainer>
           <img src={`${baseURL}${data && data.post.post_images[0].imageURL.replace(/\\/g, '/')}`} style={{ maxWidth: "600px", height: "auto" }} />
-          <Content>{data && data.post.content}</Content>
+        </ImageContainer>
+        
+        <Info>
+          <FirstInfo>
+            <LocationInfo>지역 : {data && data.post.location}</LocationInfo>
+            <PeopleInfo>모집인원 : {data && data.post.personnel}명</PeopleInfo>
+            <GenderInfo>성별 : {data && data.post.pgender}</GenderInfo>
+          </FirstInfo>
+          
+          <SecondInfo>
+            <AgeInfo>나이 : {data && data.post.age}</AgeInfo>
+            <PeriodInfo>여행기간 : {data && data.post.startDate} ~ {data && data.post.finishDate}</PeriodInfo>
+          </SecondInfo>
+        </Info>
+
+        <HostContainer>
+          <HostInfo>
+            <HostName>{data && data.post.userID}</HostName>
+            <HostAge>{data && data.age}</HostAge>
+            <HostGender>{data && data.post.users.gender}</HostGender>
+          </HostInfo>
+          
+          <JoinButton>
+            채팅방 입장
+          </JoinButton>
+        </HostContainer>
+
+        <Main>
+          <Content>{formatText(data && data.post.content)}</Content>
         </Main>
-        ))}
-        </div>
+
+        <TagContainer>
+          <TagList>
+            {data && data.post.tags && data.post.tags.map(tag => <TagItem>#{tag.content}</TagItem>)}
+          </TagList>
+        </TagContainer>
+        
         <CommentSection>
-      <h3>댓글</h3>
+          <h3>댓글</h3>
           <CommentInput>
             <textarea
               value={newComment}
@@ -199,6 +210,7 @@ const Page = styled.div`
 `;
 
 const Top = styled.div`
+  
   margin-left: 20px;
   margin-right: 20px;
 `;
@@ -212,18 +224,95 @@ const CommentContent = styled.div`
   white-space: pre-wrap; // 띄어쓰기와 줄바꿈을 유지하면서 필요한 경우에만 줄바꿈
 `;
 const Info = styled.div`
-  margin-left: 20px;
-  margin-right: 20px;
+  border: 1px solid #dddddd;
+  border-radius: 15px;
+  padding: 10px;
+  margin: 20px;
+
 `;
 
-const Main = styled.div`
-  background-color: rgb(240, 240, 240);
-  margin: 0px 20px 20px 20px;
+const FirstInfo = styled.div`
+  display : flex;
+`
+const LocationInfo = styled.div`
+  margin-right: 100px;
+`
+
+const PeopleInfo = styled.div`
+  margin-right: 100px;
+`
+
+const GenderInfo = styled.div`
+  
+`
+
+const SecondInfo = styled.div`
+  display: flex;
+  margin-top:15px;
+  
+`
+
+const AgeInfo = styled.div`
+  margin-right: 100px;
+`
+
+const PeriodInfo = styled.div`
+
+`
+
+const ImageContainer = styled.div`
   text-align: center;
   img {
     margin-top: 20px;
     margin-bottom: 20px;
+    border-radius: 10px;
   }
+`
+
+const HostContainer = styled.div`
+  border-bottom: 1px solid #dddddd;
+  padding:15px;
+  margin:20px;
+  display:flex;
+  justify-content: space-between;
+`
+
+const HostInfo = styled.div`
+
+`
+
+const HostName = styled.div`
+
+`
+
+const HostAge = styled.div`
+`
+
+const HostGender = styled.div`
+`
+
+const JoinButton = styled.button`
+`
+
+
+const TagContainer = styled.div`
+  margin: 30px;
+`
+
+const TagList = styled.div`
+  display:flex;
+  justify-content: space-around;
+`
+const TagItem = styled.div`
+  background-color: #dddddd;
+  border-radius: 10px;
+  font-size: 13px;
+  padding: 5px;
+`
+
+const Main = styled.div`
+  margin:20px;
+
 `;
 
 const Content = styled.div`
@@ -232,7 +321,7 @@ const Content = styled.div`
 
 const CommentSection = styled.div`
   border-top: 2px solid rgb(234, 235, 239);
-  margin: 20px 0;
+  margin: 20px;
 `;
 
 const CommentInput = styled.div`
@@ -265,6 +354,7 @@ const Comment = styled.div`
 `;
 
 const StyledButton = styled.button`
+  margin-left:10px;
   background-color: #007bff;
   color: white;
   border: none;

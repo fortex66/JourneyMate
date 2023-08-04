@@ -14,7 +14,7 @@ const Scrap = () => {
     navigate(`/Community_Detail/${postId}`);
   };
 
-  useEffect(() => { 
+  useEffect(() => {
     const fetchScrapedPosts = async () => {
       try {
         const response = await axios.get(`${baseURL}mypage/scrap`, {

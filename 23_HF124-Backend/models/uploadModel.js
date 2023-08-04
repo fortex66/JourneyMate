@@ -1,5 +1,6 @@
 //uploadModel.js
 const { Sequelize, DataTypes, Model } = require('sequelize');
+const users=require('./signupModel');
 const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USERNAME, process.env.MYSQL_PASSWORD, {
   host: process.env.MYSQL_HOST,
   port: process.env.MYSQL_PORT,
@@ -106,7 +107,7 @@ const tPostImage = sequelize.define('post_images', {
   },
   content:{
     type: DataTypes.TEXT,
-    allowNull: false
+    allowNull: true
   },
   tpostID: {
     type: DataTypes.INTEGER,
@@ -383,7 +384,8 @@ Tag.belongsToMany(cPost, {
   as: 'cPosts'
 });
 
-
+cPost.belongsTo(users.User,{foreignKey: 'userID',as: 'users',onDelete: 'CASCADE'});
+users.User.hasMany(cPost,{foreignKey: 'userID',as: 'users'});
 
 Tag.hasMany(CTagging, { foreignKey: 'tagID' });
 CTagging.belongsTo(Tag, { foreignKey: 'tagID' });

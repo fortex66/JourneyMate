@@ -1,10 +1,9 @@
-import { useState, useRef,useEffect } from "react";
-import { useNavigate,useLocation } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
-// const token=localStorage.getItem('jwtToken');
 axios.defaults.withCredentials = true;
 
 const baseURL = "http://localhost:3000/";
@@ -19,45 +18,48 @@ const Community_Write = () => {
   const photoRefs = useRef([]);
   const contentRefs = useRef([]);
 
-
-  
   const [locationList, setLocationList] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [tagItem, setTagItem] = useState(""); // 태그 입력값
-  const [detail,setDetail] = useState(detaildata.state ? detaildata.state.data.post : "" )
 
-  const [title,setTitle] = useState(detail ? detail.title : '');
+  const [detail, setDetail] = useState(detaildata.state ? detaildata.state.data.post : "");
+
+  const [title, setTitle] = useState(detail ? detail.title : "");
 
   const [data, setData] = useState(
     detaildata.state
       ? detaildata.state.data.post.post_images.map((image) => ({
           photo: "",
           content: image.content,
-          file: 1,
-          previewURL: baseURL+image.imageURL,  // 이미지 URL을 previewURL에 저장
+          file: null,
+          previewURL: baseURL + image.imageURL, // 이미지 URL을 previewURL에 저장
+          urlName: image.imageURL,
+          imageID: image.imageID
         }))
       : [{ photo: "", content: "", file: null }]
   );
-  
 
   const [tagList, setTagList] = useState([]); // 태그 리스트
 
   useEffect(() => {
-    if(detaildata.state !== null) {
-      let tagcontent = detaildata.state.data.post.tags.map((tag)=>(tag.content));
-      setTagList(tagcontent)
+    if (detaildata.state !== null) {
+      let tagcontent = detaildata.state.data.post.tags.map(
+        (tag) => tag.content
+      );
+      setTagList(tagcontent);
     }
-  }, []);  
+  }, []);
 
-  console.log(detail)
-  
+  console.log(detail);
+
   //위치를 입력 받을때 kakaoapi를 활용하기 위함
   const searchLocation = async () => {
     const query = locationRef.current.value;
-  
-    if (!query.trim()) { // 입력값이 비어있는 경우 API 호출을 막습니다.
+
+    if (!query.trim()) {
+      // 입력값이 비어있는 경우 API 호출을 막습니다.
       setLocationList([]); // 위치 목록을 초기화하면서 자동완성 리스트를 비웁니다.
       return; // 빈 문자열인 경우 함수를 여기서 종료합니다.
     }
@@ -76,9 +78,8 @@ const Community_Write = () => {
     }
   };
 
-
-   // 태그 입력 처리
-   const onKeyDown = (e) => {
+  // 태그 입력 처리
+  const onKeyDown = (e) => {
     if (e.target.value.length !== 0 && e.key === "Enter") {
       submitTagItem();
     }
@@ -95,14 +96,20 @@ const Community_Write = () => {
   // 태그 삭제 처리
   const deleteTagItem = (e) => {
     const deleteTagItem = e.target.parentElement.firstChild.innerText;
-    const filteredTagList = tagList.filter((tagItem) => tagItem !== deleteTagItem);
+    const filteredTagList = tagList.filter(
+      (tagItem) => tagItem !== deleteTagItem
+    );
     setTagList(filteredTagList);
   };
 
   // 선택한 위치를 사용하기 위함
   const handleLocationSelect = (location) => {
     locationRef.current.value = location.place_name;
-    setSelectedLocation({x: location.x, y: location.y, address_name:location.address_name });
+    setSelectedLocation({
+      x: location.x,
+      y: location.y,
+      address_name: location.address_name,
+    });
     setLocationList([]);
   };
 
@@ -123,34 +130,57 @@ const Community_Write = () => {
     // 자동으로 높이를 조절하여 사용자가 입력한 영역에 맞게 크기를 조절
     contentRefs.current[i].style.height = "auto";
     contentRefs.current[i].style.height =
-    contentRefs.current[i].scrollHeight + "px";
+      contentRefs.current[i].scrollHeight + "px";
   };
 
-  /** 선택한 사진 및 내용 입력 영역 제거 */ 
+  /** 선택한 사진 및 내용 입력 영역 제거 */
   const handleDelete = (i) => {
     const newData = [...data]; //현재 data 배열을 복사
     newData.splice(i, 1); // index i의 항목을 삭제
     setData(newData); // 변경된 배열로 data 상태를 업데이트
+
 
     /* 
       photoRefs.current에서 인덱스 i와 일치하지 않는 항목들만 필터링하여 새로운 배열을 생성하고 
       photoRefs.current를 이렇게 변경된 배열로 업데이트한다. 
       결국 인덱스 i 항목이 제거됩니다.
     */
-    photoRefs.current = photoRefs.current.filter((_, idx) => idx !== i); 
+    
+    photoRefs.current = photoRefs.current.filter((_, idx) => idx !== i);
     contentRefs.current = contentRefs.current.filter((_, idx) => idx !== i); // contentRefs 배열에서 index i의 항목을 제거
-  };
-  
 
+  };
+
+  /* 게시글 삭제 - 사진 삭제 기능 - 서버로 게시물 ID, i를 보냄 *///////////////////////////////////////////////////////////////////////////////////////////////
+  const handleEditDelete = async (i) => {
+    const newData = [...data]; //현재 data 배열을 복사
+    newData.splice(i, 1); // index i의 항목을 삭제
+    setData(newData); // 변경된 배열로 data 상태를 업데이트
+    photoRefs.current = photoRefs.current.filter((_, idx) => idx !== i);
+    contentRefs.current = contentRefs.current.filter((_, idx) => idx !== i); // contentRefs 배열에서 index i의 항목을 제거
+
+    try {
+      await axios.delete(baseURL+"community/communitydetail",{
+        params: {
+          number: i,
+          tpostID: detail.tpostID
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+  }
 
   /** 사진 파일 내용을 처리 */
   const onFileInput = (e, i) => {
     e.preventDefault();
     const reader = new FileReader();
     const file = e.target.files[0];
+    console.log(e.target.files);
     reader.readAsDataURL(file);
 
-    /** 파일 로딩이 완료되면 데이터 설정 및 이미지 업데이트 */ 
+    /** 파일 로딩이 완료되면 데이터 설정 및 이미지 업데이트 */
     reader.onload = () => {
       const newData = [...data];
       newData[i].file = file;
@@ -160,19 +190,101 @@ const Community_Write = () => {
     };
   };
 
+  /* 게시글 수정 - 사진 추가 기능 - 서버로 게시물 ID, file 보내기 */////////////////////////////////////////////////////////////////////
+  const onFileEditInput = (e,i) => {
+    e.preventDefault();
+    const reader = new FileReader();
+    const file = e.target.files[0];
+    console.log(e.target.files);
+    reader.readAsDataURL(file);
+
+    /** 파일 로딩이 완료되면 데이터 설정 및 이미지 업데이트후 서버로 게시물 ID와 file을 전송 */
+    reader.onload = async () => {
+      const newData = [...data];
+      newData[i].file = file;
+      newData[i].previewURL = reader.result; // replace image
+      //newData[i].previewURL.push(reader.result);
+      setData(newData);
+
+      const formData = new FormData();
+      formData.append('photos[]',file);
+      const jsonData = {
+        tpostID: detail.tpostID
+      };
+      formData.append('jsonData',JSON.stringify(jsonData));
+      try{
+        // 서버로 게시물ID, file, i 보내기
+        await axios.post(baseURL+'community/communitydetail',formData,{
+          headers: {
+            "Content-Type": "multipart/form-data", // multipart/form-data로 보낸다고 명시
+          },
+        })
+      }catch (error) {
+        console.log(error);
+      }
+
+    };
+
+  }
+
   /** "사진수정" 버튼 클릭 시 처리 - 사진 변경 부분 */
   const handleEdit = (i) => {
     const newFileInput = document.createElement("input"); // 새로운 input 요소 생성
     newFileInput.type = "file"; // input 요소의 유형을 'file'로 설정
     newFileInput.accept = "image/*"; // 가능한 파일 형식을 이미지 제한
-    // 파일 input 요소에서 발생하는 'change' 이벤트 리스너 추가, 이벤트 발생시 onFileInput 함수를 호출한다.
-    newFileInput.addEventListener("change", (e) => {onFileInput(e, i); });
     newFileInput.click(); // 생성한 input 요소의 'click' 이벤트를 트리거하여 파일 선택 창 열기
+
+    // 파일 input 요소에서 발생하는 'change' 이벤트 리스너 추가, 이벤트 발생시 onFileInput 함수를 호출한다.
+    newFileInput.addEventListener("change", (e) => {
+      onFileInput(e, i);
+    });
+    
+  };
+
+  /* 게시글 수정 - 사진 수정 기능 - 서버로 게시물 ID, 수정된 file, i를 보냄 */////////////////////////////////////////////////////////////////////
+  const handleImgEdit = (i) => {
+    const newFileInput = document.createElement("input"); // 새로운 input 요소 생성
+    newFileInput.type = "file"; // input 요소의 유형을 'file'로 설정
+    newFileInput.accept = "image/*"; // 가능한 파일 형식을 이미지 제한
+    newFileInput.click(); // 생성한 input 요소의 'click' 이벤트를 트리거하여 파일 선택 창 열기
+    // 파일 input 요소에서 발생하는 'change' 이벤트 리스너 추가
+    newFileInput.addEventListener("change", (e) => {
+      e.preventDefault();
+      const reader = new FileReader();
+      const file = e.target.files[0];
+      console.log(e.target.files);
+      reader.readAsDataURL(file);
+  
+      // 파일 로딩이 완료되면 데이터 설정 및 이미지 업데이트
+      reader.onload =async () => {
+        const newData = [...data];
+        newData[i].file = file;
+        newData[i].previewURL = reader.result; // replace image
+        setData(newData);
+        const formData = new FormData();
+      formData.append('photos[]',file);
+      const jsonData = {
+        number: i,
+        tpostID: detail.tpostID
+      };
+      formData.append('jsonData',JSON.stringify(jsonData));
+      try{
+        // 서버로 게시물ID, file, i 보내기
+        await axios.put(baseURL+'community/communitydetail',formData,{
+          headers: {
+            "Content-Type": "multipart/form-data", // multipart/form-data로 보낸다고 명시
+          },
+        })
+      }catch (error) {
+        console.log(error);
+      }
+      };
+    });
   };
   
 
   /** 각 입력 부분의 간단한 유효성 검사 수행 
-   부적절한 데이터 발견 시 해당 입력 부분으로 포커싱 */ 
+   부적절한 데이터 발견 시 해당 입력 부분으로 포커싱 */
   const handleSubmit = async () => {
     if (titleRef.current.value.length < 1) {
       titleRef.current.focus();
@@ -181,14 +293,16 @@ const Community_Write = () => {
       locationRef.current.focus();
       return;
     } else if (data.some((item, i) => !item.file)) {
-      setModalMessage("사진을 올려주세요."); setShowModal(true);
-      setTimeout(() => { setShowModal(false); }, 2000);
+      setModalMessage("사진을 올려주세요.");
+      setShowModal(true);
+      setTimeout(() => {
+        setShowModal(false);
+      }, 2000);
       return;
     } else if (data.some((item, i) => item.content.length < 1)) {
       contentRefs.current.find((ref, i) => data[i].content.length < 1)?.focus();
       return;
     } else if (window.confirm("게시글을 등록하시겠습니까?")) {
-
       const formData = new FormData();
 
       // 사진과 내용 데이터를 FormData에 추가
@@ -213,7 +327,7 @@ const Community_Write = () => {
             "Content-Type": "multipart/form-data", // multipart/form-data로 보낸다고 명시
           },
         });
-        
+
         navigate("/Community", { replace: true }); // 작성하는 페이지로 뒤로오기 금지
       } catch (error) {
         console.log(error);
@@ -225,65 +339,55 @@ const Community_Write = () => {
     if (titleRef.current.value.length < 1) {
       titleRef.current.focus();
       return;
+    } else if (locationRef.current.value.length < 1) {
+      locationRef.current.focus();
+      return;
     } else if (data.some((item, i) => item.content.length < 1)) {
       contentRefs.current.find((ref, i) => data[i].content.length < 1)?.focus();
       return;
     } else if (window.confirm("게시글을 수정하시겠습니까?")) {
-  
-      const formData = new FormData();
       const postId = detail.tpostID;
-  
-      // 사진과 내용 데이터를 FormData에 추가
-      data.forEach((item, i) => {
-        formData.append("photos[]", item.file);
-        formData.append("contents[]", item.content);
-      });
-      
-      // 기존의 jsonData 대신, 각각의 필드를 별도로 추가
-      formData.append("title", titleRef.current.value);
-      formData.append("location", selectedLocation.address_name);
-  
-      // 다른 정보를 그대로 보내고 싶다면 이렇게도 추가 가능
-      formData.append("tags", JSON.stringify(tagList)); // array는 JSON 문자열로 변환해서 보냅니다.
-  
+
+      const contentArray=data.map((item)=> item.content);
       // 서버로 formData전송
       try {
-        await axios.put(`http://localhost:3000/community/${postId}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data", // multipart/form-data로 보낸다고 명시
-          },
+        await axios.put(`http://localhost:3000/community/${postId}`, {
+          title : titleRef.current.value,
+          location : selectedLocation.address_name,
+          tags : JSON.stringify(tagList),
+          contents : contentArray
         });
-  
+
         navigate("/Community", { replace: true }); // 작성하는 페이지로 뒤로오기 금지
       } catch (error) {
         console.log(error);
       }
     }
   };
-  
 
   return (
     <Write>
       <Navigation>
         <Header>
           <button className="back_btn" onClick={() => navigate(-1)}> {"<"} </button>
-          {detaildata.state === null ? 
-          <button className="complete_btn" onClick={handleSubmit}> 등록 </button> :
-          <button className="complete_btn" onClick={handleEditsubmit}> 수정 </button>
-          }
-          
+          {detaildata.state === null ? (
+            <button className="complete_btn" onClick={handleSubmit}> 등록 </button> ) : (
+            <button className="complete_btn" onClick={handleEditsubmit}> 수정 </button> )
+            }
         </Header>
       </Navigation>
       <div>
         <Title>
-          {detaildata.state === null ? 
-          <input type="text" name="title" placeholder="제목을 입력하세요" ref={titleRef} /> : 
-          <input type="text" name="title" value={title} ref={titleRef} onChange={(e) => setTitle(e.target.value)} />}
+          {detaildata.state === null ? (
+            <input type="text" name="title" placeholder="제목을 입력하세요" ref={titleRef} /> ) : (
+            <input type="text" name="title" value={title} ref={titleRef} onChange={(e) => setTitle(e.target.value)} />)
+          }
         </Title>
         <Info>
-          {detaildata.state === null ? 
-          <input name="location" placeholder="위치 입력" ref={locationRef} onChange={searchLocation} /> : 
-          <input name="location" placeholder={detail.location} ref={locationRef} onChange={searchLocation} /> }
+          {detaildata.state === null ? (
+            <input name="location" placeholder="위치 입력" ref={locationRef} onChange={searchLocation} /> ) : (
+            <input name="location" placeholder={detail.location} ref={locationRef} onChange={searchLocation} /> )
+          }
           {locationList.map((location, i) => (
             <li key={i} onClick={() => handleLocationSelect(location)}>
               {location.place_name}
@@ -297,25 +401,35 @@ const Community_Write = () => {
               </TagItem>
             );
           })}
-          <TagInput type="text" placeholder="태그를 입력해주세요!" onChange={(e) => setTagItem(e.target.value)}
-            value={tagItem} onKeyDown={onKeyDown} />
+          <TagInput type="text" placeholder="태그를 입력해주세요!" onChange={(e) => setTagItem(e.target.value)} value={tagItem} onKeyDown={onKeyDown}/>
         </Info>
       </div>
       <Addform>
         {data.map((val, i) => (
-          <RepeatWrapper key={i}>
+          <RepeatWrapper key={i} >
             <PhotoWrapper>
               <AddButton onClick={handleClick}> + </AddButton>
-              {val.file ? (
+              {val.previewURL ? (
                 <Preview>
-                  <ProfilePreview name="photopreview" onChange={(e) => handleChange(e, i)}
-                    src={val.previewURL} alt="uploaded" ref={(el) => (photoRefs.current[i] = el)} />
-                  <EditButton onClick={() => handleEdit(i)}> 사진수정 </EditButton>
+                  {detaildata.state === null ? (
+                    <ProfilePreview name="photopreview" onChange={(e) => handleChange(e, i)} src={val.previewURL} alt="uploaded" ref={(el) => (photoRefs.current[i] = el)}/>
+                  ) : (
+                    <ProfilePreview type="file" name="photopreview" onChange={(e) => { handleChange(e, i);}}
+                      src={val.previewURL} alt="uploaded" ref={(el) => { photoRefs.current[i] = el; }} />
+                  )}
+                  {detaildata.state === null ? (
+                    <EditButton onClick={() => handleEdit(i)}> 사진수정 </EditButton> ) : (
+                    <EditButton onClick={() => handleImgEdit(i)}> 사진수정 </EditButton> ) 
+                  }
+                  
                 </Preview>
               ) : (
                 <PhotoContainer>
-                  <UploadInput type="file" name="photo" id="photo" accept="image/*" value={val.photo}
-                    onChange={(e) => onFileInput(e, i)} required />
+                  {detaildata.state === null ? (
+                    <UploadInput type="file" name="photo" id="photo" accept="image/*" value={val.photo} onChange={(e) => onFileInput(e, i)} required /> ) : (
+                    <UploadInput type="file" name="photo" id="photo" accept="image/*" value={val.photo} onChange={(e) => onFileEditInput(e, i)} required /> )
+                  }
+                  
                   <UploadButton type="submit">
                     <FontAwesomeIcon icon={faCamera} size="4x" />
                     <br />
@@ -324,12 +438,16 @@ const Community_Write = () => {
                   </UploadButton>
                 </PhotoContainer>
               )}
-              {i === 0 ? (<DisabledDeleteButton> x </DisabledDeleteButton>
-              ) : (<DeleteButton onClick={() => handleDelete(i)}> x </DeleteButton> )}
+              {i === 0 ? (
+                <DisabledDeleteButton> x </DisabledDeleteButton>
+              ) : (
+                detaildata.state === null ? (
+                  <DeleteButton onClick={() => handleDelete(i)}> x </DeleteButton> ) : (
+                  <DeleteButton onClick={() => handleEditDelete(i)}> x </DeleteButton> )                
+              )}
             </PhotoWrapper>
             <Contents>
-              <textarea name="content" placeholder="내용 입력" value={val.content}
-                onChange={(e) => handleChange(e, i)} ref={(el) => (contentRefs.current[i] = el)}/>
+              <textarea name="content" placeholder="내용 입력" value={val.content} onChange={(e) => handleChange(e, i)} ref={(el) => (contentRefs.current[i] = el)} />
             </Contents>
           </RepeatWrapper>
         ))}

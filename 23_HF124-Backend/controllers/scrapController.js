@@ -7,13 +7,16 @@ const getScrapList = async (req, res) => {
     const { page = 1, itemscount = 10 } = req.query;
     const offset = (page - 1) * itemscount;
     const scrapedPosts = await tPost.tPost.findAll({
-      include: [{
-        model: tPost.scraps,
-        where: { userID: req.decode.userID },
-      }, {
-        model: tPost.tPostImage,
-        as: "post_images"
-      }],
+      include: [
+        {
+          model: tPost.scraps,
+          where: { userID: req.decode.userID },
+        },
+        {
+          model: tPost.tPostImage,
+          as: "post_images",
+        },
+      ],
       order: [["tpostID", "DESC"]],
       limit: itemscount,
       offset: offset,
@@ -77,7 +80,9 @@ const checkScrapStatus = async (req, res) => {
     res.json({ isScrap: !!Scrap });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "An error occurred while processing the request." });
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing the request." });
   }
 };
 
