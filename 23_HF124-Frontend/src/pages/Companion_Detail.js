@@ -99,7 +99,10 @@ const Companion_Detail = () => {
         }
       });
   };
-
+  const EditCompanion = async () => {
+    const postID = window.location.pathname.split("/").pop();
+    navigate("/Companion_Write", { state: { data: data, mode: 'edit', postId: postID } });
+  };
   // 데이터가 없을때
   if (!data) {
     return <div className="DiaryPage">로딩중입니다...</div>;
@@ -108,11 +111,19 @@ const Companion_Detail = () => {
       <Page>
         <Top>
           <StyledButton onClick={() => navigate(-1)}>{"<"}</StyledButton>
+          <Button>
+            {currentUser && data?.post.userID === currentUser && ( 
+            <button onClick={EditCompanion}>
+              수정
+            </button>
+          )}
           {currentUser && data?.post.userID === currentUser && ( 
             <button onClick={() => deleteCompanion(data.post.tpostID)}>
               삭제
             </button>
           )}
+          </Button>
+          
         </Top>
         <Title>{data && data.post.title}</Title>
         <Info>

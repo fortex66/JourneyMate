@@ -1,6 +1,6 @@
 const Post = require('../models/uploadModel');
 const user=require('../models/signupModel');
-
+const path=require('path');
 const getCommunityList = async (req, res) => {
   try {
     const { page = 1, per_page = 10 } = req.query;
@@ -119,7 +119,33 @@ const updatePassword=async(req, res)=>{
   const logout=async (req,res)=>{
     return res.clearCookie('token').end();
   }
+
+  const setProfileImage=async(req, res) =>{
+    if (!req.files) {
+      return res.status(400).send({message: "No files uploaded"});
+    }
+  
+    try {
+      const userID= req.decode.userID;
+      
+      // 이미지를 저장합니다.
+      const imageSavePromises = req.files.map((file, index) => {
+        const imageUrl = path.join(file.destination, file.filename);
+        return user.User.update({
+          profileImage: imageUrl
+        },{where: {userID: userID}});
+      });
+    
+      await Promise.all(imageSavePromises);
+      
+      res.status(200).send({ message: "Profile Image save" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({ message: "Error saving posts" });
+    }
+  }
+  
   
   module.exports = {
-      getCommunityList, getCompanionList,updatePassword,getProfile, updateUser,logout
+      getCommunityList, getCompanionList,updatePassword,getProfile, updateUser,logout, setProfileImage
   };

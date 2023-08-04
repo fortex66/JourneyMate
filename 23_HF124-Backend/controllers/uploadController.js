@@ -255,7 +255,7 @@ async function companionUpdatePost(req, res) {
           where: {cpostID: cpostID}
         });
         await cUpload.cPostImage.destroy({ where: { cpostID: cpostID/*, userID:req.body.userID */} }); // 기존 게시물의 사진을 삭제
-
+        console.log(req.files.entries());
         //게시물 사진 다시 저장
         for (const [index, file] of req.files.entries()) {
           const imageUrl = path.join(file.destination, file.filename);
