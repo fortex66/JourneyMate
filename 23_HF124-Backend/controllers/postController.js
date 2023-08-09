@@ -1,7 +1,8 @@
 const tPost = require("../models/uploadModel");
 const cPost = require("../models/uploadModel");
 const Tag = require("../models/uploadModel");
-const Users=require("../models/userModel");
+const userProfile = require("../models/signupModel");
+const Users = require("../models/userModel");
 const SearchHistories = require("../models/uploadModel");
 const { Op } = require("sequelize");
 const { Sequelize } = require("sequelize");
@@ -38,7 +39,16 @@ const getlist = async (req, res) => {
       offset: per_page * (page - 1),
       limit: per_page,
       order: order,
-      include: [{ model: tPost.tPostImage, as: "post_images" }],
+      include: [
+        {
+          model: tPost.tPostImage,
+          as: "post_images",
+        },
+        {
+          model: userProfile.User,
+          attributes: ["profileImage"],
+        },
+      ],
     });
     const total_pages = Math.ceil(posts.count / per_page);
     res.status(200).json({ posts, total_pages });
@@ -250,30 +260,32 @@ const getclist = async (req, res) => {
 
 const getcpost = async (req, res) => {
   try {
-    const post = await cPost.cPost.findOne({ where: { cpostID: req.params.cpostID }
-    ,include: [
-      {
-        model: cPost.cPostImage, 
-        as:"post_images",
-       },
-     {
-      model: Tag.Tag,
-      as: "tags",  
-     },
-     {
-      model: Users,
-      as: "users",
-      // where: {userID: req.decode.userID},
-      attributes: ['profileImage','gender','birth']
-     }
-    ] });
+    const post = await cPost.cPost.findOne({
+      where: { cpostID: req.params.cpostID },
+      include: [
+        {
+          model: cPost.cPostImage,
+          as: "post_images",
+        },
+        {
+          model: Tag.Tag,
+          as: "tags",
+        },
+        {
+          model: Users,
+          as: "users",
+          // where: {userID: req.decode.userID},
+          attributes: ["profileImage", "gender", "birth"],
+        },
+      ],
+    });
     console.log(post.dataValues.users.dataValues.birth);
     console.log(post);
-    const getYear=(post.dataValues.users.dataValues.birth).getFullYear();
+    const getYear = post.dataValues.users.dataValues.birth.getFullYear();
 
-    var date=new Date();
-    var year=date.getFullYear();
-    const age= year-getYear;
+    var date = new Date();
+    var year = date.getFullYear();
+    const age = year - getYear;
     res.status(200).json({ post, age });
   } catch (err) {
     console.error(err);
