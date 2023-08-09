@@ -1,5 +1,5 @@
-import React, { useContext, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useContext, useState, useRef, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
 import { CompanionDispatchContext } from "../App";
@@ -16,26 +16,58 @@ const Companion_Write = () => {
   const fileRef = useRef();
   const [tagItem, setTagItem] = useState(""); // 태그 입력값
   const [tagList, setTagList] = useState([]); // 태그 리스트
-
+  const detaildata = useLocation();
+  const baseURL = "http://localhost:3000/";
   const navigate = useNavigate();
   const [locationList, setLocationList] = useState([]);
 
   //const { onCreate_Companion } = useContext(CompanionDispatchContext);
+  const [detail, setDetail] = useState(
+    detaildata.state ? detaildata.state.data.post : ""
+  );
 
+  //수정하기 state관리
+  const [title, setTitle] = useState(detail ? detail.title : "");
+  const [gender, setGender] = useState(detail ? detail.pgender : "");
+  const [age, setAge] = useState(detail ? detail.age : "");
+  const [startDate, setStartDate] = useState(detail ? detail.startDate : "");
+  const [finishDate, setFinishDate] = useState(detail ? detail.finishDate : "");
+  const [personnel, setPersonnel] = useState(detail ? detail.personnel : "");
+  const [content, setContent] = useState(detail ? detail.content : "");
+  const [file, setFile] = useState(
+    detail ? detail.post_images[0].imageURL : ""
+  );
+
+  console.log(file);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [previewURL, setPreviewURL] = useState("");
-  const [file, setFile] = useState();
+  const [previewURL, setPreviewURL] = useState(
+    detail ? detail.post_images[0].imageURL : ""
+  );
   const fileInput = useRef();
-  const [gender, setGender] = useState("남자");
-  const [content, setContent] = useState(""); // Set the initial value of content
+
   const [selectedLocation, setSelectedLocation] = useState({});
+
+  const [data, setData] = useState();
+
+  console.log(detaildata.state);
+
+  const handleAgeChange = (e) => {
+    setAge(e.target.value);
+  };
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
+  };
+  const handleFinishDateChange = (e) => {
+    setFinishDate(e.target.value);
+  };
 
   //위치를 입력 받을때 kakaoapi를 활용하기 위함
   const searchLocation = async () => {
     const query = locationRef.current.value;
-  
-    if (!query.trim()) { // 입력값이 비어있는 경우 API 호출을 막습니다.
+
+    if (!query.trim()) {
+      // 입력값이 비어있는 경우 API 호출을 막습니다.
       setLocationList([]); // 위치 목록을 초기화하면서 자동완성 리스트를 비웁니다.
       return; // 빈 문자열인 경우 함수를 여기서 종료합니다.
     }
@@ -53,14 +85,21 @@ const Companion_Write = () => {
       console.error("주소를 검색하는 도중 에러가 발생했습니다", error);
     }
   };
-
+  useEffect(() => {
+    if (detaildata.state !== null) {
+      let tagcontent = detaildata.state.data.post.tags.map(
+        (tag) => tag.content
+      );
+      setTagList(tagcontent);
+    }
+  }, []);
   const onKeyDown = (e) => {
     if (e.target.value.length !== 0 && e.key === "Enter") {
       submitTagItem();
     }
   };
-   // 태그 추가 처리
-   const submitTagItem = () => {
+  // 태그 추가 처리
+  const submitTagItem = () => {
     let updatedTagList = [...tagList];
     updatedTagList.push(tagItem);
     setTagList(updatedTagList);
@@ -70,12 +109,14 @@ const Companion_Write = () => {
   // 태그 삭제 처리
   const deleteTagItem = (e) => {
     const deleteTagItem = e.target.parentElement.firstChild.innerText;
-    const filteredTagList = tagList.filter((tagItem) => tagItem !== deleteTagItem);
+    const filteredTagList = tagList.filter(
+      (tagItem) => tagItem !== deleteTagItem
+    );
     setTagList(filteredTagList);
   };
   const handleLocationSelect = (location) => {
     locationRef.current.value = location.place_name;
-    setSelectedLocation({x: location.x, y: location.y});
+    setSelectedLocation({ x: location.x, y: location.y });
     setLocationList([]);
   };
 
@@ -89,13 +130,15 @@ const Companion_Write = () => {
     setContent(e.target.value); // Update the content state with the input value
   }
 
-   /** "사진수정" 버튼 클릭 시 처리 - 사진 변경 부분 */
-   const handleEdit = (i) => {
+  /** "사진수정" 버튼 클릭 시 처리 - 사진 변경 부분 */
+  const handleEdit = (i) => {
     const newFileInput = document.createElement("input"); // 새로운 input 요소 생성
     newFileInput.type = "file"; // input 요소의 유형을 'file'로 설정
     newFileInput.accept = "image/*"; // 가능한 파일 형식을 이미지 제한
     // 파일 input 요소에서 발생하는 'change' 이벤트 리스너 추가, 이벤트 발생시 onFileInput 함수를 호출한다.
-    newFileInput.addEventListener("change", (e) => {onFileInput(e, i); });
+    newFileInput.addEventListener("change", (e) => {
+      onFileInput(e, i);
+    });
     newFileInput.click(); // 생성한 input 요소의 'click' 이벤트를 트리거하여 파일 선택 창 열기
   };
 
@@ -120,7 +163,10 @@ const Companion_Write = () => {
     } else if (ageRef.current.value === "") {
       ageRef.current.focus();
       return;
-    } else if (!parseInt(personnelRef.current.value, 10) || isNaN(parseInt(personnelRef.current.value, 10))) {
+    } else if (
+      !parseInt(personnelRef.current.value, 10) ||
+      isNaN(parseInt(personnelRef.current.value, 10))
+    ) {
       personnelRef.current.focus();
       return;
     } else if (!file) {
@@ -142,21 +188,77 @@ const Companion_Write = () => {
         age: ageRef.current.value,
         personnel: personnelRef.current.value,
         content: contentRef.current.value,
-        tags: tagList,  // 태그 리스트 추가
+        tags: tagList, // 태그 리스트 추가
       };
       formData.append("jsonData", JSON.stringify(jsonData));
       axios
-      .post("http://localhost:3000/companion/cupload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then(() => {
-        navigate("/Companion", { replace: true });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+        .post("http://localhost:3000/companion/cupload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then(() => {
+          navigate("/Companion", { replace: true });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  };
+
+  const handleEditsubmit = async () => {
+    if (titleRef.current.value.length < 1) {
+      titleRef.current.focus();
+      return;
+    } else if (locationRef.current.value.length < 1) {
+      locationRef.current.focus();
+      return;
+    } else if (start_dateRef.current.value === "") {
+      start_dateRef.current.focus();
+      return;
+    } else if (finish_dateRef.current.value === "") {
+      finish_dateRef.current.focus();
+      return;
+    } else if (contentRef.current.value.length < 1) {
+      contentRef.current.focus();
+      return;
+    } else if (ageRef.current.value === "") {
+      ageRef.current.focus();
+      return;
+    } else if (
+      !parseInt(personnelRef.current.value, 10) ||
+      isNaN(parseInt(personnelRef.current.value, 10))
+    ) {
+      personnelRef.current.focus();
+      return;
+    } else if (window.confirm("게시글을 등록하시겠습니까?")) {
+      const formData = new FormData();
+      formData.append("files", file);
+      const jsonData = {
+        title: titleRef.current.value,
+        location: locationRef.current.value,
+        startDate: startDate,
+        finishDate: finishDate,
+        pgender: gender,
+        age: ageRef.current.value,
+        personnel: personnel,
+        content: content,
+        tags: tagList, // 태그 리스트 추가
+      };
+      formData.append("jsonData", JSON.stringify(jsonData));
+      const postId = detail.cpostID;
+      axios
+        .put(`http://localhost:3000/companion/${postId}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then(() => {
+          navigate("/Companion", { replace: true });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
   };
 
@@ -178,11 +280,20 @@ const Companion_Write = () => {
         <Navigation>
           <Header>
             <button className="back_btn" onClick={() => navigate(-1)}>
-              {"<"}
+              {" "}
+              {"<"}{" "}
             </button>
-            <button className="complete_btn" onClick={handleSubmit}>
-              등록
-            </button>
+            {detaildata.state === null ? (
+              <button className="complete_btn" onClick={handleSubmit}>
+                {" "}
+                등록{" "}
+              </button>
+            ) : (
+              <button className="complete_btn" onClick={handleEditsubmit}>
+                {" "}
+                수정{" "}
+              </button>
+            )}
           </Header>
         </Navigation>
       </Section>
@@ -190,34 +301,86 @@ const Companion_Write = () => {
       <Section>
         <InputContainer>
           <Title>제목</Title>
-          <Input name="title" placeholder="제목을 입력하세요" ref={titleRef} />
+          {detaildata.state === null ? (
+            <Input
+              type="text"
+              name="title"
+              placeholder="제목을 입력하세요"
+              ref={titleRef}
+            />
+          ) : (
+            <Input
+              type="text"
+              name="title"
+              value={title}
+              ref={titleRef}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          )}
         </InputContainer>
 
         <InputContainer>
           <InputLabel>위치</InputLabel>
-          <Input name="location" placeholder="위치를 입력하세요" ref={locationRef} onChange={searchLocation} />
+          {detaildata.state === null ? (
+            <Input
+              name="location"
+              placeholder="위치 입력"
+              ref={locationRef}
+              onChange={searchLocation}
+            />
+          ) : (
+            <Input
+              name="location"
+              placeholder={detail.location}
+              ref={locationRef}
+              onChange={searchLocation}
+            />
+          )}
           {locationList.map((location, i) => (
-                <li key={i} onClick={() => handleLocationSelect(location)}>
-                {location.place_name}
-              </li>
+            <li key={i} onClick={() => handleLocationSelect(location)}>
+              {location.place_name}
+            </li>
           ))}
         </InputContainer>
 
         <InputContainer>
           <InputLabel>성별</InputLabel>
           <RadioContainer>
-            <RadioButton type="radio" name="gender"  value="남자" onChange={handleGenderChange}/>
-            <RadioLabel>남성</RadioLabel>
-            <RadioButton type="radio" name="gender"  value="여자" onChange={handleGenderChange} />
-            <RadioLabel>여성</RadioLabel>
-            <RadioButton type="radio" name="gender"  value="상관없음" onChange={handleGenderChange} />
+            <RadioButton
+              type="radio"
+              name="gender"
+              value="남자"
+              onChange={handleGenderChange}
+              checked={gender === "남자"}
+            />
+            <RadioLabel>남자</RadioLabel>
+            <RadioButton
+              type="radio"
+              name="gender"
+              value="여자"
+              onChange={handleGenderChange}
+              checked={gender === "여자"}
+            />
+            <RadioLabel>여자</RadioLabel>
+            <RadioButton
+              type="radio"
+              name="gender"
+              value="상관없음"
+              onChange={handleGenderChange}
+              checked={gender === "상관없음"}
+            />
             <RadioLabel>상관없음</RadioLabel>
           </RadioContainer>
         </InputContainer>
 
         <InputContainer>
           <InputLabel>나이</InputLabel>
-          <Select name="age" ref={ageRef}>
+          <Select
+            name="age"
+            ref={ageRef}
+            value={age}
+            onChange={handleAgeChange}
+          >
             <option value="">선택하세요</option>
             <option value="10대">10대</option>
             <option value="20대">20대</option>
@@ -231,41 +394,106 @@ const Companion_Write = () => {
         <InputContainer>
           <InputLabel>여행기간</InputLabel>
           <DateContainer>
-            <DateInput type="date" name="start_date" ref={start_dateRef} />
+            <DateInput
+              type="date"
+              name="start_date"
+              value={startDate}
+              onChange={handleStartDateChange}
+              ref={start_dateRef}
+            />
             <DateSeparator>~</DateSeparator>
-            <DateInput type="date" name="finish_date" ref={finish_dateRef} />
+            <DateInput
+              type="date"
+              name="finish_date"
+              value={finishDate}
+              onChange={handleFinishDateChange}
+              ref={finish_dateRef}
+            />
           </DateContainer>
         </InputContainer>
 
         <InputContainer>
           <InputLabel>모집인원</InputLabel>
-          <Input type="text" name="personnel" placeholder="모집인원(숫자만 입력가능)" ref={personnelRef} />
+          {detaildata.state === null ? (
+            <Input
+              type="text"
+              name="personnel"
+              placeholder="모집인원(숫자만 입력가능)"
+              ref={personnelRef}
+            />
+          ) : (
+            <Input
+              type="text"
+              name="personnel"
+              placeholder="모집인원(숫자만 입력가능)"
+              value={personnel}
+              ref={personnelRef}
+              onChange={(e) => setPersonnel(e.target.value)}
+            />
+          )}
         </InputContainer>
 
         <InputContainer>
-          <PhotoContainer>
-            {file ? (
-              <Preview>
-                <ProfilePreview src={previewURL} alt="uploaded" ref={fileInput} />
-                <EditButton onClick={() => handleEdit()}> 사진수정 </EditButton>
-              </Preview>
-            ) : (
-              <Upload>
-                <UploadInput type="file" name="photo" id="photo" accept="image/*" ref={fileRef} onChange={onFileInput} />
-                <UploadButton type="submit">
+          {detaildata.state === null ? (
+            <PhotoContainer>
+              {file ? (
+                <Preview>
+                  <ProfilePreview
+                    src={previewURL}
+                    alt="uploaded"
+                    ref={fileInput}
+                  />
+                  <EditButton onClick={() => handleEdit()}>
+                    {" "}
+                    사진수정{" "}
+                  </EditButton>
+                </Preview>
+              ) : (
+                <Upload>
+                  <UploadInput
+                    type="file"
+                    name="photo"
+                    id="photo"
+                    accept="image/*"
+                    ref={fileRef}
+                    onChange={onFileInput}
+                  />
+                  <UploadButton type="submit">
                     <p className="text1"> 사진 올리기 </p>
                     <p className="text2"> (1장) </p>
-                </UploadButton>
-              </Upload>
-              
-            )}
-          </PhotoContainer>
+                  </UploadButton>
+                </Upload>
+              )}
+            </PhotoContainer>
+          ) : (
+            <Preview>
+              <ProfilePreview src={previewURL} alt="uploaded" ref={fileInput} />
+              <EditButton onClick={() => handleEdit()}> 사진수정 </EditButton>
+            </Preview>
+          )}
         </InputContainer>
 
         <InputContainer>
           <InputLabel>내용</InputLabel>
-          <ContentTextarea name="content" placeholder="내용을 입력하세요." value={content} ref={contentRef} onChange={(e)=>handleInput(e)}/>
+          {detaildata.state === null ? (
+            <ContentTextarea
+              name="content"
+              placeholder="내용을 입력하세요."
+              value={content}
+              ref={contentRef}
+              onChange={(e) => handleInput(e)}
+            />
+          ) : (
+            <ContentTextarea
+              name="content"
+              placeholder="내용을 입력하세요."
+              value={content}
+              ref={contentRef}
+              onChange={(e) => setContent(e.target.value)}
+            />
+          )}
         </InputContainer>
+
         <InputContainer>
           <InputLabel>태그</InputLabel>
           {tagList.map((tagItem, index) => {
@@ -378,7 +606,7 @@ const InputLabel = styled.label`
 
 const Input = styled.input`
   width: 100%;
-  border:none;
+  border: none;
   border-bottom: 1px solid #dadada;
   outline: none;
 `;
@@ -413,9 +641,7 @@ const DateSeparator = styled.div`
   margin: 0 10px;
 `;
 
-const PhotoContainer = styled.div`
- 
-`;
+const PhotoContainer = styled.div``;
 
 const UploadInput = styled.input`
   position: absolute;
@@ -469,14 +695,13 @@ const UploadButton = styled.button`
 `;
 
 const Upload = styled.div`
-position: relative;
-flex: 1 1 auto;
+  position: relative;
+  flex: 1 1 auto;
 
-@media screen and (max-width: 64px) {
-  width: 100%;
-}
-`
-
+  @media screen and (max-width: 64px) {
+    width: 100%;
+  }
+`;
 
 const Preview = styled.div`
   margin-bottom: 10px;
@@ -522,7 +747,6 @@ const ContentTextarea = styled.textarea`
   line-height: 28px;
   font-family: "Noto Sans KR", sans-serif;
 `;
-
 
 const Select = styled.select`
   width: 100%;

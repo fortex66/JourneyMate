@@ -6,7 +6,7 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
-import { faSquarePlus,faChevronUp } from "@fortawesome/free-solid-svg-icons";
+import { faSquarePlus, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../components/Modal";
 
 const baseURL = "http://localhost:3000/";
@@ -16,12 +16,12 @@ const Community = () => {
 
   const [data, setData] = useState({ posts: { rows: [] } });
   const [page, setPage] = useState(1);
-  const [sort, setSort] = useState('latest');
+  const [sort, setSort] = useState("latest");
   const [write, setWrite] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [buttonPosition, setButtonPosition] = useState('20px');
-
-
+  const [buttonPosition, setButtonPosition] = useState("20px");
+  const [userData, setUserData] = useState(null);
+  const [image, setImage] = useState(null);
   const observer = useRef();
 
   const location = useLocation();
@@ -36,23 +36,21 @@ const Community = () => {
       if (windowWidth > breakpoint) {
         setButtonPosition(`${(windowWidth - breakpoint) / 2}px`);
       } else {
-        setButtonPosition('0px');
+        setButtonPosition("0px");
       }
-    }
+    };
 
     // Set initial position
     updateButtonPosition();
 
     // Update position on window resize
-    window.addEventListener('resize', updateButtonPosition);
+    window.addEventListener("resize", updateButtonPosition);
 
     // Clean up
     return () => {
-      window.removeEventListener('resize', updateButtonPosition);
-    }
+      window.removeEventListener("resize", updateButtonPosition);
+    };
   }, []);
-
-
 
   const toggleVisibility = () => {
     if (window.scrollY > 300) {
@@ -61,12 +59,11 @@ const Community = () => {
       setIsVisible(false);
     }
   };
-  
 
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: "smooth"  // optional
+      behavior: "smooth", // optional
     });
   };
 
@@ -75,11 +72,11 @@ const Community = () => {
     return () => window.removeEventListener("scroll", toggleVisibility);
   }, []);
 
-  const lastPostElementRef = useCallback(node => {
+  const lastPostElementRef = useCallback((node) => {
     if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries => {
+    observer.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
-        setPage(prevPage => prevPage + 1);
+        setPage((prevPage) => prevPage + 1);
       }
     });
     if (node) observer.current.observe(node);
@@ -93,12 +90,13 @@ const Community = () => {
     navigate(`/Community_Detail/${postId}`);
   };
 
- 
   useEffect(() => {
-    if (searchTriggered) return;  // 검색이 실행되면 아무 것도 하지 않습니다.
+    if (searchTriggered) return; // 검색이 실행되면 아무 것도 하지 않습니다.
     const fetchMoreData = async () => {
       try {
-        const response = await axios.get(`${baseURL}community/?page=${page}&sort=${sort}`);
+        const response = await axios.get(
+          `${baseURL}community/?page=${page}&sort=${sort}`
+        );
         setData((prevData) => ({
           ...prevData,
           posts: {
@@ -106,29 +104,43 @@ const Community = () => {
             rows: [...prevData.posts.rows, ...response.data.posts.rows],
           },
         }));
+        console.log(response);
       } catch (error) {
         console.log(error);
       }
     };
-    if (page > 1 || !searchTriggered) {  // 페이지가 1보다 크거나, 검색이 실행되지 않은 경우에 추가 결과를 불러옵니다.
+    if (page > 1 || !searchTriggered) {
+      // 페이지가 1보다 크거나, 검색이 실행되지 않은 경우에 추가 결과를 불러옵니다.
       fetchMoreData();
     }
-  }, [page,searchTriggered,sort]);  // 의존성 배열에 page를 추가합니다.
-  
+  }, [page, searchTriggered, sort]); // 의존성 배열에 page를 추가합니다.
+
+  // const getUserProfile = async () => {
+  //   try {
+  //     const resUser = await axios.get(baseURL + `mypage/profile`);
+  //     setUserData(resUser.data);
+  //     setImage(resUser.data.profile[0].profileImage);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
   useEffect(() => {
+    // getUserProfile();
     if (!searchTriggered) return;
     const fetchData = async () => {
       try {
-        if (selectedLocation ||tagList) {
+        if (selectedLocation || tagList) {
           const response = await axios.get(`${baseURL}community/search`, {
             params: {
               page,
               tags: tagList.join(","),
               location: selectedLocation ? selectedLocation.address_name : null,
-              sort
+              sort,
             },
           });
-          if (page > 1) { // 페이지가 1보다 크면 기존 데이터에 추가
+          if (page > 1) {
+            // 페이지가 1보다 크면 기존 데이터에 추가
             setData((prevData) => ({
               ...prevData,
               posts: {
@@ -136,7 +148,8 @@ const Community = () => {
                 rows: [...prevData.posts.rows, ...response.data.posts.rows],
               },
             }));
-          } else { // 페이지가 1이면 새로운 데이터로 설정
+          } else {
+            // 페이지가 1이면 새로운 데이터로 설정
             setData(response.data);
           }
         }
@@ -145,42 +158,93 @@ const Community = () => {
       }
     };
     fetchData();
-  }, [selectedLocation, tagList, searchTriggered,page,sort]);  
-
+  }, [selectedLocation, tagList, searchTriggered, page, sort]);
 
   if (!data || !data.posts || !data.posts.rows) return null;
 
   return (
     <Container>
       <Header>
-        <SearchInput type="text" onClick={handleSearchClick} placeholder="검색"/>
+        <SearchInput
+          type="text"
+          onClick={handleSearchClick}
+          placeholder="검색"
+        />
         <IconContainer onClick={() => setWrite(!write)}>
           {write && <Modal closeModal={() => setWrite(!write)}></Modal>}
-          <FontAwesomeIcon icon={faSquarePlus} size="3x" color={"#f97800"}/>
+          <FontAwesomeIcon icon={faSquarePlus} size="3x" color={"#f97800"} />
         </IconContainer>
       </Header>
       <Content>
         <Sort>
-          <button onClick={() => {
-             if (sort === 'latest') return; setSort('latest'); setPage(1); setData({ posts: { rows: [] } });}}>최신순</button>
-          <button onClick={() => { 
-            if (sort === 'popular') return; setSort('popular'); setPage(1); setData({ posts: { rows: [] } });}}>인기순</button>
-          <button onClick={() => {
-            if (sort === 'comments') return; setSort('comments'); setPage(1); setData({ posts: { rows: [] } });}}>댓글순</button>
+          <button
+            onClick={() => {
+              if (sort === "latest") return;
+              setSort("latest");
+              setPage(1);
+              setData({ posts: { rows: [] } });
+            }}
+          >
+            최신순
+          </button>
+          <button
+            onClick={() => {
+              if (sort === "popular") return;
+              setSort("popular");
+              setPage(1);
+              setData({ posts: { rows: [] } });
+            }}
+          >
+            인기순
+          </button>
+          <button
+            onClick={() => {
+              if (sort === "comments") return;
+              setSort("comments");
+              setPage(1);
+              setData({ posts: { rows: [] } });
+            }}
+          >
+            댓글순
+          </button>
         </Sort>
         <CommunityList>
-        {data && data.posts.rows.map((post, index) => (
-            <CommunityItem ref={index === data.posts.rows.length - 1 ? lastPostElementRef : null} key={index}
-              onClick={() => goDetail(post.tpostID)} >
+          {data &&
+            data.posts.rows.map((post, index) => (
+              <CommunityItem
+                ref={
+                  index === data.posts.rows.length - 1
+                    ? lastPostElementRef
+                    : null
+                }
+                key={index}
+                onClick={() => goDetail(post.tpostID)}
+              >
                 <div>
                   <Picture>
                     <div>
-                      <img src={`${baseURL}${ post.post_images[0] ? post.post_images[0].imageURL.replace(/\\/g, "/") : "" }`}/>
+                      <img
+                        src={`${baseURL}${
+                          post.post_images[0]
+                            ? post.post_images[0].imageURL.replace(/\\/g, "/")
+                            : ""
+                        }`}
+                      />
                     </div>
                   </Picture>
                   <Title>
                     {post.title}
                     <Titlebar>
+                      {post.User.profileImage === null ? (
+                        <img
+                          alt="chosen"
+                          style={{ width: "100%", borderRadius: "100%" }}
+                        />
+                      ) : (
+                        <img src={`${baseURL}${post.User.profileImage.replace(/\\/g, "/"  )}`}
+                          style={{ width: "10%", borderRadius: "100%" }}
+                        />
+                      )}
                       {post.userID}
                       <Heart>
                         <FontAwesomeIcon icon={faHeartSolid} color="red" />
@@ -196,11 +260,12 @@ const Community = () => {
         </CommunityList>
       </Content>
 
-      <ScrollToTopButton 
-        onClick={scrollToTop} 
-        style={{display: isVisible ? 'block' : 'none', right: buttonPosition}}
+      <ScrollToTopButton
+        onClick={scrollToTop}
+        style={{ display: isVisible ? "block" : "none", right: buttonPosition }}
       >
-        <FontAwesomeIcon icon={faChevronUp} size="3x" color="#f97800" /></ScrollToTopButton>
+        <FontAwesomeIcon icon={faChevronUp} size="3x" color="#f97800" />
+      </ScrollToTopButton>
       <Navigationbar />
     </Container>
   );
@@ -230,14 +295,13 @@ const SearchInput = styled.input`
   width: 70%;
   height: 40px;
   border-radius: 15px;
-  border: 1px solid #DADDE0;
+  border: 1px solid #dadde0;
   padding: 0 10px;
   &:focus {
     outline: none;
   }
   margin-top: 10px;
 `;
-
 
 const IconContainer = styled.div`
   display: flex;
@@ -249,8 +313,8 @@ const IconContainer = styled.div`
 const Sort = styled.div`
   display: flex;
   justify-content: space-between;
-  margin:0px 50px 20px 50px;
-  button{
+  margin: 0px 50px 20px 50px;
+  button {
     box-sizing: border-box;
     appearance: none;
     background-color: #f97800;
@@ -270,13 +334,11 @@ const Sort = styled.div`
   }
 `;
 
-
 const Content = styled.div`
   margin-right: 20px;
   margin-left: 20px;
   margin-top: 100px;
 `;
-
 
 const CommunityList = styled.div`
   display: flex;
@@ -310,16 +372,14 @@ const Titlebar = styled.div`
 `;
 
 const Heart = styled.div`
-font-size: 15px;
-display: flex;
-justify-content: flex-end; // 아이콘을 우측으로 정렬
-gap: 3px; // 아이콘 사이의 간격 조정
-
+  font-size: 15px;
+  display: flex;
+  justify-content: flex-end; // 아이콘을 우측으로 정렬
+  gap: 3px; // 아이콘 사이의 간격 조정
 `;
 const Comment = styled.div`
-font-size : 15px;
+  font-size: 15px;
 `;
-
 
 const Picture = styled.div`
   display: flex;
@@ -336,8 +396,8 @@ const Picture = styled.div`
 
 const ScrollToTopButton = styled.button`
   border-radius: 50%;
-  border:none;
+  border: none;
   background-color: #fff;
   position: fixed;
   bottom: 120px;
-`
+`;

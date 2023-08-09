@@ -6,7 +6,7 @@ import axios from "axios";
 
 const Community_Detail = () => {
   const navigate = useNavigate();
-  const { postId } = useParams();  // postId 추출
+  const { postId } = useParams(); // postId 추출
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [data, setData] = useState(null);
@@ -23,7 +23,9 @@ const Community_Detail = () => {
       try {
         const responsePost = await axios.get(baseURL + `community/${postId}`); // postId를 API 호출에 사용하여 게시글 데이터 가져오기
         setData(responsePost.data);
-        const responseComments = await axios.get(baseURL + `community/comments/${postId}`); // postId를 API 호출에 사용하여 댓글 데이터 가져오기
+        const responseComments = await axios.get(
+          baseURL + `community/comments/${postId}`
+        ); // postId를 API 호출에 사용하여 댓글 데이터 가져오기
         setComments(responseComments.data);
       } catch (error) {
         console.log(error);
@@ -31,7 +33,7 @@ const Community_Detail = () => {
     };
     fetchData();
   }, []);
-  
+
   const handleNewCommentChange = (event) => {
     setNewComment(event.target.value);
   };
@@ -41,30 +43,32 @@ const Community_Detail = () => {
       contents: newComment,
       commentDate: new Date().toISOString(),
     };
-  
+
     const tpostID = window.location.pathname.split("/").pop();
     axios
-    .post(
-      `http://localhost:3000/community/comments/${tpostID}`, 
-      newCommentObject,
-      {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
-        },
-      }
-    )
-    .then(function (response) {
-      setComments(prevComments => [...prevComments, response.data]);
-      setNewComment("");  // 댓글 작성 후 작성창을 비웁니다.
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+      .post(
+        `http://localhost:3000/community/comments/${tpostID}`,
+        newCommentObject,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+        }
+      )
+      .then(function (response) {
+        setComments((prevComments) => [...prevComments, response.data]);
+        setNewComment(""); // 댓글 작성 후 작성창을 비웁니다.
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   };
-  
+
   const EditCommunity = () => {
     const postID = window.location.pathname.split("/").pop();
-    navigate("/Community_Write", { state: { data: data, mode: 'edit', postId: postID } });
+    navigate("/Community_Write", {
+      state: { data: data, mode: "edit", postId: postID },
+    });
   };
 
   const deleteCommunity = async () => {
@@ -72,19 +76,17 @@ const Community_Detail = () => {
     try {
       await axios.delete(`http://localhost:3000/community/${postID}`);
       navigate(-1);
-      
     } catch (error) {
       console.log(error);
     }
   };
-  
 
   const deleteComment = (tcommentId) => {
     const tpostID = window.location.pathname.split("/").pop();
     axios
       .delete(`http://localhost:3000/community/comments/${tpostID}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` // JWT 토큰을 Authorization 헤더에 포함시킵니다.
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`, // JWT 토큰을 Authorization 헤더에 포함시킵니다.
         },
         data: {
           tcommentId: tcommentId,
@@ -93,74 +95,76 @@ const Community_Detail = () => {
       .then(function (response) {
         console.log(response);
         // 서버에서 성공적으로 삭제되면 클라이언트에서도 삭제
-        const newComments = comments.filter(comment => comment.tcommentId !== tcommentId);
+        const newComments = comments.filter(
+          (comment) => comment.tcommentId !== tcommentId
+        );
         setComments(newComments);
       })
       .catch(function (error) {
         console.log(error);
         // 권한이 없는 경우 사용자에게 알림
         if (error.response && error.response.status === 403) {
-          alert('댓글을 삭제할 권한이 없습니다.');
+          alert("댓글을 삭제할 권한이 없습니다.");
         }
       });
   };
-  
+
   return (
     <Page>
       <Top>
         <StyledButton onClick={() => navigate(-1)}>{"<"}</StyledButton>
         <Button>
-          {currentUser && data?.post.userID === currentUser && ( 
-            <button onClick={EditCommunity}>
-              수정
-            </button>
+          {currentUser && data?.post.userID === currentUser && (
+            <button onClick={EditCommunity}>수정</button>
           )}
-          {currentUser && data?.post.userID === currentUser && ( 
+          {currentUser && data?.post.userID === currentUser && (
             <button onClick={() => deleteCommunity(data.post.tpostID)}>
               삭제
             </button>
           )}
-          
         </Button>
       </Top>
       <Title>{data && data.post.title}</Title>
       <Info>
         위치 : {data && data.post.location}
         <br />
-        태그 : {data && data.post.tags.map(tag => tag.content).join(', ')}
+        태그 : {data && data.post.tags.map((tag) => tag.content).join(", ")}
       </Info>
       <div>
-        {data && data.post.post_images.map((posts,index)=>(
-          <Main key={index}>
-          <img src={`${baseURL}${posts.imageURL.replace(/\\/g, '/')}`} style={{ maxWidth: "600px", height: "auto" }} />
-          <Content>{posts.content}</Content>
-        </Main>
-        ))}
-        
+        {data &&
+          data.post.post_images.map((posts, index) => (
+            <Main key={index}>
+              <img
+                src={`${baseURL}${posts.imageURL.replace(/\\/g, "/")}`}
+                style={{ maxWidth: "600px", height: "auto" }}
+              />
+              <Content>{posts.content}</Content>
+            </Main>
+          ))}
       </div>
       <CommentSection>
-      <h3>댓글</h3>
-      <CommentInput>
-        <textarea
-          value={newComment}
-          onChange={handleNewCommentChange}
-          placeholder="댓글을 입력하세요"
-        />
-        <StyledButton onClick={addComment}>입력</StyledButton>
-      </CommentInput>
-      <CommentList>
+        <h3>댓글</h3>
+        <CommentInput>
+          <textarea
+            value={newComment}
+            onChange={handleNewCommentChange}
+            placeholder="댓글을 입력하세요"
+          />
+          <StyledButton onClick={addComment}>입력</StyledButton>
+        </CommentInput>
+        <CommentList>
           {comments.map((comment, index) => (
             <Comment key={index}>
               <CommentContent>
                 {comment.userID}: {comment.contents}
                 <CommentDate>
-                  {new Intl.DateTimeFormat('ko-KR', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
+                  {new Intl.DateTimeFormat("ko-KR", {
+                    year: "numeric",
+                    month: "long",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
                   }).format(new Date(comment.commentDate))}
                 </CommentDate>
               </CommentContent>
@@ -173,12 +177,11 @@ const Community_Detail = () => {
               </Button>
             </Comment>
           ))}
-      </CommentList>
-    </CommentSection>
+        </CommentList>
+      </CommentSection>
       <Detail_Nav />
     </Page>
   );
-  
 };
 
 const CommentDate = styled.div`
@@ -196,8 +199,8 @@ const Top = styled.div`
   display: flex;
   justify-content: space-between;
 
-  button{
-    margin-right:5px;
+  button {
+    margin-right: 5px;
   }
 `;
 

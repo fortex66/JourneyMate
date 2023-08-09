@@ -24,6 +24,7 @@ function MyPage() {
   const [companionData, setCompanionData] = useState(null);
   const [image, setImage] = useState(null);
   const [userData, setUserData] = useState(null); // new state for storing user data
+
   const getUserProfile = async () => {
     try {
       const resUser = await axios.get(baseURL + `mypage/profile`);
@@ -33,11 +34,18 @@ function MyPage() {
       console.log(error);
     }
   };
+
   /* 상세페이지 이동 */
   const goDetail = (postId) => {
     // postId 인자 추가
 
     navigate(`/Community_Detail/${postId}`); // postId를 경로의 일부로 사용
+  };
+
+  const goDetails = (postId) => {
+    // postId 인자 추가
+
+    navigate(`/Companion_Detail/${postId}`); // postId를 경로의 일부로 사용
   };
 
   const getCommunity = async () => {
@@ -79,7 +87,7 @@ function MyPage() {
       <div className="topView">
         <div className="ContentsBox">
           <MyInfoBox>
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <div style={{ alignItems: "center" }}>
               <Circle
                 onClick={() => {
                   navigate("/Profile");
@@ -95,6 +103,7 @@ function MyPage() {
                   <FontAwesomeIcon icon={faUser} size="2x" color={"#f97800"} />
                 )}
               </Circle>
+              내정보
             </div>
           </MyInfoBox>
           <MyMenuMiddle>
@@ -174,7 +183,7 @@ function MyPage() {
               <CompanionItem
                 key={index}
                 onClick={() =>
-                  goDetail(companionData.posts.rows[index].cpostID)
+                  goDetails(companionData.posts.rows[index].cpostID)
                 }
               >
                 <div>
@@ -201,6 +210,9 @@ const MyInfoBox = styled.div`
   justify-content: space-around;
   border-bottom: 1px solid #dddddd;
   height: 130px;
+  margin-top: 20px;
+  align-items: center;
+  text-align: center;
 `;
 const MyMenuMiddle = styled.div`
   height: 120px;
@@ -213,9 +225,9 @@ const MyMenuMiddle = styled.div`
 `;
 const Circle = styled.div`
   background-color: rgb(254, 237, 229);
-  width: 90px;
-  height: 90px;
-  border-radius: 100%;
+  width: 70px;
+  height: 70px;
+  border-radius: 80%;
   display: flex;
   align-items: center;
   justify-content: center;

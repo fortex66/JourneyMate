@@ -3,7 +3,8 @@ import Navigationbar from "../components/Navigationbar";
 import axios from "axios";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faScroll } from "@fortawesome/free-solid-svg-icons";
 const baseURL = "http://localhost:3000/";
 
 const Scrap = () => {
@@ -33,7 +34,12 @@ const Scrap = () => {
 
   return (
     <div>
-      <h1>Scrap</h1>
+      <Icon>
+        <FontAwesomeIcon icon={faScroll} size="2x" color={"#f97800"} />
+      </Icon>
+
+      <Line></Line>
+      <br />
       <CommunityList>
         {scrapedPosts.map((post, index) => (
           <CommunityItem key={index} onClick={() => goDetail(post.tpostID)}>
@@ -74,4 +80,14 @@ const Picture = styled.div`
   }
 `;
 
+const Icon = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+`;
+
+const Line = styled.div`
+  border-bottom: 1px solid #f97800;
+`;
 export default Scrap;
