@@ -12,6 +12,11 @@ router.get('/scrap',authMiddleware, scrapController.getScrapList);
 router.get('/community', upload.array('photos[]', 10),authMiddleware, mypageController.getCommunityList);
 router.get('/companion', upload.array('photos[]', 10),authMiddleware, mypageController.getCompanionList);
 
+// 다른 유저 profile
+router.get('/userprofile/profile/:userID',authMiddleware,mypageController.getProfile);
+router.get('/userprofile/community/:userID',authMiddleware, mypageController.getUserCommunityList);
+router.get('/userprofile/companion/:userID',authMiddleware, mypageController.getUserCompanionList);
+
 // 7/28 라우팅 설정
 router.get('/profile',authMiddleware,mypageController.getProfile);
 router.put('/profileImage',authMiddleware,profile.array('photo',1),mypageController.setProfileImage);

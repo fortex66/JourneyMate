@@ -17,6 +17,7 @@ GroupChat.init(
     lastchat: DataTypes.STRING(200),
     admin: DataTypes.STRING(15),
     cpostID: DataTypes.INTEGER,
+    userCount: DataTypes.INTEGER
   },
   {
     sequelize,
@@ -58,6 +59,9 @@ user_chat.init(
       type: DataTypes.INTEGER,
       primaryKey: true,
     },
+    blackList: {
+      type: DataTypes.TINYINT
+    }
   },
   {
     sequelize,
@@ -66,7 +70,31 @@ user_chat.init(
     timestamps: false,
     modelName: "user_chat",
     tableName: "user_chat",
-  }
+    // hooks: {
+    //   afterCreate: async (instance, options) => {
+    //     const GroupChatting = GroupChat; // group_chatting 모델 가져오기
+        
+    //     // 해당 chatID의 userCount를 증가시키기
+    //     const chatRoom = await GroupChatting.findOne({ where: { chatID: instance.chatID } });
+    //     if (chatRoom) {
+    //       chatRoom.userCount += 1;
+    //       await chatRoom.save();
+    //     }
+    //   },
+    //     afterUpdate: async (instance, options) => {
+    //       if (instance.changed('blackList') && instance.blackList === 1) { // blackList 값이 true(또는 1)인 경우 확인
+    //         const GroupChatting = sequelize.models.group_chatting; // group_chatting 모델 가져오기
+            
+    //         // 해당 chatID의 userCount를 감소시키기
+    //         const chatRoom = await GroupChatting.findOne({ where: { chatID: instance.chatID } });
+    //         if (chatRoom && chatRoom.userCount > 0) {
+    //           chatRoom.userCount -= 1;
+    //           await chatRoom.save();
+    //         }
+    //       }
+    //     }
+    //   }
+    }
 );
 GroupChat.hasOne(cPost, {
   foreignKey: "cpostID",

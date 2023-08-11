@@ -4,8 +4,10 @@ const chatController = require("../controllers/chatController");
 const router = express.Router();
 
 router.get("/", authMiddleware, chatController.getChatRoom);
-router.get("/:chatID", authMiddleware, chatController.enterChatRoom);
+router.get("/:chatID", authMiddleware, chatController.chatMessage);
+router.get("/chatroomdata/:chatID",authMiddleware,chatController.enterChatRoom)
 router.post("/:cpostID", authMiddleware, chatController.clickChatRoom);
 router.delete("/chatroom/:chatID", authMiddleware, chatController.forcedExit);
 router.delete("/chatroom", authMiddleware, chatController.getOut);
+
 module.exports = router;

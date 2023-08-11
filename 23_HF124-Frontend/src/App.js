@@ -7,7 +7,7 @@ import Home from "./pages/Home";
 import Community from "./pages/Community";
 import Companion from "./pages/Companion";
 import Chatting from "./pages/Chatting";
-import Chat from "./components/Chatting/Chat";
+import ChattingMessage from "./components/ChattingMessage";
 import Mypage from "./pages/Mypage";
 import Write from "./pages/Write";
 import Sign from "./pages/Sign";
@@ -23,8 +23,10 @@ import Companion_Write from "./components/Companion_Write";
 import Community_Detail from "./pages/Community_Detail";
 import Companion_Detail from "./pages/Companion_Detail";
 import Search from "./pages/Search";
+import UserDetail from "./pages/UserDetail";
 import Community_Search from "./pages/Community_Search";
 import Companion_Search from "./pages/Companion_Search";
+import ChattingRoom from "./components/ChattingRoom";
 // import {socket,SOCKET_EVENT,SocketContext} from "./components/Chatting/Chat";
 import io from "socket.io-client";
 
@@ -34,21 +36,28 @@ export const SocketContext = createContext(); // SocketContext 생성
 
 function App() {
   const [socket, setSocket] = useState(null);
+  const [messages, setMessages] = useState([]); // ChattingMessage 컨택스트로 보내기 위한 state
 
   useEffect(() => {
-    const newSocket = io(ENDPOINT);
+    const newSocket = io(ENDPOINT, { withCredentials: true });
+    newSocket.emit("init");
     setSocket(newSocket);
-    newSocket.emit("chat message", "Hello world!");
+    newSocket.on('chat_message', (message) => {
+    setMessages((prev) => [...prev, message]); // 받은 메시지를 messages 스테이트에 저장한다.
+    console.log('Received message:', message);
+      // 메시지를 상태나 다른 곳에 저장하는 로직
+  });
+
     return () => {
       newSocket.close();
     };
   }, []);
 
+
   return (
     <BrowserRouter>
       <SocketContext.Provider value={socket}>
-        {" "}
-        {/* SocketContext.Provider로 감싸기 */}
+      <ChattingMessage.Provider value={messages}> {/* ChattingMessage로 메시지 전달 */}
         <div className="App">
           <Routes>
             <Route path="/Login" element={<Login />} />
@@ -64,6 +73,7 @@ function App() {
             />
             <Route path="/Companion" element={<Companion />} />
             <Route path="/Chatting" element={<Chatting />} />
+            <Route path="/ChattingRoom/:chatID" element={<ChattingRoom />} />
             {/* <Route path="/Chat" element={<Chat />} /> */}
             <Route path="/Mypage" element={<Mypage />} />
             <Route path="/Write" element={<Write />} />
@@ -80,8 +90,10 @@ function App() {
             <Route path="/Companion_Write" element={<Companion_Write />} />
             <Route path="/Community_Search" element={<Community_Search />} />
             <Route path="/Companion_Search" element={<Companion_Search />} />
+            <Route path="/UserDetail/:userId" element={<UserDetail />} />
           </Routes>
         </div>
+        </ChattingMessage.Provider>
       </SocketContext.Provider>
     </BrowserRouter>
   );

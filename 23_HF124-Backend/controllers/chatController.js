@@ -36,7 +36,7 @@ const getChatRoom = async (req, res) => {
       include: [
         {
           model: chat.GroupChat,
-          attributes: ["cpostID"],
+          attributes: ["cpostID","userCount"],
           required: true,
           include: [
             {
@@ -57,6 +57,19 @@ const getChatRoom = async (req, res) => {
       order: [[chat.GroupChat, "chattime", "DESC"]],
     });
 
+    const participatedChatIds=getlist.map(item => item.chatID);
+
+    console.log(participatedChatIds)
+    const userCounts = await chat.user_chat.findAll({
+      attributes: ['chatID', [Sequelize.fn('COUNT', Sequelize.col('userID')), 'userCount']],
+      where: {
+        chatID: {
+          [Sequelize.Op.in]: participatedChatIds
+        }
+      },
+      group: ['chatID']
+    });
+    console.log(userCounts)
     console.log(getlist);
     res.status(200).json(getlist);
   } catch (err) {
@@ -64,32 +77,46 @@ const getChatRoom = async (req, res) => {
   }
 };
 //채팅방 입장 api
-const enterChatRoom = async (req, res) => {
+const chatMessage = async (req, res) => {
   const chatID = req.params.chatID;
   const { page = 1, per_page = 30 } = req.query;
   const chatMessage = await chat.Message.findAndCountAll({
     offset: per_page * (page - 1),
     limit: per_page,
     order: [["sendtime", "DESC"]],
-    where: { chatID: chatID },
-    include: [{ model: chat.GroupChat, as: "group_chattings" }],
-  })
-    .then(
-      res
-        .status(200)
-        .json({
-          chatMessage,
-          result: true,
-          message: "채팅방에 입장하였습니다.",
-        })
-    )
-    .catch((err) => {
-      console.error(err);
-      res
-        .status(404)
-        .json({ result: false, message: "채팅방 입장에 실패하였습니다." });
-    });
+    where: { chatID: chatID }
+  });
+  
+  const result=!chatMessage;
+  console.log(result);
+  res.status(200).json({chatMessage,result:true,message:"성공"})
 };
+
+const enterChatRoom=async (req,res)=>{
+  const chatID=req.params.chatID;
+  try{
+      const chatRoomData=await chat.GroupChat.findOne({
+      attributes:['admin','chattime'],
+      where:{chatID: chatID},
+      include:[{
+        model: chat.user_chat,
+        attributes:['userID'],
+        include:[{
+          model: users,
+          attributes:['profileImage']
+        }]
+      },{
+        model: post.cPost,
+        attributes: ['title','personnel','location']
+      }]
+    });
+    res.status(200).json({chatRoomData})
+  }catch(err){
+    console.error(err)
+    res.status(404).json({result: false, message:"조회 실패"})
+  }
+  
+}
 //채팅방에 입장하기
 const clickChatRoom = async (req, res) => {
   const cpostID = req.params.cpostID;
@@ -99,17 +126,25 @@ const clickChatRoom = async (req, res) => {
       attributes: ["chatID"],
       where: { cpostID: cpostID },
     });
-    console.log(chatRoom.chatID);
+    // console.log(chatRoom.chatID);
+    // console.log(chatRoom)
     const chatID = chatRoom.chatID;
 
-    const enter = await chat.user_chat
-      .create({
-        userID: req.decode.userID,
-        chatID: chatRoom.chatID,
-      })
-      .then(res.status(200).json({ chatID, message: "채팅방 입장 성공" }))
-      .catch(res.status(500).json({ message: "채팅방 입장 실패" }));
-    console.log(enter);
+    const [enter,created] = await chat.user_chat.findOrCreate({
+        where: {userID: req.decode.userID, chatID: chatRoom.chatID},
+        defaults:{userID: req.decode.userID, chatID: chatRoom.chatID}
+    });
+    console.log(enter.blackList);
+    if(!created){
+      if(enter.blackList===2){
+        return res.status(403).send('Access Denied');
+      }else{
+        return res.status(200).json({result: true, message:"이미 들어간 채팅방입니다."})
+      }
+    }else{
+      return res.status(200).json({result: true, message:"채팅방에 입장하였습니다."})
+    }
+    
   } catch (err) {
     console.error(err);
   }
@@ -127,8 +162,9 @@ const forcedExit = async (req, res) => {
         .status(500)
         .json({ result: false, message: "권한이 없는 접근 입니다." });
     } else {
-      await chat.user_chat.destroy({
-        where: { userID: req.body.userID },
+      await chat.user_chat.update({
+        balckList: 2,
+        where: { userID: req.body.userID, chatID: req.body.chatID },
       }),
         then(
           res
@@ -172,53 +208,14 @@ const getOut = async (req, res) => {
       .json({ result: false, message: "서버에 문제가 생겼습니다." });
   }
 };
-// io.on('connection', (socket) => {
-//   console.log('a user connected');
-//   // 사용자가 연결을 끊었을 때
-//   socket.on('disconnect', () => {
-//     console.log('user disconnected');
-//   });
 
-//   socket.on()
-
-//   // 사용자가 메시지를 보냈을 때
-//   socket.on('chat message', (msg) => {
-//     console.log('message: ' + msg);
-//     // 메시지를 모든 클라이언트에게 보냅니다.
-//     io.emit('chat message', msg);
-//   });
-// });
-// Middleware to authenticate user from JWT token in socket handshake
-// io.use(async (socket, next) => {
-//   if (socket.handshake.query && socket.handshake.query.token) {
-//     jwt.verify(socket.handshake.query.token, process.env.jwtSecretkey, async (err, decoded) => {
-//       if (err) return next(new Error('Authentication error'));
-//       let user = await User.findOne({ where: { userID: decoded.userID } });
-//       if (!user) {
-//         return next(new Error('Authentication error'));
-//       }
-//       socket.user = user;
-//       next();
-//     });
-//   } else {
-//     next(new Error('Authentication error'));
-//   }
-// });
-
-// io.on('connection', (socket) => {
-//   console.log('a user connected');
-//   socket.on('good', ()=> {
-//     console.log('user connected'); // 클라이언트 -> 서버
-//   });
-
-//   // console.log(socket);
-//   socket.on('createRoom', (room) => createRoom(socket, room));
-//   socket.on('getRooms', () => getRooms(socket));
-//   socket.on('join', (data, callback) => join(socket, data, callback));
-//   socket.on('sendMessage', (message, callback) => sendMessage(socket, message, callback));
-//   socket.on('disconnect', () => disconnect(socket));
-
-// });
+async function getChatRoomByUserId(userID){
+  const roomArray=await chat.user_chat.findAll({
+    where: {userID: userID, blackList: 1}
+  });
+  console.log(roomArray)
+  return roomArray;
+}
 
 module.exports = {
   getChatRoom,
@@ -226,4 +223,6 @@ module.exports = {
   forcedExit,
   getOut,
   clickChatRoom,
+  chatMessage,
+  getChatRoomByUserId
 };

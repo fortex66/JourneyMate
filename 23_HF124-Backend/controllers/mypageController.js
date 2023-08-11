@@ -24,8 +24,6 @@ const getCommunityList = async (req, res) => {
   }
 };
 
-
-
 const getCompanionList = async (req, res) => {
     try {
       const { page = 1, per_page = 10 } = req.query;
@@ -71,6 +69,72 @@ const getCompanionList = async (req, res) => {
     }
 };
 
+const getUserProfile = async (req, res)=>{
+  const userID=req.params.userID;
+
+  try{
+      const profile= await user.User.findOne({
+        attributes:['userID','profileImage'],
+        where: {
+          userID: userID
+        }
+      });
+      console.log(profile);
+      res.status(200).json({ profile });
+  } catch (err){
+    console.error(err);
+    res.status(500).json({message: "유저 정보 조회에 실패했습니다."});
+  }
+};
+
+const getUserCommunityList = async (req, res) => {
+  const userID=req.params.userID
+  try {
+    const { page = 1, per_page = 10 } = req.query;
+    console.log(req.decode);
+    const posts = await Post.tPost.findAndCountAll({
+      where: {
+        userID: req.decode.userID
+      },
+      order: [
+        ['postDate', 'DESC']
+      ],
+      include: [{model: Post.tPostImage, as: "post_images",},],
+    });
+    const total_post = posts.count;
+
+    res.status(200).json({ posts, total_post });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "커뮤니티 게시글 조회에 실패하였습니다" });
+  }
+};
+
+const getUserCompanionList = async (req, res) => {
+  const userID=req.params.userID;
+  try {
+    const { page = 1, per_page = 10 } = req.query;
+    // console.log(req.decode);
+    const posts = await Post.cPost.findAndCountAll({
+      where: {
+        userID: userID
+      },
+    //   offset: per_page * (page - 1),
+    //   limit: per_page,
+      order: [
+        ['postDate', 'DESC']
+      ],
+      include: [{model: Post.cPostImage, as: "post_images",},],
+    });
+    const total_post = posts.count;
+ 
+
+    res.status(200).json({ posts, total_post });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "동행인 게시글 조회에 실패하였습니다" });
+  }
+};
 const updatePassword=async(req, res)=>{
   try{
     await user.User.update({
@@ -147,5 +211,5 @@ const updatePassword=async(req, res)=>{
   
   
   module.exports = {
-      getCommunityList, getCompanionList,updatePassword,getProfile, updateUser,logout, setProfileImage
+      getCommunityList, getCompanionList,updatePassword,getProfile, updateUser,logout, setProfileImage, getUserProfile,getUserCommunityList,getUserCompanionList
   };

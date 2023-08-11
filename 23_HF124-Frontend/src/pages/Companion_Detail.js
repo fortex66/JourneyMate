@@ -38,21 +38,21 @@ const Companion_Detail = () => {
     setNewComment(event.target.value);
   };
 
-  const enterChatRoom = async () => {
-    const cpostID = window.location.pathname.split("/").pop();
-    try {
-      await axios
-        .put(baseURL + `companion/chatroom/${cpostID}`)
-        .then((res) => {
-          navigate(`/Chatting`);
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    } catch (err) {
+  const enterChatRoom=async()=>{
+    const cpostID=window.location.pathname.split("/").pop();
+    try{
+      await axios.put(baseURL+`companion/chatroom/${cpostID}`)
+      .then( res => {
+        console.log("성공");
+        navigate(`/Chatting`);
+      })
+      .catch( err => {
+        console.error(err);
+      });
+    }catch(err){
       console.errror(err);
     }
-  };
+  }
 
   const addComment = () => {
     const newCommentObject = {
@@ -135,7 +135,7 @@ const Companion_Detail = () => {
     ));
   };
 
-  console.log(data);
+  // console.log(data);
 
   // 데이터가 없을때
   if (!data) {

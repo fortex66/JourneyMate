@@ -15,6 +15,7 @@ function Chatting() {
   const [rooms, setRooms] = useState([]);
   const [add, setAdd] = useState(false);
   const [newRoom, setNewRoom] = useState("");
+  const [chattingdata,setChattingData] = useState("")
   const navigate = useNavigate();
 
   // SocketContext를 통해 App.js에서 생성된 소켓 가져오기
@@ -22,11 +23,13 @@ function Chatting() {
   useEffect(() => {
     const fetchChatRoom = async () => {
       const response = await axios.get(baseURL + "/chat");
-      console.log(response);
+      setChattingData(response.data)
     };
-
     fetchChatRoom();
   }, []);
+
+  console.log(chattingdata)
+
 
   // useEffect(() => {
   //   socket.on("roomList", (rooms) => {
@@ -55,6 +58,11 @@ function Chatting() {
   // };
 
   // socket.emit("good");
+
+  const goChattingRoom = (chatID) => {
+    navigate(`/ChattingRoom/${chatID}`)
+  }
+
   return (
     <Join>
       {/* <GlobalStyle /> */}
@@ -72,19 +80,34 @@ function Chatting() {
           </JoinInnerContainer>
         </HeaderContainer>
 
-        {/* <Content>
-          {rooms.map((room, index) => (
-            <ChatRoom
-              key={index}
-              onClick={() => {
-                handleRoomClick(room);
-                navigate(`/chat?name=${name}&room=${room}`);
-              }}
-            >
-              {room}
-            </ChatRoom>
+        <RoomList>
+          {/* 아이템은 반복문으로 처리를해야한다. */}
+          {chattingdata && chattingdata.map((list,index) => (
+            <RoomItem key={index} onClick={()=>goChattingRoom(list.chatID)}>
+              <TitleContainer>
+                <Title>
+                  {list.group_chatting.companion_posts.title}
+                </Title>
+                <Person>
+                  {list.group_chatting.companion_posts.personnel}
+                </Person>
+              </TitleContainer>
+              
+              <DateContainer>
+              <StartDate>
+                {list.group_chatting.companion_posts.startDate}
+              </StartDate>
+              <FinishDate>
+                ~{list.group_chatting.companion_posts.finishDate}
+              </FinishDate>
+              </DateContainer>
+              
+              
+
+            </RoomItem>
           ))}
-        </Content> */}
+          
+        </RoomList>
       </Main>
       <Navigationbar />
     </Join>
@@ -96,30 +119,11 @@ const Main = styled.div`
   flex-direction: column;
 `;
 const HeaderContainer = styled.div`
-  margin: 20px;
+  margin: 20px 20px 0px 20px;
   border-bottom: 1px solid #dddddd;
+  padding-bottom: 10px;
 `;
 
-const Content = styled.div`
-  margin: 20px;
-`;
-
-const ChatRoom = styled.div`
-  margin: 10px 0;
-  padding-bottom: 20px;
-  border: 1px solid #dddddd; //임시
-  cursor: pointer;
-
-  &:hover {
-    background-color: rgb(223, 223, 223);
-  }
-`;
-
-// const GlobalStyle = createGlobalStyle`
-//   body {
-//     overflow-y: hidden;
-//   }
-// `;
 
 const Join = styled.div`
   font-family: "Roboto", sans-serif;
@@ -132,25 +136,58 @@ const JoinInnerContainer = styled.div`
 `;
 
 const Heading = styled.h2`
-  font-size: 20px;
+  font-size: 25px;
   border-bottom: 2px solid white;
 `;
 
-const Button = styled.button`
-  color: #fff !important;
-  text-transform: uppercase;
-  text-decoration: none;
-  background: #2979ff;
-  padding: 20px;
-  border-radius: 5px;
-  display: inline-block;
-  border: none;
-  margin-top: 20px;
-  cursor: pointer;
 
-  &:focus {
-    outline: 0;
+const RoomList = styled.div`
+  margin-left:20px;
+  margin-right:20px;
+`
+
+const RoomItem = styled.div`
+  display: flex;
+  justify-content: space-between; // 항목들이 컨테이너의 양쪽 끝에 위치하도록 설정
+  border-bottom: 1px solid #dddddd;
+  height: 70px;
+  padding: 5px 5px 0px 5px;
+  cursor: pointer; // 커서 모양 변경
+  transition: background-color 0.3s; // 배경색 변경 애니메이션 효과
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05); // 약한 회색 배경색
   }
 `;
+
+const TitleContainer = styled.div`
+display: flex;
+`
+
+const Title = styled.div`
+  margin-right: 15px;
+  font-size : 17px;
+  font-weight : bold;
+`
+
+const Person = styled.div`
+margin-right: 15px;
+color: #8F9098;
+`
+
+const DateContainer = styled.div`
+  display: flex;
+  color: #8F9098;
+
+`;
+
+const StartDate = styled.div`
+
+`
+
+const FinishDate = styled.div`
+
+`
+
 
 export default Chatting;

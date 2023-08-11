@@ -2,6 +2,7 @@
 require('dotenv').config();
 const jwt = require("jsonwebtoken");
 
+
 module.exports = authMiddleware = (req, res, next) => {
   try {
     const reqToken = req.cookies.token; // 헤더에 존재하는 토큰 가져오기

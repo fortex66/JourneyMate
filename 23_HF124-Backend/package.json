@@ -31,7 +31,7 @@
     "mysql2": "^2.3.3",
     "nodemailer": "^6.9.3",
     "sequelize": "^6.32.1",
-    "socket.io": "^1.7.4",
+    "socket.io": "^4.7.2",
     "transport": "^0.0.3",
     "uuid": "^3.3.3",
     "webtransport": "^1.0.2",
