@@ -163,6 +163,9 @@ const Companion_Write = () => {
     } else if (ageRef.current.value === "") {
       ageRef.current.focus();
       return;
+    } else if (start_dateRef.current.value > finish_dateRef.current.value) {
+      start_dateRef.current.focus();
+      return;
     } else if (
       !parseInt(personnelRef.current.value, 10) ||
       isNaN(parseInt(personnelRef.current.value, 10))

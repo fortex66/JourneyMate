@@ -23,13 +23,12 @@ function Chatting() {
   useEffect(() => {
     const fetchChatRoom = async () => {
       const response = await axios.get(baseURL + "/chat");
-      setChattingData(response.data)
+      setChattingData(response.data);
     };
     fetchChatRoom();
   }, []);
 
-  console.log(chattingdata)
-
+  console.log(chattingdata);
 
   // useEffect(() => {
   //   socket.on("roomList", (rooms) => {
@@ -82,31 +81,26 @@ function Chatting() {
 
         <RoomList>
           {/* 아이템은 반복문으로 처리를해야한다. */}
-          {chattingdata && chattingdata.map((list,index) => (
-            <RoomItem key={index} onClick={()=>goChattingRoom(list.chatID)}>
-              <TitleContainer>
-                <Title>
-                  {list.group_chatting.companion_posts.title}
-                </Title>
-                <Person>
-                  {list.group_chatting.companion_posts.personnel}
-                </Person>
-              </TitleContainer>
-              
-              <DateContainer>
-              <StartDate>
-                {list.group_chatting.companion_posts.startDate}
-              </StartDate>
-              <FinishDate>
-                ~{list.group_chatting.companion_posts.finishDate}
-              </FinishDate>
-              </DateContainer>
-              
-              
+          {chattingdata &&
+            chattingdata.map((list, index) => (
+              <RoomItem key={index} onClick={() => goChattingRoom(list.chatID)}>
+                <TitleContainer>
+                  <Title>{list.group_chatting.companion_posts.title}</Title>
+                  <Person>
+                    {list.group_chatting.companion_posts.personnel}
+                  </Person>
+                </TitleContainer>
 
-            </RoomItem>
-          ))}
-          
+                <DateContainer>
+                  <StartDate>
+                    {list.group_chatting.companion_posts.startDate}
+                  </StartDate>
+                  <FinishDate>
+                    ~{list.group_chatting.companion_posts.finishDate}
+                  </FinishDate>
+                </DateContainer>
+              </RoomItem>
+            ))}
         </RoomList>
       </Main>
       <Navigationbar />
@@ -124,9 +118,8 @@ const HeaderContainer = styled.div`
   padding-bottom: 10px;
 `;
 
-
 const Join = styled.div`
-  font-family: "Roboto", sans-serif;
+  
 `;
 
 const JoinInnerContainer = styled.div`
@@ -140,11 +133,10 @@ const Heading = styled.h2`
   border-bottom: 2px solid white;
 `;
 
-
 const RoomList = styled.div`
-  margin-left:20px;
-  margin-right:20px;
-`
+  margin-left: 20px;
+  margin-right: 20px;
+`;
 
 const RoomItem = styled.div`
   display: flex;
@@ -154,40 +146,33 @@ const RoomItem = styled.div`
   padding: 5px 5px 0px 5px;
   cursor: pointer; // 커서 모양 변경
   transition: background-color 0.3s; // 배경색 변경 애니메이션 효과
-  
   &:hover {
     background-color: rgba(0, 0, 0, 0.05); // 약한 회색 배경색
   }
 `;
 
 const TitleContainer = styled.div`
-display: flex;
-`
+  display: flex;
+`;
 
 const Title = styled.div`
   margin-right: 15px;
-  font-size : 17px;
-  font-weight : bold;
-`
+  font-size: 17px;
+  font-weight: bold;
+`;
 
 const Person = styled.div`
-margin-right: 15px;
-color: #8F9098;
-`
+  margin-right: 15px;
+  color: #8f9098;
+`;
 
 const DateContainer = styled.div`
   display: flex;
-  color: #8F9098;
-
+  color: #8f9098;
 `;
 
-const StartDate = styled.div`
+const StartDate = styled.div``;
 
-`
-
-const FinishDate = styled.div`
-
-`
-
+const FinishDate = styled.div``;
 
 export default Chatting;

@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
 import { faSquarePlus, faChevronUp } from "@fortawesome/free-solid-svg-icons";
-import Modal from "../components/Modal";
+import Cmodal from "../components/Cmodal";
 
 const baseURL = "http://localhost:3000/";
 
@@ -85,11 +85,12 @@ const Community = () => {
   const handleSearchClick = () => {
     navigate("/Search");
   };
-
   const goDetail = (postId) => {
     navigate(`/Community_Detail/${postId}`);
   };
-
+  const goUserDetail = (userId) => {
+    navigate(`/UserDetail/${userId}`);
+  };
   useEffect(() => {
     if (searchTriggered) return; // 검색이 실행되면 아무 것도 하지 않습니다.
     const fetchMoreData = async () => {
@@ -115,18 +116,7 @@ const Community = () => {
     }
   }, [page, searchTriggered, sort]); // 의존성 배열에 page를 추가합니다.
 
-  // const getUserProfile = async () => {
-  //   try {
-  //     const resUser = await axios.get(baseURL + `mypage/profile`);
-  //     setUserData(resUser.data);
-  //     setImage(resUser.data.profile[0].profileImage);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
   useEffect(() => {
-    // getUserProfile();
     if (!searchTriggered) return;
     const fetchData = async () => {
       try {
@@ -171,7 +161,7 @@ const Community = () => {
           placeholder="검색"
         />
         <IconContainer onClick={() => setWrite(!write)}>
-          {write && <Modal closeModal={() => setWrite(!write)}></Modal>}
+          {write && <Cmodal closeModal={() => setWrite(!write)}></Cmodal>}
           <FontAwesomeIcon icon={faSquarePlus} size="3x" color={"#f97800"} />
         </IconContainer>
       </Header>
@@ -233,19 +223,33 @@ const Community = () => {
                     </div>
                   </Picture>
                   <Title>
-                    {post.title}
+                    <Title1> {post.title}</Title1>
                     <Titlebar>
-                      {post.User.profileImage === null ? (
-                        <img
-                          alt="chosen"
-                          style={{ width: "100%", borderRadius: "100%" }}
-                        />
-                      ) : (
-                        <img src={`${baseURL}${post.User.profileImage.replace(/\\/g, "/"  )}`}
-                          style={{ width: "10%", borderRadius: "100%" }}
-                        />
-                      )}
-                      {post.userID}
+                      <DetailInfo>
+                        <ProfileImage
+                          onClick={(e) => {
+                            e.stopPropagation(); // 부모로의 클릭 이벤트 전파를 중단합니다.
+                            goUserDetail(post.userID);
+                          }}
+                        >
+                          {" "}
+                          {post.User.profileImage === null ? (
+                            <img
+                              alt="chosen"
+                              style={{ width: "100%", borderRadius: "100%" }}
+                            />
+                          ) : (
+                            <img
+                              src={`${baseURL}${post.User.profileImage.replace(
+                                /\\/g,
+                                "/"
+                              )}`}
+                              style={{ width: "100%", borderRadius: "100%" }}
+                            />
+                          )}{" "}
+                        </ProfileImage>
+                        <Id>{post.userID}</Id>
+                      </DetailInfo>
                       <Heart>
                         <FontAwesomeIcon icon={faHeartSolid} color="red" />
                         {post.likeCount}
@@ -274,9 +278,39 @@ const Community = () => {
 // Your styled components remain unchanged...
 export default Community;
 
+const ProfileImage = styled.div`
+  background-color: rgb(254, 237, 229);
+  width: 30px;
+  height: 30px;
+  border-radius: 80%;
+  display: flex;
+  align-items: center;
+
+  margin-bottom: 10px;
+  cursor: pointer;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const Id = styled.div`
+  margin-top: 1px;
+  font-size: 15px;
+  margin-left: 10px;
+`;
+
+const DetailInfo = styled.div`
+  display: flex;
+`;
 const Container = styled.div`
   position: relative;
   width: 100%;
+`;
+const Title1 = styled.div`
+  margin-bottom: 10px;
 `;
 
 const Header = styled.div`
@@ -376,6 +410,7 @@ const Heart = styled.div`
   display: flex;
   justify-content: flex-end; // 아이콘을 우측으로 정렬
   gap: 3px; // 아이콘 사이의 간격 조정
+  margin-top: 5px;
 `;
 const Comment = styled.div`
   font-size: 15px;

@@ -83,7 +83,7 @@ const chatMessage = async (req, res) => {
   const chatMessage = await chat.Message.findAndCountAll({
     offset: per_page * (page - 1),
     limit: per_page,
-    order: [["sendtime", "DESC"]],
+    order: [["sendtime"]],
     where: { chatID: chatID }
   });
   
@@ -167,12 +167,10 @@ const forcedExit = async (req, res) => {
         where: { userID: req.body.userID, chatID: req.body.chatID },
       }),
         then(
-          res
-            .status(200)
-            .json({
-              result: true,
-              message: "퇴장이 성공적으로 이루어졌습니다.",
-            })
+          res.status(200).json({
+            result: true,
+            message: "퇴장이 성공적으로 이루어졌습니다.",
+          })
         ).catch((error) => {
           console.error(error);
           res
@@ -208,7 +206,6 @@ const getOut = async (req, res) => {
       .json({ result: false, message: "서버에 문제가 생겼습니다." });
   }
 };
-
 async function getChatRoomByUserId(userID){
   const roomArray=await chat.user_chat.findAll({
     where: {userID: userID, blackList: 1}
@@ -218,11 +215,11 @@ async function getChatRoomByUserId(userID){
 }
 
 module.exports = {
+  getChatRoomByUserId,
   getChatRoom,
   enterChatRoom,
   forcedExit,
   getOut,
   clickChatRoom,
   chatMessage,
-  getChatRoomByUserId
 };

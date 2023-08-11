@@ -251,7 +251,6 @@ const NavBox = styled.div`
 
 const Modal = styled.div`
   position: fixed;
-  z-index: 1000;
   left: 50%;
   top: 80%;
   transform: translate(-50%, -50%);

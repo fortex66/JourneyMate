@@ -40,19 +40,87 @@ const Frame = styled.div`
 `;
 
 const Body = styled.div`
-  position: absolute;
   width: 300px;
-  height: 500px;
-  padding: 40px;
-  text-align: center;
-  background-color: rgb(255, 255, 255);
+  padding: 10px;
+
+  background-color: white;
   border-radius: 10px;
-  box-shadow: 0 2px 3px 0 rgba(34, 36, 38, 0.15);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 `;
 
-const CummunityBtn = styled.button``;
+const CummunityBtn = styled.button`box-sizing: border-box;
+appearance: none;
+background-color: transparent;
+border: 2px solid #f97800;
+border-radius: 0.6em;
+color: #f97800;
+cursor: pointer;
+align-self: center;
+font-size: 16px;
+font-family: "Nanum Gothic", sans-serif;
+line-height: 1;
+padding: 0.6em 2em;
+text-decoration: none;
+letter-spacing: 2px;
+font-weight: 700;
+margin-bottom: 10px;
+margin-top:5px;
+margin-left:30px;
+&:hover,
+&:focus {
+  color: #fff;
+  outline: 0;
+}
+transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+&:hover {
+  box-shadow: 0 0 40px 40px #f97800 inset;
+}
 
-const CompanionBtn = styled.button``;
+&:focus:not(:hover) {
+  color: #f97800;
+  box-shadow: none;
+}
+}
+button.back_btn {
+padding: 0.6em 1em;
+}
+`;
+const CompanionBtn = styled.button`box-sizing: border-box;
+appearance: none;
+background-color: transparent;
+border: 2px solid #f97800;
+border-radius: 0.6em;
+color: #f97800;
+cursor: pointer;
+align-self: center;
+font-size: 16px;
+font-family: "Nanum Gothic", sans-serif;
+line-height: 1;
+padding: 0.6em 2.5em;
+text-decoration: none;
+letter-spacing: 2px;
+font-weight: 700;
+margin-bottom: 10px;
+margin-left:30px;
+&:hover,
+&:focus {
+  color: #fff;
+  outline: 0;
+}
+transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+&:hover {
+  box-shadow: 0 0 40px 40px #f97800 inset;
+}
+
+&:focus:not(:hover) {
+  color: #f97800;
+  box-shadow: none;
+}
+}
+button.back_btn {
+padding: 0.6em 1em;
+}
+`;
 
 const CloseBtn = styled.button`
   position: absolute;

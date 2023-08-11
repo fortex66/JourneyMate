@@ -81,9 +81,10 @@ function MyPage() {
   }, [selectedColor]);
   return (
     <div className="Wrap">
-      <div className="TMenuBar">
+      <Title>
+        {" "}
         <p>마이페이지</p>
-      </div>
+      </Title>
       <div className="topView">
         <div className="ContentsBox">
           <MyInfoBox>
@@ -205,6 +206,16 @@ function MyPage() {
     </div>
   );
 }
+const Title = styled.div`
+  font-size: 20px;
+  font-weight: bold;
+  border-bottom: 1px solid #f97800;
+  display: flex; // Use flexbox for alignment
+  justify-content: center; // Horizontally center the content
+  align-items: center; // Vertically center the content
+  height: 60px; // Set a height for the container
+`;
+
 const MyInfoBox = styled.div`
   display: flex;
   justify-content: space-around;
@@ -251,7 +262,7 @@ const MyList = styled.div`
   &::after {
     content: "";
     position: absolute;
-    top: 60%;
+    top: 55%;
     left: 50%;
     width: 1px;
     height: 70%; // 원하는 높이(%)로 조절

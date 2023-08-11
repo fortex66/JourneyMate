@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import SearchModal from "../components/SearchModal";
 import React, { useState, useEffect } from "react";
-import axios from 'axios'; // Assuming you are using axios for HTTP requests
+import axios from "axios"; // Assuming you are using axios for HTTP requests
 
 const baseURL = "http://localhost:3000/";
 
@@ -21,21 +21,20 @@ const Search = () => {
   }, []);
 
   useEffect(() => {
-    console.log("useEffect에서 출력된 데이터 정보 :",topSearches);
+    console.log("useEffect에서 출력된 데이터 정보 :", topSearches);
   }, [topSearches]);
 
   const getTopSearches = async () => {
     try {
       const response = await axios.get(`${baseURL}community/topkeyword`);
-      console.log("getTopSearches에서 출력된 데이터 정보 :",response.data);
+      console.log("getTopSearches에서 출력된 데이터 정보 :", response.data);
       if (Array.isArray(response.data)) {
         setTopSearches(response.data);
       }
     } catch (err) {
       console.error(err);
     }
-  }
-  
+  };
 
   return (
     <div>
@@ -52,24 +51,24 @@ const Search = () => {
           placeholder="검색어를 입력하세요"
         />
       </Header>
+      <br />
       <TopSearches>
-        {topSearches && topSearches.map((search, index) => (
-          <SearchItem key={index}>
-            <span>{index+1}. {search.location}</span> 
-            <span>{search.count} 검색</span>
-          </SearchItem>
-        ))}
+        {topSearches &&
+          topSearches.map((search, index) => (
+            <SearchItem key={index}>
+              <span>
+                {index + 1}. {search.location}
+              </span>
+              <span>{search.count} 검색</span>
+            </SearchItem>
+          ))}
       </TopSearches>
       <Navigationbar />
-
     </div>
   );
 };
 
-
-
 export default Search;
-
 
 const IconContainer = styled.div``;
 const SearchItem = styled.div`
@@ -125,7 +124,6 @@ const TopSearches = styled.div`
   padding: 20px;
   border-radius: 8px;
   background-color: #f2f2f2;
-  
   p {
     border: 1px solid #ddd;
     border-radius: 4px;

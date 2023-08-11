@@ -14,7 +14,7 @@ import {
   faSquarePlus,
   faLocationCrosshairs,
 } from "@fortawesome/free-solid-svg-icons";
-import Modal from "../components/Modal";
+import Cmodal from "../components/Cmodal";
 import Nearby from "../components/Nearby";
 
 // NearbyModal 컴포넌트 선언
@@ -156,7 +156,7 @@ const Home = () => {
             placeholder="검색"
           />
           <IconContainer onClick={() => setWrite(!write)}>
-            {write && <Modal closeModal={() => setWrite(!write)} />}
+            {write && <Cmodal closeModal={() => setWrite(!write)} />}
             <FontAwesomeIcon icon={faSquarePlus} size="3x" color={"#f97800"} />
           </IconContainer>
         </Header>

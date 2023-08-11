@@ -1,73 +1,91 @@
-import React, { useEffect, useRef, useState  } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import bcrypt from 'bcryptjs';
 const baseURL = "http://localhost:3000/";
 
 const PasswordChange = () => {
-
   const navigate = useNavigate();
 
   const chagnepwRef = useRef();
   const checkpwRef = useRef();
 
   const handleSubmit = async () => {
-    if(chagnepwRef.current.value !== checkpwRef.current.value) {
+    if (chagnepwRef.current.value !== checkpwRef.current.value) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
-    
-    try{
+
+    try {
       const response = await axios.put(baseURL + "mypage/passwordChange", {
-        password: checkpwRef.current.value
+        password: checkpwRef.current.value,
       });
 
       if (response.status === 200) {
         navigate(-1, { replace: true });
       } else {
-      console.error("변경 실패");
+        console.error("변경 실패");
       }
-
-    }catch (error) {
+    } catch (error) {
       console.log(error);
     }
-
-  }
-    return (
-      <Container>
-        <Navigation>
-          <Header>
-            <button className="back_btn" onClick={() => navigate(-1)}> {"<"} </button>
-            <button className="complete_btn" onClick={handleSubmit}> 확인 </button>
-          </Header>
-        </Navigation>
-
-        <Content>
-          <Title>비밀번호 변경</Title>
-          <ChangeContainer>
-            <Change>변경할 비밀번호</Change>
-            <form>
-            <input type="text" autoComplete="username" style={{display: "none"}} /> {/* Optionally hidden */}
-              <ChangePW type="password" autoComplete="new-password" ref={chagnepwRef} /></form>
-          </ChangeContainer>
-          <CheckContainer>
-            <Check>비밀번호 확인</Check>
-            <form>
-              <input type="text" autoComplete="username" style={{display: "none"}} /> {/* Optionally hidden */}
-              <CheckPW type="password" autoComplete="new-password" ref={checkpwRef}/></form>
-          </CheckContainer>
-        </Content>
-        
-        
-      </Container>
-    );
   };
-  
-  const Container = styled.div`
-  
-`
+  return (
+    <Container>
+      <Navigation>
+        <Header>
+          <button className="back_btn" onClick={() => navigate(-1)}>
+            {" "}
+            {"<"}{" "}
+          </button>
+          <button className="complete_btn" onClick={handleSubmit}>
+            {" "}
+            확인{" "}
+          </button>
+        </Header>
+      </Navigation>
+
+      <Content>
+        <Title>비밀번호 변경</Title>
+        <ChangeContainer>
+          <Change>변경할 비밀번호</Change>
+          <form>
+            <input
+              type="text"
+              autoComplete="username"
+              style={{ display: "none" }}
+            />{" "}
+            {/* Optionally hidden */}
+            <ChangePW
+              type="password"
+              autoComplete="new-password"
+              ref={chagnepwRef}
+            />
+          </form>
+        </ChangeContainer>
+        <CheckContainer>
+          <Check>비밀번호 확인</Check>
+          <form>
+            <input
+              type="text"
+              autoComplete="username"
+              style={{ display: "none" }}
+            />{" "}
+            {/* Optionally hidden */}
+            <CheckPW
+              type="password"
+              autoComplete="new-password"
+              ref={checkpwRef}
+            />
+          </form>
+        </CheckContainer>
+      </Content>
+    </Container>
+  );
+};
+
+const Container = styled.div``;
 
 const Navigation = styled.div`
   position: relative;
@@ -137,27 +155,23 @@ const Title = styled.div`
 `;
 
 const ChangeContainer = styled.div`
-  display:flex;
-  margin-top : 60px;
-  margin-left : 10px;
-`
-const Change = styled.div`
-
-`
+  display: flex;
+  margin-top: 60px;
+  margin-left: 10px;
+`;
+const Change = styled.div``;
 
 const ChangePW = styled.input`
-  margin-left:20px;
-`
+  margin-left: 20px;
+`;
 
 const CheckContainer = styled.div`
-  display:flex;
-  margin-top : 20px;
-  margin-left : 10px;
-`
-const Check = styled.div`
-
-`
+  display: flex;
+  margin-top: 20px;
+  margin-left: 10px;
+`;
+const Check = styled.div``;
 const CheckPW = styled.input`
-  margin-left : 34px;
-`
-  export default PasswordChange;
+  margin-left: 34px;
+`;
+export default PasswordChange;

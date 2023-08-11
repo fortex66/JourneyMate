@@ -247,7 +247,14 @@ const getclist = async (req, res) => {
       offset: per_page * (page - 1),
       limit: per_page,
       order: order,
-      include: [{ model: cPost.cPostImage, as: "post_images" }],
+      include: [
+        { model: cPost.cPostImage, as: "post_images" },
+        {
+          model: userProfile.User,
+          as: "users",
+          attributes: ["profileImage"],
+        },
+      ],
     });
     const total_pages = Math.ceil(posts.count / per_page);
 

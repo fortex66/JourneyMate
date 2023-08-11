@@ -7,7 +7,7 @@ import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSquarePlus } from "@fortawesome/free-solid-svg-icons";
 import { faChevronUp } from "@fortawesome/free-solid-svg-icons";
-import Modal from "../components/Modal";
+import Cmodal from "../components/Cmodal";
 
 const baseURL = "http://localhost:3000/";
 
@@ -77,7 +77,9 @@ const Companion = () => {
       setIsVisible(false);
     }
   };
-
+  const goUserDetail = (userId) => {
+    navigate(`/UserDetail/${userId}`);
+  };
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -107,6 +109,7 @@ const Companion = () => {
             rows: [...prevData.posts.rows, ...response.data.posts.rows],
           },
         }));
+        console.log(response);
       } catch (error) {
         console.log(error);
       }
@@ -181,7 +184,7 @@ const Companion = () => {
           placeholder="검색"
         />
         <IconContainer onClick={() => setWrite(!write)}>
-          {write && <Modal closeModal={() => setWrite(!write)}></Modal>}
+          {write && <Cmodal closeModal={() => setWrite(!write)}></Cmodal>}
           <FontAwesomeIcon icon={faSquarePlus} size="3x" color={"#f97800"} />
         </IconContainer>
       </Header>
@@ -233,9 +236,33 @@ const Companion = () => {
                     </div>
                   </Picture>
                   <Title>
-                    {post.title}
+                    <Title1> {post.title}</Title1>
                     <Titlebar>
-                      {post.userID}
+                      <DetailInfo>
+                        <ProfileImage
+                          onClick={(e) => {
+                            e.stopPropagation(); // 부모로의 클릭 이벤트 전파를 중단합니다.
+                            goUserDetail(post.userID);
+                          }}
+                        >
+                          {" "}
+                          {post.users.profileImage === null ? (
+                            <img
+                              alt="chosen"
+                              style={{ width: "100%", borderRadius: "100%" }}
+                            />
+                          ) : (
+                            <img
+                              src={`${baseURL}${post.users.profileImage.replace(
+                                /\\/g,
+                                "/"
+                              )}`}
+                              style={{ width: "100%", borderRadius: "100%" }}
+                            />
+                          )}{" "}
+                        </ProfileImage>
+                        <Id>{post.userID}</Id>
+                      </DetailInfo>
                       <Heart>
                         <FontAwesomeIcon icon={faCommentSolid} color="F97800" />
                       </Heart>
@@ -258,6 +285,34 @@ const Companion = () => {
     </Container>
   );
 };
+const ProfileImage = styled.div`
+  background-color: rgb(254, 237, 229);
+  width: 30px;
+  height: 30px;
+  border-radius: 80%;
+  display: flex;
+  align-items: center;
+
+  margin-bottom: 10px;
+  cursor: pointer;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+const Id = styled.div`
+  margin-top: 1px;
+  font-size: 15px;
+  margin-left: 10px;
+`;
+const DetailInfo = styled.div`
+  display: flex;
+`;
+const Title1 = styled.div`
+  margin-bottom: 10px;
+`;
 const ScrollToTopButton = styled.button`
   border-radius: 50%;
   border: none;
@@ -352,9 +407,13 @@ const CompanionItem = styled.div`
 `;
 
 const Title = styled.div`
+  font-size: 20px;
+  font-weight: bold;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: block;
+  align-items: center;
 `;
 
 const Picture = styled.div`

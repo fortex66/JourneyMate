@@ -88,18 +88,15 @@ const getUserProfile = async (req, res)=>{
 };
 
 const getUserCommunityList = async (req, res) => {
-  const userID=req.params.userID
+  const userID = req.params.userId;
   try {
-    const { page = 1, per_page = 10 } = req.query;
-    console.log(req.decode);
+    //const { page = 1, per_page = 10 } = req.query;
     const posts = await Post.tPost.findAndCountAll({
       where: {
-        userID: req.decode.userID
+        userID: userID,
       },
-      order: [
-        ['postDate', 'DESC']
-      ],
-      include: [{model: Post.tPostImage, as: "post_images",},],
+      order: [["postDate", "DESC"]],
+      include: [{ model: Post.tPostImage, as: "post_images" }],
     });
     const total_post = posts.count;
 
@@ -111,23 +108,20 @@ const getUserCommunityList = async (req, res) => {
 };
 
 const getUserCompanionList = async (req, res) => {
-  const userID=req.params.userID;
+  const userID = req.params.userId;
   try {
-    const { page = 1, per_page = 10 } = req.query;
+    // const { page = 1, per_page = 10 } = req.query;
     // console.log(req.decode);
     const posts = await Post.cPost.findAndCountAll({
       where: {
-        userID: userID
+        userID: userID,
       },
-    //   offset: per_page * (page - 1),
-    //   limit: per_page,
-      order: [
-        ['postDate', 'DESC']
-      ],
-      include: [{model: Post.cPostImage, as: "post_images",},],
+      //   offset: per_page * (page - 1),
+      //   limit: per_page,
+      order: [["postDate", "DESC"]],
+      include: [{ model: Post.cPostImage, as: "post_images" }],
     });
     const total_post = posts.count;
- 
 
     res.status(200).json({ posts, total_post });
   } catch (err) {

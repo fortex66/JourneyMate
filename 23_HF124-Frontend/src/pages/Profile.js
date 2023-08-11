@@ -8,7 +8,7 @@ import ProfileDetail from "./ProfileDetail";
 import bcrypt from "bcryptjs";
 const baseURL = "http://localhost:3000/";
 
-const Profile =  () => {
+const Profile = () => {
   const navigate = useNavigate();
 
   const [userData, setUserData] = useState(null);
@@ -19,7 +19,6 @@ const Profile =  () => {
     const fileInput = document.getElementById("fileInput");
     // Programmatically trigger a click event on the file input element
     fileInput.click();
-    
   };
 
   const handleFileChange = async (e) => {
@@ -30,27 +29,32 @@ const Profile =  () => {
       reader.onloadend = () => {
         setImage(reader.result);
       };
-      
+
       reader.readAsDataURL(file);
-      const formData=new FormData();
-      formData.append('photo',file);
-      try{
-        const profileImage = await axios.put(baseURL+ 'mypage/profileImage',formData,{
-          headers: {
-            "Content-Type": "multipart/form-data", // multipart/form-data로 보낸다고 명시
+      const formData = new FormData();
+      formData.append("photo", file);
+      try {
+        const profileImage = await axios.put(
+          baseURL + "mypage/profileImage",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data", // multipart/form-data로 보낸다고 명시
+            },
           }
-        });
+        );
         console.log(profileImage);
-        const newURL='uploads\\'+userData.profile[0].userID+'-'+file.name;
+        const newURL =
+          "uploads\\" + userData.profile[0].userID + "-" + file.name;
         console.log(newURL);
         setImage(newURL);
-      }catch(err){
+      } catch (err) {
         console.error(err);
       }
     }
   };
 
-  const getCommunity = async () => {
+  const getProfileImage = async () => {
     try {
       const resUser = await axios.get(baseURL + `mypage/profile`);
       console.log(resUser);
@@ -109,7 +113,7 @@ const Profile =  () => {
       });
   };
   useEffect(() => {
-    getCommunity();
+    getProfileImage();
   }, []);
 
   return (
@@ -131,7 +135,7 @@ const Profile =  () => {
         <Circle onClick={onIconClick}>
           {image ? (
             <img
-              src={`${baseURL}${image && image.replace( /\\/g, "/" )}`}
+              src={`${baseURL}${image && image.replace(/\\/g, "/")}`}
               alt="chosen"
               style={{ width: "100%", borderRadius: "100%" }}
             />

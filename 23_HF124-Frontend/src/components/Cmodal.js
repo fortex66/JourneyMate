@@ -2,9 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
-function Modal(props) {
+function Cmodal(props) {
   function closeModal() {
-    props.closeModal(); //
+    props.closeModal();
   }
 
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const Frame = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 5000;
   align-items: flex-start; // 위쪽 정렬
   padding-top: 200px; // This will move the content 50 pixels down from the top
 `;
@@ -66,6 +66,7 @@ letter-spacing: 2px;
 font-weight: 700;
 margin-bottom: 10px;
 margin-top:5px;
+margin-left:14px;
 
 &:hover,
 &:focus {
@@ -103,6 +104,7 @@ text-decoration: none;
 letter-spacing: 2px;
 font-weight: 700;
 margin-bottom: 10px;
+margin-left:14px;
 
 &:hover,
 &:focus {
@@ -138,4 +140,4 @@ const CloseBtn = styled.button`
 
 `;
 
-export default Modal;
+export default Cmodal;

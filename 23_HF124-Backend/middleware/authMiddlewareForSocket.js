@@ -5,9 +5,10 @@ module.exports = authMiddlewareForSocket = (socket, next) => {
     try {
       // 쿠키 파싱
       const cookies = cookie.parse(socket.handshake.headers.cookie || '');
+  
       // JWT 토큰 추출
       const reqToken = cookies.token;
-
+  
       if (!reqToken) {
         throw new Error('Authentication failed!');
       }

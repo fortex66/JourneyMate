@@ -412,18 +412,17 @@ async function companionUploadpost(req, res) {
       await cUpload.cPostImage.create({
         imageURL: imageUrl,
         cpostID: cpostID,
-        chattime: Date().now
+        chattime: new Date()
       });
     });
 
     await Promise.all(imageSavePromises);
-    console.log(tags);
-    
-     // 태그 저장 로직 추가
-     for (const tagName of tags) {
+
+    // 태그 저장 로직 추가
+    for (const tagName of tags) {
       const [tag, created] = await Tag.findOrCreate({
         where: { content: tagName },
-        defaults: { content: tagName }
+        defaults: { content: tagName },
       });
 
       const ctagging = await CTagging.create({
