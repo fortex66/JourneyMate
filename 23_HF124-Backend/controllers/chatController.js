@@ -83,7 +83,7 @@ const chatMessage = async (req, res) => {
   const chatMessage = await chat.Message.findAndCountAll({
     offset: per_page * (page - 1),
     limit: per_page,
-    order: [["sendtime"]],
+    order: [["sendtime","DESC"]],
     where: { chatID: chatID }
   });
   

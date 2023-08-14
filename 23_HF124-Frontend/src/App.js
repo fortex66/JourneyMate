@@ -36,16 +36,14 @@ export const SocketContext = createContext(); // SocketContext 생성
 
 function App() {
   const [socket, setSocket] = useState(null);
-  const [messages, setMessages] = useState([]); // ChattingMessage 컨택스트로 보내기 위한 state
+  const [messages, setMessages] = useState(); // ChattingMessage 컨택스트로 보내기 위한 state
 
   useEffect(() => {
     const newSocket = io(ENDPOINT, { withCredentials: true });
     newSocket.emit("init");
     setSocket(newSocket);
-    newSocket.on('chat_message', (message) => {
-    setMessages((prev) => [...prev, message]); // 받은 메시지를 messages 스테이트에 저장한다.
-    console.log('Received message:', message);
-      // 메시지를 상태나 다른 곳에 저장하는 로직
+    newSocket.on('chat_message', (message) => {setMessages(message); // 받은 메시지를 messages 스테이트에 저장한다.
+    console.log('Received message:', message); // 메시지를 상태나 다른 곳에 저장하는 로직
   });
 
     return () => {

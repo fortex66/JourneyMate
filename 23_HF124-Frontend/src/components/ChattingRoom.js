@@ -24,7 +24,6 @@ const ChattingRoom = () => {
   const endOfMessagesRef = useRef(null);
 
 
-  console.log(chattingmessages)
 
 
 
@@ -33,7 +32,8 @@ const ChattingRoom = () => {
     const fetchChatRoom = async () => {
       const response = await axios.get(baseURL + `/chat/chatroomdata/${chatID}`);
       setRoomdata(response)
-   
+      console.log(response)
+      
     };
     fetchChatRoom();
   }, []);
@@ -43,7 +43,6 @@ const ChattingRoom = () => {
     const fetchMessage=async()=>{
       const message=await axios.get(baseURL+`/chat/${chatID}`);
       setMessageData(message)
-      console.log(message)
     };
     fetchMessage();
   },[])
@@ -135,18 +134,39 @@ const ChattingRoom = () => {
         
       </TopContainer>
 
-
+      {/* 채팅내역 부분 */}
       <MidContainer>
+
+      {/* 이전의 채팅을 가져오는 부분 */}
+      {messageData && [...messageData.data.chatMessage.rows].reverse().map((prevchat, index) => {
+        // 이전의 채팅에서 userID와 채팅방의 정보에서 가져온 userID가 일치하면 사진을 matchedUser에 담는다.
+        const matchedUser = roomdata && roomdata.data.chatRoomData.user_chats.find(user => user.userID === prevchat.userID);
+        const profileImage = matchedUser?.User?.profileImage;
+      
+        return (
+        <ChatContainer key={index}>
+          {profileImage && <img src={`${baseURL}${profileImage.replace(/\\/g, "/")}`} alt="Profile" />}
+            <MessageContainer>
+              <UserID>{prevchat.userID}</UserID>
+              <ChatContent>{prevchat.content}</ChatContent>
+            </MessageContainer>
+        </ChatContainer>
+      
+          );
+      })}
+
+
+      {/* 내가 입력하는 부분 */}
       {messages.map((message, index) => (
         <ChatContainer key={index} self={message.self}>
-          <ChatMessage>{message.text}</ChatMessage>
-
+          <ChatMessage self={message.self}>{message.text}</ChatMessage>
         </ChatContainer>
       ))}
       <div ref={endOfMessagesRef} />
       </MidContainer>
 
 
+      {/* 채팅입력 부분 */}
       <BottomContainer>
         <InputContainer>
           <ChatInput type="text" placeholder="메시지 입력" value={inputValue} onChange={handleInputChange} onKeyDown={onKeyDown} />
@@ -259,39 +279,39 @@ margin:5px 0px 10px 5px;
 `
 
 
-const ModalButton = styled.div`
-box-sizing: border-box;
-appearance: none;
-background-color: transparent;
-border-radius: 0.6em;
-color: #f97800;
-cursor: pointer;
-align-self: center;
-font-size: 16px;
-font-family: "Nanum Gothic", sans-serif;
-line-height: 1;
-padding: 0.6em 2em;
-text-decoration: none;
-letter-spacing: 2px;
-font-weight: 700;
-margin-bottom: 10px;
+// const ModalButton = styled.div`
+// box-sizing: border-box;
+// appearance: none;
+// background-color: transparent;
+// border-radius: 0.6em;
+// color: #f97800;
+// cursor: pointer;
+// align-self: center;
+// font-size: 16px;
+// font-family: "Nanum Gothic", sans-serif;
+// line-height: 1;
+// padding: 0.6em 2em;
+// text-decoration: none;
+// letter-spacing: 2px;
+// font-weight: 700;
+// margin-bottom: 10px;
 
-&:hover,
-&:focus {
-  color: #fff;
-  outline: 0;
-}
-transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
-&:hover {
-  box-shadow: 0 0 40px 40px #f97800 inset;
-}
+// &:hover,
+// &:focus {
+//   color: #fff;
+//   outline: 0;
+// }
+// transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+// &:hover {
+//   box-shadow: 0 0 40px 40px #f97800 inset;
+// }
 
-&:focus:not(:hover) {
-  color: #f97800;
-  box-shadow: none;
-}
-}
-`;
+// &:focus:not(:hover) {
+//   color: #f97800;
+//   box-shadow: none;
+// }
+// }
+// `;
 
 
 const MidContainer = styled.div`
@@ -302,18 +322,49 @@ margin-bottom: 85px;
 
 const ChatMessage = styled.div`
   display: inline-block;
-  background-color: #FFE17B;
-  border-radius: 10px;
+  background-color: ${(props) => (props.self ? "#FFEB3B" : "#ffffff")};
+  border: 1px solid ${(props) => (props.self ? "#FFEB3B" : "#E0E0E0")};
+  border-radius: 12px;
   padding: 10px;
-  margin: 5px;
-  align-self: flex-end;
+  margin: 10px;
+  max-width: 85%;
+  word-break: break-word;
 `;
 
 const ChatContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  width: ${(props) => (props.self ? "auto" : "100%")}; 
-  align-self: ${(props) => (props.self ? "flex-end" : "flex-start")}; // 변경
+  flex-direction: row;
+  width: 100%;
+  padding: 5px;
+  justify-content: ${(props) => (props.self ? "flex-end" : "flex-start")};
+  
+  img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: ${(props) => (props.self ? "0 0 5px 15px" : "0 15px 5px 0")};
+  }
+`;
+
+const MessageContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+const UserID = styled.span`
+    font-size: 12px;  // 이 값을 원하는대로 조절하여 ID의 글자 크기를 조정할 수 있습니다.
+    color: #888;  // ID의 글자색을 조절하고 싶다면 이 값을 변경하세요.
+    margin-bottom: 5px;  // ID와 메시지 사이의 간격을 조절하고 싶다면 이 값을 변경하세요.
+`;
+
+const ChatContent = styled.div`
+    background-color: ${(props) => (props.self ? "#FFEB3B" : "#ffffff")};
+    border: 1px solid ${(props) => (props.self ? "#FFEB3B" : "#E0E0E0")};
+    border-radius: 12px;
+    padding: 10px;
+    margin: 5px;
+    max-width: 85%;
+    word-break: break-word;
 `;
 
 const BottomContainer = styled.div`
@@ -340,8 +391,10 @@ const InputContainer = styled.div`
 const ChatInput = styled.input`
   flex-grow: 1;
   border: none;
-  background-color: transparent;
+  background-color: #E1E1E1; // lighter gray for input
   outline: none;
+  border-radius: 18px;
+  padding: 0 12px;
 `;
 
 const SendButton = styled.button`

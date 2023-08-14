@@ -148,6 +148,10 @@ const getSearchlist = async (req, res) => {
           as: "post_images",
         },
         {
+          model: userProfile.User,
+          attributes: ["profileImage"],
+        },
+        {
           model: Tag.Tag,
           as: "tags",
           through: {
@@ -350,6 +354,12 @@ const getCSearchlist = async (req, res) => {
         {
           model: cPost.cPostImage,
           as: "post_images",
+        },
+        {
+          model: Users,
+          as: "users",
+          // where: {userID: req.decode.userID},
+          attributes: ["profileImage", "gender", "birth"],
         },
         {
           model: Tag.Tag,
