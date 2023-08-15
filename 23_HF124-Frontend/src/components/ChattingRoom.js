@@ -24,8 +24,13 @@ const ChattingRoom = () => {
   const endOfMessagesRef = useRef(null);
 
 
-
-
+  // console.log(chattingmessages)
+  // console.log(typeof(chattingmessages.roomID))
+  // console.log(chattingmessages.userID)
+  // console.log(chattingmessages.message)
+  
+  // const roomNumber = Number(chatID)
+  // console.log(roomNumber)
 
   // 채팅방 정보 가져오기
   useEffect(() => {

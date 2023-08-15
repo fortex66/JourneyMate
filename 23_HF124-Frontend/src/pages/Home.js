@@ -89,7 +89,9 @@ const Home = () => {
     navigate("/Search");
   };
 
+
   useEffect(() => {
+    
     return () => {
       if (markerHoverTimeout.current) {
         clearTimeout(markerHoverTimeout.current);

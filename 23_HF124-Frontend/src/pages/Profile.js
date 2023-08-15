@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useContext } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faLock, faPhone } from "@fortawesome/free-solid-svg-icons";
 import ProfileDetail from "./ProfileDetail";
+import { SocketContext } from "../App";
 import bcrypt from "bcryptjs";
 const baseURL = "http://localhost:3000/";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const socket=useContext(SocketContext);
 
   const [userData, setUserData] = useState(null);
   const [image, setImage] = useState(null);
@@ -69,6 +71,7 @@ const Profile = () => {
     try {
       const userLogout = await axios.delete(baseURL + "mypage/logout");
       alert("로그아웃을 완료하였습니다!");
+
       navigate("/Login");
     } catch (err) {
       console.error(err);
