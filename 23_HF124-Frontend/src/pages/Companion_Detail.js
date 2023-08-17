@@ -135,7 +135,7 @@ const Companion_Detail = () => {
       })
       .catch(function (error) {
         console.log(error);
-        // 권한이 없는 경우 사용자에게 알림
+        // 권한이 없는 경우 사용자에게 알려줍니다.
         if (error.response && error.response.status === 403) {
           alert("댓글을 삭제할 권한이 없습니다.");
         }
