@@ -1,63 +1,82 @@
-import React, { useState, useEffect, useContext, useRef } from "react"; 
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faUser,faArrowLeft,faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBars,
+  faUser,
+  faArrowLeft,
+  faPaperPlane,
+} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { SocketContext } from "../App";
 import ChattingMessage from "./ChattingMessage";
-const baseURL = "http://localhost:3000";
+const baseURL = "http://localhost:3000/";
 
 const ChattingRoom = () => {
   const { chatID } = useParams(); // postId 추출
-  const socket=useContext(SocketContext);
+  const socket = useContext(SocketContext);
   const chattingmessages = useContext(ChattingMessage); // 이 코드를 추가합니다.
 
   const navigate = useNavigate();
 
-  const [roomdata, setRoomdata] = useState("")
-  const [messageData, setMessageData] = useState("")
+  const [roomdata, setRoomdata] = useState("");
+  const [messageData, setMessageData] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputValue, setInputValue] = useState(""); // 채팅 입력값 저장
   const [messages, setMessages] = useState([]); // 전송된 채팅 목록 저장
+  const [currentUser, setCurrentUser] = useState(null);
 
   const endOfMessagesRef = useRef(null);
 
+  useEffect(() => {
+    if (!socket) {
+      return;
+    }
 
-  // console.log(chattingmessages)
-  // console.log(typeof(chattingmessages.roomID))
-  // console.log(chattingmessages.userID)
-  // console.log(chattingmessages.message)
-  
-  // const roomNumber = Number(chatID)
-  // console.log(roomNumber)
+    const handleChatMessage = async (data) => {
+      console.log(typeof data.roomID);
+      if (data.roomID === Number(chatID)) {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { text: data.message, self: false },
+        ]);
+      }
+    };
+
+    socket.on("chat_message", handleChatMessage);
+
+    return () => {
+      socket.off("chat_message", handleChatMessage);
+    };
+  }, [socket, chatID]);
 
   // 채팅방 정보 가져오기
   useEffect(() => {
+    const jwtToken = localStorage.getItem("jwtToken");
+    setCurrentUser(jwtToken);
+
     const fetchChatRoom = async () => {
-      const response = await axios.get(baseURL + `/chat/chatroomdata/${chatID}`);
-      setRoomdata(response)
-      console.log(response)
-      
+      const response = await axios.get(baseURL + `chat/chatroomdata/${chatID}`);
+      setRoomdata(response);
+      console.log(response);
     };
     fetchChatRoom();
   }, []);
 
   // 채팅방 메시지
-  useEffect(()=>{
-    const fetchMessage=async()=>{
-      const message=await axios.get(baseURL+`/chat/${chatID}`);
-      setMessageData(message)
+  useEffect(() => {
+    const fetchMessage = async () => {
+      const message = await axios.get(baseURL + `chat/${chatID}`);
+      setMessageData(message);
     };
     fetchMessage();
-  },[])
+  }, []);
 
-  
   //console.log(`채팅메시지 ${messageData.data.chatMessage.rows[0].content}`)
 
-
   const sendMessage = (message) => {
-    socket.emit('chat_message', {roomID: chatID, content: message});
+    socket.emit("chat_message", { roomID: chatID, content: message });
   };
 
   function openModal() {
@@ -80,14 +99,29 @@ const ChattingRoom = () => {
 
   const handleSendMessage = () => {
     if (inputValue.trim() !== "") {
-      setMessages([...messages, { text: inputValue, self: true }]); // 메시지 객체를 배열에 추가
+      // 실시간 메시지 배열에 추가하지 않고 'messages' 배열에 추가
+      setMessages([...messages, { text: inputValue, self: true }]);
       sendMessage(inputValue);
-      console.log(inputValue);
       setInputValue(""); // 입력값 초기화
-      scrollToBottom(); // 스크롤 이동 
+      scrollToBottom(); // 스크롤 이동
     }
   };
-
+  //강제퇴장
+  const dropOut = async () => {
+    const response = await axios.delete(baseURL + `chat/chatroom/${chatID}`, {
+      data: { userID: "gth1210" }, //여기에 강퇴자 아이디 넣으면 됨
+    });
+    console.log(response.message);
+    navigate("/Chatting");
+  };
+  //나가기
+  const getOut = async () => {
+    const response = await axios.delete(
+      baseURL + `chat/chatroomquit/${chatID}`
+    );
+    console.log(response.message);
+    navigate("/Chatting");
+  };
   /* 채팅 엔터키로 입력하는 부분 */
   const onKeyDown = (e) => {
     if (e.target.value.length !== 0 && e.key === "Enter") {
@@ -99,8 +133,7 @@ const ChattingRoom = () => {
   const scrollToBottom = () => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-  
-  
+
   return (
     <RoomContainer>
       <TopContainer>
@@ -109,72 +142,110 @@ const ChattingRoom = () => {
             <FontAwesomeIcon icon={faArrowLeft} size="2x" />
           </button>
           <TitleContainer>
-            <Title>{roomdata && roomdata.data.chatRoomData.companion_post.title}</Title>
-            <FontAwesomeIcon icon={faUser} size="1x" color="#8F9098"/>
-            <Person>{roomdata && roomdata.data.chatRoomData.user_chats.length}</Person>
+            <Title>
+              {roomdata && roomdata.data.chatRoomData.companion_post.title}
+            </Title>
+            <FontAwesomeIcon icon={faUser} size="1x" color="#8F9098" />
+            <Person>
+              {roomdata && roomdata.data.chatRoomData.user_chats.length}
+            </Person>
           </TitleContainer>
-          
-          <button className="bars_btn" > 
-            <FontAwesomeIcon icon={faBars} size="2x" onClick={openModal}/> 
+
+          <button className="bars_btn">
+            <FontAwesomeIcon icon={faBars} size="2x" onClick={openModal} />
           </button>
           {isModalOpen && (
             <ModalBackground onClick={handleOutsideClick}>
               <ModalBox onClick={(e) => e.stopPropagation()}>
                 {roomdata && (
                   <ModalTitle>
-                    참여중인 대화자 {roomdata.data.chatRoomData.user_chats.length}
+                    참여중인 대화자{" "}
+                    {roomdata.data.chatRoomData.user_chats.length}
                   </ModalTitle>
                 )}
                 <div>
-                  {roomdata && roomdata.data.chatRoomData.user_chats.map((list, index) => (
-                    <People key={index}>
-                      <ModalPeople>{list.userID}</ModalPeople>
-                    </People>
+                  {roomdata &&
+                    roomdata.data.chatRoomData.user_chats.map((list, index) => (
+                      <People key={index}>
+                        <ModalImage>
+                          {" "}
+                          {list.User.profileImage === null ? (
+                            <img
+                              alt="chosen"
+                              style={{ width: "100%", borderRadius: "100%" }}
+                            />
+                          ) : (
+                            <img
+                              src={`${baseURL}${list.User.profileImage.replace(
+                                /\\/g,
+                                "/"
+                              )}`}
+                              style={{ width: "100%", borderRadius: "100%" }}
+                            />
+                          )}{" "}
+                        </ModalImage>
+                        <ModalPeople>{list.userID}</ModalPeople>
+                      </People>
                     ))}
                 </div>
+                <Getout>
+                  <Button onClick={getOut}>나가기</Button>
+                </Getout>
               </ModalBox>
             </ModalBackground>
           )}
         </Header>
-        
       </TopContainer>
 
       {/* 채팅내역 부분 */}
       <MidContainer>
+        {/* 이전의 채팅을 가져오는 부분 */}
+        {messageData &&
+          [...messageData.data.chatMessage.rows]
+            .reverse()
+            .map((prevchat, index) => {
+              const matchedUser =
+                roomdata &&
+                roomdata.data.chatRoomData.user_chats.find(
+                  (user) => user.userID === prevchat.userID
+                );
+              const profileImage = matchedUser?.User?.profileImage;
+              const isCurrentUser = currentUser === prevchat.userID; // 현재 사용자와 이전의 채팅 userID가 일치하는지 확인
 
-      {/* 이전의 채팅을 가져오는 부분 */}
-      {messageData && [...messageData.data.chatMessage.rows].reverse().map((prevchat, index) => {
-        // 이전의 채팅에서 userID와 채팅방의 정보에서 가져온 userID가 일치하면 사진을 matchedUser에 담는다.
-        const matchedUser = roomdata && roomdata.data.chatRoomData.user_chats.find(user => user.userID === prevchat.userID);
-        const profileImage = matchedUser?.User?.profileImage;
-      
-        return (
-        <ChatContainer key={index}>
-          {profileImage && <img src={`${baseURL}${profileImage.replace(/\\/g, "/")}`} alt="Profile" />}
-            <MessageContainer>
-              <UserID>{prevchat.userID}</UserID>
-              <ChatContent>{prevchat.content}</ChatContent>
-            </MessageContainer>
-        </ChatContainer>
-      
-          );
-      })}
+              return (
+                <ChatContainer key={index} self={isCurrentUser}>
+                  {!isCurrentUser && profileImage && (
+                    <img
+                      src={`${baseURL}${profileImage.replace(/\\/g, "/")}`}
+                      alt="Profile"
+                    />
+                  )}
+                  <MessageContainer>
+                    {!isCurrentUser && <UserID>{prevchat.userID}</UserID>}
+                    <ChatContent self={isCurrentUser}>
+                      {prevchat.content}
+                    </ChatContent>
+                  </MessageContainer>
+                </ChatContainer>
+              );
+            })}
 
-
-      {/* 내가 입력하는 부분 */}
-      {messages.map((message, index) => (
-        <ChatContainer key={index} self={message.self}>
-          <ChatMessage self={message.self}>{message.text}</ChatMessage>
-        </ChatContainer>
-      ))}
-      <div ref={endOfMessagesRef} />
+        {messages.map((message, index) => (
+          <ChatContainer key={index} self={message.self}>
+            <ChatMessage self={message.self}>{message.text}</ChatMessage>
+          </ChatContainer>
+        ))}
       </MidContainer>
-
-
       {/* 채팅입력 부분 */}
       <BottomContainer>
         <InputContainer>
-          <ChatInput type="text" placeholder="메시지 입력" value={inputValue} onChange={handleInputChange} onKeyDown={onKeyDown} />
+          <ChatInput
+            type="text"
+            placeholder="메시지 입력"
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyDown={onKeyDown}
+          />
           <SendButton onClick={handleSendMessage}>
             <FontAwesomeIcon icon={faPaperPlane} />
           </SendButton>
@@ -184,9 +255,31 @@ const ChattingRoom = () => {
   );
 };
 
-const RoomContainer = styled.div`
-  
-`
+const Getout = styled.div`
+  border-top: 1px solid #dadada;
+  margin-top: 200px;
+  position: absolute; /* 수정 */
+  bottom: 0; /* 추가 */
+`;
+const ModalImage = styled.div`
+  background-color: rgb(254, 237, 229);
+  width: 30px;
+  height: 30px;
+  border-radius: 80%;
+  display: flex;
+  align-items: center;
+  margin-right: 5px;
+  margin-bottom: 10px;
+
+  cursor: pointer;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+const RoomContainer = styled.div``;
 
 const TopContainer = styled.div`
   position: relative;
@@ -214,38 +307,32 @@ const Header = styled.div`
     background-color: white;
 
     margin: 20px;
-  
   }
 
-
-  button.bars_btn{
+  button.bars_btn {
     border: none;
     color: #f97800;
     cursor: pointer;
     background-color: white;
 
     margin: 20px;
-
   }
-
-
 `;
 
 const TitleContainer = styled.div`
-  display:flex;
-  align-items:center;
+  display: flex;
+  align-items: center;
   justify-content: center;
-`
+`;
 
 const Title = styled.h2`
-  margin-right:15px;
-`
+  margin-right: 15px;
+`;
 const Person = styled.div`
   margin-left: 5px;
-  color: #8F9098;
-
-`
-
+  color: #8f9098;
+  margin-top: 20px;
+`;
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -261,69 +348,37 @@ const ModalBackground = styled.div`
 `;
 
 const ModalBox = styled.div`
-  width: 400px;
-  height: 500px;
+  width: 300px;
+  height: 400px;
   padding: 10px;
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  position: relative;
 `;
 
 const ModalTitle = styled.div`
- margin: 5px 0px 10px 5px;
-`
+  display: flex;
+  justify-content: center;
+  color: #f97800;
+  font-size: 19px;
+  border-bottom: 1px solid #dadada;
+  padding-bottom: 10px;
+`;
 
 const People = styled.div`
-display:flex;
-flex-direction:column;
-
-`
+  display: flex;
+  margin-top: 10px;
+`;
 
 const ModalPeople = styled.div`
-margin:5px 0px 10px 5px;
-`
-
-
-// const ModalButton = styled.div`
-// box-sizing: border-box;
-// appearance: none;
-// background-color: transparent;
-// border-radius: 0.6em;
-// color: #f97800;
-// cursor: pointer;
-// align-self: center;
-// font-size: 16px;
-// font-family: "Nanum Gothic", sans-serif;
-// line-height: 1;
-// padding: 0.6em 2em;
-// text-decoration: none;
-// letter-spacing: 2px;
-// font-weight: 700;
-// margin-bottom: 10px;
-
-// &:hover,
-// &:focus {
-//   color: #fff;
-//   outline: 0;
-// }
-// transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
-// &:hover {
-//   box-shadow: 0 0 40px 40px #f97800 inset;
-// }
-
-// &:focus:not(:hover) {
-//   color: #f97800;
-//   box-shadow: none;
-// }
-// }
-// `;
-
+  margin: 5px 0px 10px 5px;
+`;
 
 const MidContainer = styled.div`
-margin-top: 75px; 
-margin-bottom: 85px;
-`
-
+  margin-top: 75px;
+  margin-bottom: 85px;
+`;
 
 const ChatMessage = styled.div`
   display: inline-block;
@@ -331,7 +386,7 @@ const ChatMessage = styled.div`
   border: 1px solid ${(props) => (props.self ? "#FFEB3B" : "#E0E0E0")};
   border-radius: 12px;
   padding: 10px;
-  margin: 10px;
+  margin: 10px 15px 10px 10px;
   max-width: 85%;
   word-break: break-word;
 `;
@@ -342,7 +397,7 @@ const ChatContainer = styled.div`
   width: 100%;
   padding: 5px;
   justify-content: ${(props) => (props.self ? "flex-end" : "flex-start")};
-  
+
   img {
     width: 40px;
     height: 40px;
@@ -352,24 +407,25 @@ const ChatContainer = styled.div`
 `;
 
 const MessageContainer = styled.div`
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  margin-right: 10px;
 `;
 
 const UserID = styled.span`
-    font-size: 12px;  // 이 값을 원하는대로 조절하여 ID의 글자 크기를 조정할 수 있습니다.
-    color: #888;  // ID의 글자색을 조절하고 싶다면 이 값을 변경하세요.
-    margin-bottom: 5px;  // ID와 메시지 사이의 간격을 조절하고 싶다면 이 값을 변경하세요.
+  font-size: 12px; // 이 값을 원하는대로 조절하여 ID의 글자 크기를 조정할 수 있습니다.
+  color: #888; // ID의 글자색을 조절하고 싶다면 이 값을 변경하세요.
+  margin-bottom: 5px; // ID와 메시지 사이의 간격을 조절하고 싶다면 이 값을 변경하세요.
 `;
 
 const ChatContent = styled.div`
-    background-color: ${(props) => (props.self ? "#FFEB3B" : "#ffffff")};
-    border: 1px solid ${(props) => (props.self ? "#FFEB3B" : "#E0E0E0")};
-    border-radius: 12px;
-    padding: 10px;
-    margin: 5px;
-    max-width: 85%;
-    word-break: break-word;
+  background-color: ${(props) => (props.self ? "#FFEB3B" : "#ffffff")};
+  border: 1px solid ${(props) => (props.self ? "#FFEB3B" : "#E0E0E0")};
+  border-radius: 12px;
+  padding: 10px;
+  margin: 5px;
+  max-width: 85%;
+  word-break: break-word;
 `;
 
 const BottomContainer = styled.div`
@@ -396,7 +452,7 @@ const InputContainer = styled.div`
 const ChatInput = styled.input`
   flex-grow: 1;
   border: none;
-  background-color: #E1E1E1; // lighter gray for input
+  background-color: #e1e1e1; // lighter gray for input
   outline: none;
   border-radius: 18px;
   padding: 0 12px;
@@ -410,7 +466,44 @@ const SendButton = styled.button`
   color: #f97800;
 `;
 
+const Button = styled.div`
+box-sizing: border-box;
+appearance: none;
+background-color: transparent;
+border: 2px solid #f97800;
+border-radius: 0.6em;
+color: #f97800;
+cursor: pointer;
+align-self: center;
+font-size: 16px;
+font-family: "Nanum Gothic", sans-serif;
+line-height: 1;
+padding: 0.5em 0.5em;
+text-decoration: none;
+letter-spacing: 2px;
+font-weight: 700;
+margin-bottom: 10px;
+margin-left:115px;
+margin-right:115px;
+text-align:center;
+margin-top:10px;
 
+&:hover,
+&:focus {
+  color: #fff;
+  outline: 0;
+}
+transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+&:hover {
+  box-shadow: 0 0 40px 40px #f97800 inset;
+}
 
+&:focus:not(:hover) {
+  color: #f97800;
+  box-shadow: none;
+}
+}
+
+`;
 
 export default ChattingRoom;

@@ -12,8 +12,8 @@ import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSquarePlus,
+  faUserGroup,
   faLocationCrosshairs,
-  faGlobe,
 } from "@fortawesome/free-solid-svg-icons";
 import Cmodal from "../components/Cmodal";
 import Nearby from "../components/Nearby";
@@ -101,9 +101,9 @@ const Home = () => {
   useEffect(() => {
     const fetchMarkerData = async () => {
       try {
-        const response = await axios.get(baseURL + "community/mapimage");
+        const response = await axios.get(baseURL + "companion/mapcimage");
         const markerData = response.data;
-
+        console.log(response);
         // Group markers by location.
         const markerGroups = markerData.posts.rows.reduce((groups, marker) => {
           const key = `${marker.x},${marker.y}`;
@@ -227,14 +227,14 @@ const Home = () => {
             />
           </MyLocation>
 
-          <Companion>
+          <Community>
             <FontAwesomeIcon
-              onClick={() => navigate("/HomeC")}
-              icon={faGlobe}
+              onClick={() => navigate("/Home")}
+              icon={faUserGroup}
               size="2x"
               color={"#f97800"}
             />
-          </Companion>
+          </Community>
         </MapContainer>
         <Navigationbar />
       </Container>
@@ -362,14 +362,17 @@ const MyLocation = styled.div`
   background-color: white;
 `;
 
-const Companion = styled.div`
+const Community = styled.div`
   position: absolute;
   left: 10px;
   bottom: 80px;
   z-index: 3;
   margin-bottom: 10px;
   margin-left: 7px;
-  padding: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 7px;
+  padding-left: 7px;
   border-radius: 8px;
   background-color: white;
 `;

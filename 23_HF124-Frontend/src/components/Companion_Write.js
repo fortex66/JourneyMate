@@ -192,6 +192,8 @@ const Companion_Write = () => {
         personnel: personnelRef.current.value,
         content: contentRef.current.value,
         tags: tagList, // 태그 리스트 추가
+        x: selectedLocation.x,
+        y: selectedLocation.y,
       };
       formData.append("jsonData", JSON.stringify(jsonData));
       axios
@@ -247,6 +249,8 @@ const Companion_Write = () => {
         personnel: personnel,
         content: content,
         tags: tagList, // 태그 리스트 추가
+        x: selectedLocation.x,
+        y: selectedLocation.y,
       };
       formData.append("jsonData", JSON.stringify(jsonData));
       const postId = detail.cpostID;

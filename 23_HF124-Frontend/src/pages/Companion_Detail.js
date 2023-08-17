@@ -41,6 +41,7 @@ const Companion_Detail = () => {
           baseURL + `companion/comments/${postId}`
         ); // postId를 API 호출에 사용하여 댓글 데이터 가져오기
         setComments(responseComments.data);
+        console.log(responsePost);
       } catch (error) {
         console.log(error);
       }
@@ -52,21 +53,22 @@ const Companion_Detail = () => {
     setNewComment(event.target.value);
   };
 
-  const enterChatRoom=async()=>{
-    const cpostID=window.location.pathname.split("/").pop();
-    try{
-      await axios.put(baseURL+`companion/chatroom/${cpostID}`)
-      .then( res => {
-        console.log("성공");
-        navigate(`/Chatting`);
-      })
-      .catch( err => {
-        console.error(err);
-      });
-    }catch(err){
+  const enterChatRoom = async () => {
+    const cpostID = window.location.pathname.split("/").pop();
+    try {
+      await axios
+        .put(baseURL + `companion/chatroom/${cpostID}`)
+        .then((res) => {
+          console.log("성공");
+          navigate(`/Chatting`);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    } catch (err) {
       console.errror(err);
     }
-  }
+  };
 
   const addComment = () => {
     const newCommentObject = {
@@ -148,8 +150,13 @@ const Companion_Detail = () => {
       </span>
     ));
   };
-
-  console.log(data);
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      // shiftKey를 체크하여 shift + enter는 줄바꿈으로 작동하게 함.
+      event.preventDefault(); // 기본적인 Enter 행동(줄바꿈)을 방지
+      addComment();
+    }
+  };
 
   // 데이터가 없을때
   if (!data) {
@@ -187,7 +194,7 @@ const Companion_Detail = () => {
             </>
           )}
         </Top>
-        <Title>{data && data.post.title}</Title>
+
         <ImageContainer>
           <img
             src={`${baseURL}${
@@ -196,7 +203,7 @@ const Companion_Detail = () => {
             style={{ maxWidth: "600px", height: "auto" }}
           />
         </ImageContainer>
-
+        <Title>{data && data.post.title}</Title>
         <Info>
           <FirstInfo>
             <LocationInfo>지역 : {data && data.post.location}</LocationInfo>
@@ -212,17 +219,37 @@ const Companion_Detail = () => {
             </PeriodInfo>
           </SecondInfo>
         </Info>
-
+        <Title>프로필 정보</Title>
         <HostContainer>
           <HostInfo>
-            <HostName>{data && data.post.userID}</HostName>
-            <HostAge>{data && data.age}</HostAge>
-            <HostGender>{data && data.post.users.gender}</HostGender>
+            <Host1>
+              <HostImage>
+                {" "}
+                {data.post.users.profileImage === null ? (
+                  <img
+                    alt="chosen"
+                    style={{ width: "100%", borderRadius: "100%" }}
+                  />
+                ) : (
+                  <img
+                    src={`${baseURL}${data.post.users.profileImage.replace(
+                      /\\/g,
+                      "/"
+                    )}`}
+                    style={{ width: "100%", borderRadius: "100%" }}
+                  />
+                )}{" "}
+              </HostImage>
+              <HostName>{data && data.post.userID} </HostName>
+            </Host1>
+            <Host2>
+              {" "}
+              <HostAge>{data && data.age}</HostAge>
+              <HostGender>{data && data.post.users.gender}</HostGender>
+            </Host2>
           </HostInfo>
 
-          <JoinButton>
-            <button onClick={() => enterChatRoom()}>채팅방 입장</button>
-          </JoinButton>
+          <JoinButton onClick={() => enterChatRoom()}>채팅방 입장</JoinButton>
         </HostContainer>
 
         <Main>
@@ -238,10 +265,11 @@ const Companion_Detail = () => {
         </TagContainer>
 
         <CommentSection>
-          <h3>댓글</h3>
+          <h3 style={{ marginLeft: "10px" }}>댓글</h3>
           <CommentInput>
             <textarea
               value={newComment}
+              onKeyPress={handleKeyPress}
               onChange={handleNewCommentChange}
               placeholder="댓글을 입력하세요"
             />
@@ -265,13 +293,12 @@ const Companion_Detail = () => {
                       : ""}
                   </CommentDate>
                 </CommentContent>
-                <Button>
-                  {currentUser && comment.userID === currentUser && (
-                    <button onClick={() => deleteComment(comment.tcommentId)}>
-                      삭제
-                    </button>
-                  )}
-                </Button>
+
+                {currentUser && comment.userID === currentUser && (
+                  <Button onClick={() => deleteComment(comment.ccommentID)}>
+                    삭제
+                  </Button>
+                )}
               </Comment>
             ))}
           </CommentList>
@@ -281,6 +308,31 @@ const Companion_Detail = () => {
   }
 };
 
+const HostImage = styled.div`
+  background-color: rgb(254, 237, 229);
+  width: 30px;
+  height: 30px;
+  border-radius: 80%;
+  display: flex;
+  align-items: center;
+  margin-right: 5px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const Host1 = styled.div`
+  display: flex;
+`;
+
+const Host2 = styled.div`
+  display: flex;
+`;
 const StyledButtonInput = styled.div`
 box-sizing: border-box;
 appearance: none;
@@ -381,7 +433,7 @@ const CommentDate = styled.div`
   color: gray;
 `;
 const Page = styled.div`
-  margin-top: 40px;
+  margin-top: 20px;
 `;
 
 const Top = styled.div`
@@ -404,7 +456,7 @@ const CommentContent = styled.div`
   white-space: pre-wrap; // 띄어쓰기와 줄바꿈을 유지하면서 필요한 경우에만 줄바꿈
 `;
 const Info = styled.div`
-  border: 1px solid #dddddd;
+  border: 1px solid #f97800;
   border-radius: 15px;
   padding: 10px;
   margin: 20px;
@@ -414,7 +466,7 @@ const FirstInfo = styled.div`
   display: flex;
 `;
 const LocationInfo = styled.div`
-  margin-right: 100px;
+  margin-right: 50px;
 `;
 
 const PeopleInfo = styled.div`
@@ -438,55 +490,102 @@ const ImageContainer = styled.div`
   text-align: center;
   img {
     margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     border-radius: 10px;
   }
 `;
 
 const HostContainer = styled.div`
-  border-bottom: 1px solid #dddddd;
-  padding: 15px;
+  border: 1px solid #f97800;
+  border-radius: 15px;
+
+  padding: 10px;
   margin: 20px;
   display: flex;
   justify-content: space-between;
 `;
 
-const HostInfo = styled.div``;
+const HostInfo = styled.div`
+  margin-top: 10px;
+`;
 
-const HostName = styled.div``;
+const HostName = styled.div`
+  margin-right: 10px;
+`;
 
-const HostAge = styled.div``;
+const HostAge = styled.div`
+  margin-right: 10px;
+  margin-left: 10px;
+`;
 
-const HostGender = styled.div``;
+const HostGender = styled.div`
+  margin-right: 10px;
+  margin-left: 10px;
+`;
 
-const JoinButton = styled.button``;
+const JoinButton = styled.div`box-sizing: border-box;
+margin-top: 5px;
+appearance: none;
+background-color: transparent;
+border: 2px solid #f97800;
+border-radius: 0.6em;
+color: #f97800;
+cursor: pointer;
+align-self: center;
+font-size: 16px;
+font-family: "Nanum Gothic", sans-serif;
+line-height: 1;
+padding: 0.5em 0.5em;
+text-decoration: none;
+letter-spacing: 2px;
+font-weight: 700;
+margin-bottom: 10px;
+margin-left:10px;
+
+&:hover,
+&:focus {
+  color: #fff;
+  outline: 0;
+}
+transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+&:hover {
+  box-shadow: 0 0 40px 40px #f97800 inset;
+}
+
+&:focus:not(:hover) {
+  color: #f97800;
+  box-shadow: none;
+}
+}`;
 
 const TagContainer = styled.div`
-  margin: 30px;
+  margin-left: 30px;
 `;
 
 const TagList = styled.div`
   display: flex;
-  justify-content: space-around;
 `;
 const TagItem = styled.div`
   background-color: #dddddd;
   border-radius: 10px;
-  font-size: 13px;
+  font-size: 11px;
   padding: 5px;
+  margin-left: 5px;
 `;
 
 const Main = styled.div`
+  border: 1px solid #dadada;
+  border-radius: 10px;
   margin: 20px;
 `;
 
 const Content = styled.div`
-  padding-bottom: 20px;
+  padding-bottom: 10px;
 `;
 
 const CommentSection = styled.div`
   border-top: 2px solid rgb(234, 235, 239);
-  margin: 20px;
+  margin: 10px;
 `;
 
 const CommentInput = styled.div`
@@ -497,22 +596,55 @@ const CommentInput = styled.div`
     width: 90%;
     height: 30px;
     resize: none;
+    border-radius: 10px;
   }
 `;
 const Button = styled.div`
-  display: flex;
-  align-items: center;
+box-sizing: border-box;
+appearance: none;
+background-color: transparent;
+border: 2px solid #dadada;
+border-radius: 0.6em;
+color: #dadada;
+cursor: pointer;
+align-self: center;
+font-size: 10px;
+font-family: "Nanum Gothic", sans-serif;
+line-height: 1;
+padding: 0.5em 0.5em;
+text-decoration: none;
+letter-spacing: 2px;
+font-weight: 700;
+margin-bottom: 10px;
+margin-left:50px;
+
+
+&:hover,
+&:focus {
+  color: #fff;
+  outline: 0;
+}
+transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+&:hover {
+  box-shadow: 0 0 40px 40px #f97800 inset;
+}
+
+&:focus:not(:hover) {
+  color: #f97800;
+  box-shadow: none;
+}
+}
+
 `;
 
 const CommentList = styled.div`
-  margin-top: 20px;
+  margin-left: 5px;
 `;
 
 const Comment = styled.div`
-  padding: 10px;
-  background-color: #f0f0f0;
+  margin-top: 10px;
   margin-bottom: 10px;
-  border-radius: 5px;
+  border-bottom: 1px solid #dadada;
   display: flex;
   justify-content: space-between; // 삭제 버튼을 오른쪽 끝으로 밀어내기 위해 추가
 `;

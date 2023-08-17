@@ -5,9 +5,11 @@ const commentController = require("../controllers/commentController");
 const authMiddleware = require("../middleware/authMiddleware");
 const postController = require("../controllers/postController");
 const chatController = require("../controllers/chatController");
+const mapController = require("../controllers/mapController");
 const router = express.Router();
 
 // 동행인 게시글 작성, 삭제, 수정
+router.get("/mapcimage", authMiddleware, mapController.mapGetclist);
 
 router.post(
   "/cupload",

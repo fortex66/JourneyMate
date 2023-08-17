@@ -10,12 +10,12 @@ const likeRoutes = require("./routes/likeRoutes");
 const communityRoutes = require("./routes/communityRoutes");
 const companionRoutes = require("./routes/companionRoutes");
 const mypageRoutes = require("./routes/mypageRoutes");
-const chatRoutes = require('./routes/chatRoutes');
-const chatController=require('./controllers/chatController');
+const chatRoutes = require("./routes/chatRoutes");
+const chatController = require("./controllers/chatController");
 const socketio = require("socket.io");
-const auth=require("./middleware/authMiddlewareForSocket");
+const auth = require("./middleware/authMiddlewareForSocket");
 const { GroupChat, Message } = require("./models/chatModel");
-const socketHandlers = require('./socket');
+const socketHandlers = require("./socket");
 const http = require("http");
 
 //HTTPS 연결 테스트용
@@ -63,6 +63,7 @@ app.use("/users", userRoutes);
 app.use("/signup", signupRoutes);
 app.use("/like", likeRoutes);
 app.use("/mypage", mypageRoutes);
+app.use("/chat", chatRoutes);
 
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
@@ -79,10 +80,8 @@ const io = socketio(server, {
 io.use(auth);
 socketHandlers(io);
 
-
-
 // 이제 'chatRoutes'를 require합니다.
 // const chatRoutes = require("./routes/chatRoutes");
 // app.use('/chat',chatRoutes);
-app.use("/chat", chatRoutes);
+
 module.exports = { io };

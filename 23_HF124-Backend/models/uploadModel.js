@@ -233,6 +233,14 @@ const cPost = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    x: {
+      type: DataTypes.DOUBLE,
+      allowNull: true,
+    },
+    y: {
+      type: DataTypes.DOUBLE,
+      allowNull: true,
+    },
   },
   {
     // 다른 옵션들 기입

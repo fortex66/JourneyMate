@@ -96,8 +96,8 @@ export default Nearby;
 const CommunityList = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
-  max-height: 500px; // 모달의 높이에 따라 조정
+  justify-content: center;
+  max-height: 350px;
   overflow-y: auto; // 스크롤 가능하게 설정
 `;
 const CommunityItem = styled.div`
@@ -134,8 +134,7 @@ const Picture = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
+
   img {
     width: 100px;
     height: 100px;

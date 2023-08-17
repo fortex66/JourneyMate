@@ -2,7 +2,7 @@ const tUpload = require("../models/uploadModel");
 const cUpload = require("../models/uploadModel");
 const path = require("path");
 const comment = require("../models/commentModel");
-const chat=require("../models/chatModel");
+const chat = require("../models/chatModel");
 const ccomment = require("../models/ccommentModel");
 const LikeModel = require("../models/likeModel");
 const axios = require("axios"); // HTTP 통신을 위한 라이브러리
@@ -300,6 +300,8 @@ async function companionUpdatePost(req, res) {
           age: jsonData.age,
           personnel: jsonData.personnel,
           content: jsonData.content,
+          x: jsonData.x,
+          y: jsonData.y,
         },
         {
           where: { cpostID: cpostID },
@@ -381,11 +383,11 @@ async function companionDeletepost(req, res) {
 // 사용자 검증 통과후 게시물 수정하는 메서드
 async function companionUploadpost(req, res) {
   if (!req.files) {
-    return res.status(400).send({message: "No files uploaded"});
+    return res.status(400).send({ message: "No files uploaded" });
   }
 
   try {
-    const user=req.decode;
+    const user = req.decode;
     const jsonData = JSON.parse(req.body.jsonData);
     const tags = jsonData.tags;
     let savedTags = [];
@@ -401,10 +403,12 @@ async function companionUploadpost(req, res) {
       content: jsonData.content,
       personnel: jsonData.personnel,
       title: jsonData.title,
+      x: jsonData.x,
+      y: jsonData.y,
     });
 
     // 생성된 게시물의 ID를 가져옵니다.
-    const cpostID = posting.getDataValue('cpostID');
+    const cpostID = posting.getDataValue("cpostID");
 
     // 이미지를 저장합니다.
     const imageSavePromises = req.files.map(async (file) => {
@@ -412,7 +416,7 @@ async function companionUploadpost(req, res) {
       await cUpload.cPostImage.create({
         imageURL: imageUrl,
         cpostID: cpostID,
-        chattime: new Date()
+        chattime: new Date(),
       });
     });
 
@@ -432,17 +436,17 @@ async function companionUploadpost(req, res) {
 
       savedTags.push(tag);
     }
-    const result=await chat.GroupChat.create({
+    const result = await chat.GroupChat.create({
       admin: req.decode.userID,
       cpostID: cpostID,
-      chattime: new Date()
+      chattime: new Date(),
     });
 
-    const chatID = result.getDataValue('chatID');
+    const chatID = result.getDataValue("chatID");
     await chat.user_chat.create({
       userID: req.decode.userID,
-      chatID: result.chatID
-    })
+      chatID: result.chatID,
+    });
 
     res.status(200).send({ message: "cPosts saved successfully" });
   } catch (err) {

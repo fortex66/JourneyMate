@@ -36,7 +36,7 @@ const getChatRoom = async (req, res) => {
       include: [
         {
           model: chat.GroupChat,
-          attributes: ["cpostID","userCount"],
+          attributes: ["cpostID", "userCount"],
           required: true,
           include: [
             {
@@ -57,19 +57,22 @@ const getChatRoom = async (req, res) => {
       order: [[chat.GroupChat, "chattime", "DESC"]],
     });
 
-    const participatedChatIds=getlist.map(item => item.chatID);
+    const participatedChatIds = getlist.map((item) => item.chatID);
 
-    console.log(participatedChatIds)
+    console.log(participatedChatIds);
     const userCounts = await chat.user_chat.findAll({
-      attributes: ['chatID', [Sequelize.fn('COUNT', Sequelize.col('userID')), 'userCount']],
+      attributes: [
+        "chatID",
+        [Sequelize.fn("COUNT", Sequelize.col("userID")), "userCount"],
+      ],
       where: {
         chatID: {
-          [Sequelize.Op.in]: participatedChatIds
-        }
+          [Sequelize.Op.in]: participatedChatIds,
+        },
       },
-      group: ['chatID']
+      group: ["chatID"],
     });
-    console.log(userCounts)
+    console.log(userCounts);
     console.log(getlist);
     res.status(200).json(getlist);
   } catch (err) {
@@ -83,40 +86,44 @@ const chatMessage = async (req, res) => {
   const chatMessage = await chat.Message.findAndCountAll({
     offset: per_page * (page - 1),
     limit: per_page,
-    order: [["sendtime","DESC"]],
-    where: { chatID: chatID }
+    order: [["sendtime", "DESC"]],
+    where: { chatID: chatID },
   });
-  
-  const result=!chatMessage;
+
+  const result = !chatMessage;
   console.log(result);
-  res.status(200).json({chatMessage,result:true,message:"성공"})
+  res.status(200).json({ chatMessage, result: true, message: "성공" });
 };
 
-const enterChatRoom=async (req,res)=>{
-  const chatID=req.params.chatID;
-  try{
-      const chatRoomData=await chat.GroupChat.findOne({
-      attributes:['admin','chattime'],
-      where:{chatID: chatID},
-      include:[{
-        model: chat.user_chat,
-        attributes:['userID'],
-        include:[{
-          model: users,
-          attributes:['profileImage']
-        }]
-      },{
-        model: post.cPost,
-        attributes: ['title','personnel','location']
-      }]
+const enterChatRoom = async (req, res) => {
+  const chatID = req.params.chatID;
+  try {
+    const chatRoomData = await chat.GroupChat.findOne({
+      attributes: ["admin", "chattime"],
+      where: { chatID: chatID },
+      include: [
+        {
+          model: chat.user_chat,
+          attributes: ["userID"],
+          include: [
+            {
+              model: users,
+              attributes: ["profileImage"],
+            },
+          ],
+        },
+        {
+          model: post.cPost,
+          attributes: ["title", "personnel", "location"],
+        },
+      ],
     });
-    res.status(200).json({chatRoomData})
-  }catch(err){
-    console.error(err)
-    res.status(404).json({result: false, message:"조회 실패"})
+    res.status(200).json({ chatRoomData });
+  } catch (err) {
+    console.error(err);
+    res.status(404).json({ result: false, message: "조회 실패" });
   }
-  
-}
+};
 //채팅방에 입장하기
 const clickChatRoom = async (req, res) => {
   const cpostID = req.params.cpostID;
@@ -130,21 +137,24 @@ const clickChatRoom = async (req, res) => {
     // console.log(chatRoom)
     const chatID = chatRoom.chatID;
 
-    const [enter,created] = await chat.user_chat.findOrCreate({
-        where: {userID: req.decode.userID, chatID: chatRoom.chatID},
-        defaults:{userID: req.decode.userID, chatID: chatRoom.chatID}
+    const [enter, created] = await chat.user_chat.findOrCreate({
+      where: { userID: req.decode.userID, chatID: chatRoom.chatID },
+      defaults: { userID: req.decode.userID, chatID: chatRoom.chatID },
     });
     console.log(enter.blackList);
-    if(!created){
-      if(enter.blackList===2){
-        return res.status(403).send('Access Denied');
-      }else{
-        return res.status(200).json({result: true, message:"이미 들어간 채팅방입니다."})
+    if (!created) {
+      if (enter.blackList === 0) {
+        return res.status(403).send("Access Denied");
+      } else {
+        return res
+          .status(200)
+          .json({ result: true, message: "이미 들어간 채팅방입니다." });
       }
-    }else{
-      return res.status(200).json({result: true, message:"채팅방에 입장하였습니다."})
+    } else {
+      return res
+        .status(200)
+        .json({ result: true, message: "채팅방에 입장하였습니다." });
     }
-    
   } catch (err) {
     console.error(err);
   }
@@ -154,29 +164,32 @@ const forcedExit = async (req, res) => {
   try {
     const roomAdmin = await chat.GroupChat.findOne({
       attributes: ["admin"],
-      where: { chatID: req.body.chatID },
+      where: { chatID: req.params.chatID },
     });
+
+    console.log(req.body.userID);
 
     if (roomAdmin.admin != req.decode.userID) {
       res
         .status(500)
         .json({ result: false, message: "권한이 없는 접근 입니다." });
     } else {
-      await chat.user_chat.update({
-        balckList: 2,
-        where: { userID: req.body.userID, chatID: req.body.chatID },
-      }),
-        then(
-          res.status(200).json({
-            result: true,
-            message: "퇴장이 성공적으로 이루어졌습니다.",
-          })
-        ).catch((error) => {
-          console.error(error);
-          res
-            .status(404)
-            .json({ result: false, message: "퇴장 조치에 문제가 생겼습니다." });
-        });
+      const quit = await chat.user_chat.update(
+        {
+          blackList: 0,
+        },
+        { where: { userID: req.body.userID, chatID: req.params.chatID } }
+      );
+
+      if (quit) {
+        res
+          .status(200)
+          .json({ result: true, message: "퇴장이 성공적으로 이루어졌습니다." });
+      } else {
+        res
+          .status(500)
+          .json({ result: false, message: "서버에 문제가 생겼습니다." });
+      }
     }
   } catch (err) {
     console.error(err);
@@ -184,33 +197,30 @@ const forcedExit = async (req, res) => {
 };
 //채팅방 퇴장 기능
 const getOut = async (req, res) => {
+  console.log(req.params.chatID);
   try {
-    await chat.user_chat
-      .destroy({
-        where: { userID: req.decode.userID, chatID: req.body.chatID },
-      })
-      .then(
-        res
-          .status(200)
-          .json({ result: true, message: "채팅방에서 퇴장하였습니다" })
-      )
-      .catch((err) => {
-        console.error(err);
-        res
-          .status(404)
-          .json({ result: false, message: "채팅방 퇴장에 실패하였습니다." });
-      });
+    const result = await chat.user_chat.destroy({
+      where: { userID: req.decode.userID, chatID: req.params.chatID },
+    });
+    res
+      .status(200)
+      .json({ result: true, message: "채팅방에서 퇴장하였습니다" });
+    // if (result) {
+
+    // } else {
+    //   console.error(err);
+    // }
   } catch (err) {
     res
       .status(500)
       .json({ result: false, message: "서버에 문제가 생겼습니다." });
   }
 };
-async function getChatRoomByUserId(userID){
-  const roomArray=await chat.user_chat.findAll({
-    where: {userID: userID, blackList: 1}
+async function getChatRoomByUserId(userID) {
+  const roomArray = await chat.user_chat.findAll({
+    where: { userID: userID, blackList: 1 },
   });
-  console.log(roomArray)
+  console.log(roomArray);
   return roomArray;
 }
 

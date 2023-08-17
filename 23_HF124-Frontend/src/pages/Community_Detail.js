@@ -15,7 +15,13 @@ const Community_Detail = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [showButtons, setShowButtons] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      // shiftKey를 체크하여 shift + enter는 줄바꿈으로 작동하게 함.
+      event.preventDefault(); // 기본적인 Enter 행동(줄바꿈)을 방지
+      addComment();
+    }
+  };
   const baseURL = "http://localhost:3000/";
   function openModal() {
     setIsModalOpen(true);
@@ -158,11 +164,8 @@ const Community_Detail = () => {
       </Top>
 
       <Title>{data && data.post.title}</Title>
-      <Info>
-        위치 : {data && data.post.location}
-        <br />
-        태그 : {data && data.post.tags.map((tag) => tag.content).join(", ")}
-      </Info>
+      <Info>위치 : {data && data.post.location}</Info>
+
       <div>
         {data &&
           data.post.post_images.map((posts, index) => (
@@ -175,11 +178,21 @@ const Community_Detail = () => {
             </Main>
           ))}
       </div>
+
+      <TagContainer>
+        <TagList>
+          {data &&
+            data.post.tags &&
+            data.post.tags.map((tag) => <TagItem>#{tag.content}</TagItem>)}
+        </TagList>
+      </TagContainer>
+
       <CommentSection>
-        <h3>댓글</h3>
+        <h3 style={{ marginLeft: "10px" }}>댓글</h3>
         <CommentInput>
           <textarea
             value={newComment}
+            onKeyPress={handleKeyPress}
             onChange={handleNewCommentChange}
             placeholder="댓글을 입력하세요"
           />
@@ -201,13 +214,12 @@ const Community_Detail = () => {
                   }).format(new Date(comment.commentDate))}
                 </CommentDate>
               </CommentContent>
-              <Button>
-                {currentUser && comment.userID === currentUser && (
-                  <button onClick={() => deleteComment(comment.tcommentId)}>
-                    삭제
-                  </button>
-                )}
-              </Button>
+
+              {currentUser && comment.userID === currentUser && (
+                <Button onClick={() => deleteComment(comment.tcommentId)}>
+                  삭제
+                </Button>
+              )}
             </Comment>
           ))}
         </CommentList>
@@ -216,7 +228,20 @@ const Community_Detail = () => {
     </Page>
   );
 };
+const TagContainer = styled.div`
+  margin-left: 15px;
+`;
 
+const TagList = styled.div`
+  display: flex;
+`;
+const TagItem = styled.div`
+  background-color: #dddddd;
+  border-radius: 10px;
+  font-size: 11px;
+  padding: 5px;
+  margin-left: 5px;
+`;
 const ModalButton = styled.div`
 box-sizing: border-box;
 appearance: none;
@@ -380,22 +405,24 @@ const Title = styled.div`
 `;
 
 const Info = styled.div`
-  margin-left: 20px;
-  margin-right: 20px;
+  border: 1px solid #f97800;
+  border-radius: 15px;
+  padding: 10px;
+  margin: 20px;
 `;
 
 const Main = styled.div`
-  background-color: rgb(240, 240, 240);
   margin: 0px 20px 20px 20px;
   text-align: center;
   img {
-    margin-top: 20px;
     margin-bottom: 20px;
   }
 `;
 
 const Content = styled.div`
   padding-bottom: 20px;
+  border: 1px solid #dadada;
+  border-radius: 10px;
 `;
 
 const CommentSection = styled.div`
@@ -411,18 +438,20 @@ const CommentInput = styled.div`
     width: 90%;
     height: 30px;
     resize: none;
+    border-radius: 10px;
+    margin-left: 5px;
   }
 `;
 
 const CommentList = styled.div`
-  margin-top: 20px;
+  margin-left: 10px;
 `;
 
 const Comment = styled.div`
-  padding: 10px;
-  background-color: #f0f0f0;
+  margin-top: 10px;
   margin-bottom: 10px;
-  border-radius: 5px;
+  border-bottom: 1px solid #dadada;
+  margin-right: 10px;
   display: flex;
   justify-content: space-between; // 삭제 버튼을 오른쪽 끝으로 밀어내기 위해 추가
 `;
@@ -432,8 +461,41 @@ const CommentContent = styled.div`
 `;
 
 const Button = styled.div`
-  display: flex;
-  align-items: center;
-`;
+margin-right:6px;
+box-sizing: border-box;
+appearance: none;
+background-color: transparent;
+border: 2px solid #dadada;
+border-radius: 0.6em;
+color: #dadada;
+cursor: pointer;
+align-self: center;
+font-size: 10px;
+font-family: "Nanum Gothic", sans-serif;
+line-height: 1;
+padding: 0.5em 0.5em;
+text-decoration: none;
+letter-spacing: 2px;
+font-weight: 700;
+margin-bottom: 10px;
+margin-left:50px;
 
+
+&:hover,
+&:focus {
+  color: #fff;
+  outline: 0;
+}
+transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+&:hover {
+  box-shadow: 0 0 40px 40px #f97800 inset;
+}
+
+&:focus:not(:hover) {
+  color: #f97800;
+  box-shadow: none;
+}
+}
+
+`;
 export default Community_Detail;
