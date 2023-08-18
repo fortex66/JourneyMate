@@ -83,11 +83,16 @@ const getChatRoom = async (req, res) => {
 const chatMessage = async (req, res) => {
   const chatID = req.params.chatID;
   const { page = 1, per_page = 30 } = req.query;
+
+  const enter = await chat.user_chat.findOne({
+    where: { userID: req.decode.userID, chatID: chatID },
+  });
+  console.log(enter);
   const chatMessage = await chat.Message.findAndCountAll({
     offset: per_page * (page - 1),
     limit: per_page,
     order: [["sendtime", "DESC"]],
-    where: { chatID: chatID },
+    where: { chatID: chatID, sendtime: { [Op.gt]: enter.enterTime } },
   });
 
   const result = !chatMessage;
@@ -99,7 +104,7 @@ const enterChatRoom = async (req, res) => {
   const chatID = req.params.chatID;
   try {
     const chatRoomData = await chat.GroupChat.findOne({
-      attributes: ["admin", "chattime"],
+      attributes: ["admin", "chattime", "chatID"],
       where: { chatID: chatID },
       include: [
         {
@@ -143,7 +148,7 @@ const clickChatRoom = async (req, res) => {
     });
     console.log(enter.blackList);
     if (!created) {
-      if (enter.blackList === 0) {
+      if (enter.blackList === 2) {
         return res.status(403).send("Access Denied");
       } else {
         return res
@@ -164,32 +169,29 @@ const forcedExit = async (req, res) => {
   try {
     const roomAdmin = await chat.GroupChat.findOne({
       attributes: ["admin"],
-      where: { chatID: req.params.chatID },
+      where: { chatID: req.body.chatID },
     });
-
-    console.log(req.body.userID);
 
     if (roomAdmin.admin != req.decode.userID) {
       res
         .status(500)
         .json({ result: false, message: "권한이 없는 접근 입니다." });
     } else {
-      const quit = await chat.user_chat.update(
-        {
-          blackList: 0,
-        },
-        { where: { userID: req.body.userID, chatID: req.params.chatID } }
-      );
-
-      if (quit) {
-        res
-          .status(200)
-          .json({ result: true, message: "퇴장이 성공적으로 이루어졌습니다." });
-      } else {
-        res
-          .status(500)
-          .json({ result: false, message: "서버에 문제가 생겼습니다." });
-      }
+      await chat.user_chat.update({
+        balckList: 2,
+        where: { userID: req.body.userID, chatID: req.body.chatID },
+      }),
+        then(
+          res.status(200).json({
+            result: true,
+            message: "퇴장이 성공적으로 이루어졌습니다.",
+          })
+        ).catch((error) => {
+          console.error(error);
+          res
+            .status(404)
+            .json({ result: false, message: "퇴장 조치에 문제가 생겼습니다." });
+        });
     }
   } catch (err) {
     console.error(err);
@@ -197,19 +199,22 @@ const forcedExit = async (req, res) => {
 };
 //채팅방 퇴장 기능
 const getOut = async (req, res) => {
-  console.log(req.params.chatID);
   try {
-    const result = await chat.user_chat.destroy({
-      where: { userID: req.decode.userID, chatID: req.params.chatID },
-    });
-    res
-      .status(200)
-      .json({ result: true, message: "채팅방에서 퇴장하였습니다" });
-    // if (result) {
-
-    // } else {
-    //   console.error(err);
-    // }
+    await chat.user_chat
+      .destroy({
+        where: { userID: req.decode.userID, chatID: req.body.chatID },
+      })
+      .then(
+        res
+          .status(200)
+          .json({ result: true, message: "채팅방에서 퇴장하였습니다" })
+      )
+      .catch((err) => {
+        console.error(err);
+        res
+          .status(404)
+          .json({ result: false, message: "채팅방 퇴장에 실패하였습니다." });
+      });
   } catch (err) {
     res
       .status(500)

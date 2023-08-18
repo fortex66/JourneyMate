@@ -15,7 +15,7 @@ module.exports = authMiddlewareForSocket = (socket, next) => {
   
       const decodedToken = jwt.verify(reqToken, process.env.jwtSecretkey);
       socket.decoded = { userID: decodedToken.userID };
-  
+      console.log(decodedToken.userID);
       next();
     } catch (err) {
       console.error(err);

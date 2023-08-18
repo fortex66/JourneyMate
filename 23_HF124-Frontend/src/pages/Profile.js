@@ -7,6 +7,7 @@ import { faUser, faLock, faPhone } from "@fortawesome/free-solid-svg-icons";
 import ProfileDetail from "./ProfileDetail";
 import { SocketContext } from "../App";
 import bcrypt from "bcryptjs";
+
 const baseURL = "http://localhost:3000/";
 
 const Profile = () => {
@@ -71,7 +72,7 @@ const Profile = () => {
     try {
       const userLogout = await axios.delete(baseURL + "mypage/logout");
       alert("로그아웃을 완료하였습니다!");
-
+      socket.close()
       navigate("/Login");
     } catch (err) {
       console.error(err);

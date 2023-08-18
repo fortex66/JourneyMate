@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState,useContext } from "react";
 import axios from 'axios'; // 추가
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import {SocketContext} from "../App";
 
 function Login() {
   const [userID, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
+  const socket = useContext(SocketContext)
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
   };
@@ -35,6 +36,7 @@ function Login() {
           // API 요청하는 콜마다 헤더에 accessToken 담아 보내도록 설정
           console.log(response.data.message);
           navigate("/Home"); // 로그인이 성공하면 Home 페이지로 이동
+          window.location.reload();
         } else {
           alert(response.data.message);
         }

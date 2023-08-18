@@ -72,6 +72,7 @@ const Home = () => {
 
   const markerHoverTimeout = useRef();
   const [currentLevel, setCurrentLevel] = useState(13);
+
   const handleMouseOverMarker = (marker) => {
     if (markerHoverTimeout.current) {
       clearTimeout(markerHoverTimeout.current);
@@ -97,7 +98,9 @@ const Home = () => {
       }
     };
   }, []);
+
   const baseURL = "http://localhost:3000/";
+
   useEffect(() => {
     const fetchMarkerData = async () => {
       try {

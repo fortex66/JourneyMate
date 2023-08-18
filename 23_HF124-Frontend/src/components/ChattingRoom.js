@@ -35,11 +35,11 @@ const ChattingRoom = () => {
     }
 
     const handleChatMessage = async (data) => {
-      console.log(typeof data.roomID);
+      console.log(data);
       if (data.roomID === Number(chatID)) {
         setMessages((prevMessages) => [
           ...prevMessages,
-          { text: data.message, self: false },
+          { text: data.message, self: false, userID: data.userID },
         ]);
       }
     };
@@ -100,12 +100,28 @@ const ChattingRoom = () => {
   const handleSendMessage = () => {
     if (inputValue.trim() !== "") {
       // 실시간 메시지 배열에 추가하지 않고 'messages' 배열에 추가
-      setMessages([...messages, { text: inputValue, self: true }]);
+      setMessages([
+        ...messages,
+        { text: inputValue, self: true, userID: currentUser },
+      ]);
       sendMessage(inputValue);
       setInputValue(""); // 입력값 초기화
       scrollToBottom(); // 스크롤 이동
     }
   };
+
+  /* 채팅 엔터키로 입력하는 부분 */
+  const onKeyDown = (e) => {
+    if (e.target.value.length !== 0 && e.key === "Enter") {
+      handleSendMessage();
+    }
+  };
+
+  /* 스크롤을 밑으로 */
+  const scrollToBottom = () => {
+    endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   //강제퇴장
   const dropOut = async () => {
     const response = await axios.delete(baseURL + `chat/chatroom/${chatID}`, {
@@ -121,17 +137,6 @@ const ChattingRoom = () => {
     );
     console.log(response.message);
     navigate("/Chatting");
-  };
-  /* 채팅 엔터키로 입력하는 부분 */
-  const onKeyDown = (e) => {
-    if (e.target.value.length !== 0 && e.key === "Enter") {
-      handleSendMessage();
-    }
-  };
-
-  /* 스크롤을 밑으로 */
-  const scrollToBottom = () => {
-    endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -216,7 +221,7 @@ const ChattingRoom = () => {
                 <ChatContainer key={index} self={isCurrentUser}>
                   {!isCurrentUser && profileImage && (
                     <img
-                      src={`${baseURL}${profileImage.replace(/\\/g, "/")}`}
+                      src={`${baseURL}${profileImage.replace(/\\/, "/")}`}
                       alt="Profile"
                     />
                   )}
@@ -232,6 +237,7 @@ const ChattingRoom = () => {
 
         {messages.map((message, index) => (
           <ChatContainer key={index} self={message.self}>
+            {!message.self && <UserID>{message.userID}</UserID>}
             <ChatMessage self={message.self}>{message.text}</ChatMessage>
           </ChatContainer>
         ))}
@@ -254,7 +260,6 @@ const ChattingRoom = () => {
     </RoomContainer>
   );
 };
-
 const Getout = styled.div`
   border-top: 1px solid #dadada;
   margin-top: 200px;
@@ -279,6 +284,7 @@ const ModalImage = styled.div`
     object-fit: cover;
   }
 `;
+
 const RoomContainer = styled.div``;
 
 const TopContainer = styled.div`

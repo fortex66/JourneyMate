@@ -61,6 +61,9 @@ user_chat.init(
     },
     blackList: {
       type: DataTypes.TINYINT
+    },
+    enterTime:{
+      type: DataTypes.DATE
     }
   },
   {
