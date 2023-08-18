@@ -15,7 +15,7 @@ function Chatting() {
   const [rooms, setRooms] = useState([]);
   const [add, setAdd] = useState(false);
   const [newRoom, setNewRoom] = useState("");
-  const [chattingdata,setChattingData] = useState("")
+  const [chattingdata, setChattingData] = useState("");
   const navigate = useNavigate();
 
   // SocketContext를 통해 App.js에서 생성된 소켓 가져오기
@@ -59,8 +59,8 @@ function Chatting() {
   // socket.emit("good");
 
   const goChattingRoom = (chatID) => {
-    navigate(`/ChattingRoom/${chatID}`)
-  }
+    navigate(`/ChattingRoom/${chatID}`);
+  };
 
   return (
     <Join>
@@ -68,13 +68,8 @@ function Chatting() {
       <Main>
         <HeaderContainer>
           <JoinInnerContainer>
-            <Heading>채팅</Heading>
-            <FontAwesomeIcon
-              icon={faCommentMedical}
-              size="2x"
-              color={"#f97800"}
-              onClick={() => setAdd(!add)}
-            />
+            <Heading>채팅방 목록</Heading>
+
             {/* {add && <Chatting_Modal newRoom={newRoom} setNewRoom={setNewRoom} closeModal={() => setAdd(false)} createRoom={createRoom}></Chatting_Modal>} */}
           </JoinInnerContainer>
         </HeaderContainer>
@@ -118,9 +113,7 @@ const HeaderContainer = styled.div`
   padding-bottom: 10px;
 `;
 
-const Join = styled.div`
-  
-`;
+const Join = styled.div``;
 
 const JoinInnerContainer = styled.div`
   display: flex;

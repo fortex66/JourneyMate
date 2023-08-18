@@ -1,6 +1,7 @@
 const Post = require("../models/uploadModel");
 const user = require("../models/signupModel");
 const path = require("path");
+const bcrypt = require("bcryptjs");
 const getCommunityList = async (req, res) => {
   try {
     const { page = 1, per_page = 10 } = req.query;
@@ -124,10 +125,12 @@ const getUserCompanionList = async (req, res) => {
   }
 };
 const updatePassword = async (req, res) => {
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
   try {
     await user.User.update(
       {
-        password: req.body.password,
+        password: hashedPassword,
       },
       { where: { userID: req.decode.userID } }
     );

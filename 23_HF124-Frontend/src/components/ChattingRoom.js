@@ -18,6 +18,7 @@ const ChattingRoom = () => {
   const socket = useContext(SocketContext);
   const chattingmessages = useContext(ChattingMessage); // 이 코드를 추가합니다.
 
+  const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
   const [roomdata, setRoomdata] = useState("");
@@ -26,8 +27,6 @@ const ChattingRoom = () => {
   const [inputValue, setInputValue] = useState(""); // 채팅 입력값 저장
   const [messages, setMessages] = useState([]); // 전송된 채팅 목록 저장
   const [currentUser, setCurrentUser] = useState(null);
-
-  const endOfMessagesRef = useRef(null);
 
   useEffect(() => {
     if (!socket) {
@@ -39,7 +38,12 @@ const ChattingRoom = () => {
       if (data.roomID === Number(chatID)) {
         setMessages((prevMessages) => [
           ...prevMessages,
-          { text: data.message, self: false, userID: data.userID },
+          {
+            text: data.message,
+            self: false,
+            userID: data.userID,
+            profileImage: data.profileImage.profileImage,
+          },
         ]);
       }
     };
@@ -67,11 +71,28 @@ const ChattingRoom = () => {
   // 채팅방 메시지
   useEffect(() => {
     const fetchMessage = async () => {
-      const message = await axios.get(baseURL + `chat/${chatID}`);
-      setMessageData(message);
+      return new Promise((resolve, reject) => {
+        axios
+          .get(baseURL + `chat/${chatID}`)
+          .then((response) => {
+            setMessageData(response);
+            resolve(true);
+          })
+          .catch((error) => {
+            console.error("Error fetching messages:", error);
+            reject(false);
+          });
+      });
     };
-    fetchMessage();
+
+    fetchMessage().then(() => {
+      scrollToBottom();
+    });
   }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]); // 'messages'는 채팅 메시지 배열이어야 합니다.
 
   //console.log(`채팅메시지 ${messageData.data.chatMessage.rows[0].content}`)
 
@@ -119,7 +140,11 @@ const ChattingRoom = () => {
 
   /* 스크롤을 밑으로 */
   const scrollToBottom = () => {
-    endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
   };
 
   //강제퇴장
@@ -173,7 +198,6 @@ const ChattingRoom = () => {
                     roomdata.data.chatRoomData.user_chats.map((list, index) => (
                       <People key={index}>
                         <ModalImage>
-                          {" "}
                           {list.User.profileImage === null ? (
                             <img
                               alt="chosen"
@@ -187,9 +211,14 @@ const ChattingRoom = () => {
                               )}`}
                               style={{ width: "100%", borderRadius: "100%" }}
                             />
-                          )}{" "}
+                          )}
                         </ModalImage>
                         <ModalPeople>{list.userID}</ModalPeople>
+                        {roomdata.data.chatRoomData.admin === currentUser && (
+                          <Dropout>
+                            <DropButton onClick={dropOut}>강퇴하기</DropButton>
+                          </Dropout>
+                        )}
                       </People>
                     ))}
                 </div>
@@ -237,11 +266,21 @@ const ChattingRoom = () => {
 
         {messages.map((message, index) => (
           <ChatContainer key={index} self={message.self}>
-            {!message.self && <UserID>{message.userID}</UserID>}
-            <ChatMessage self={message.self}>{message.text}</ChatMessage>
+            {!message.self && message.profileImage && (
+              <img
+                src={`${baseURL}${message.profileImage.replace(/\\/g, "/")}`}
+                alt="Profile"
+              />
+            )}
+            <MessageContainer>
+              {!message.self && <UserID>{message.userID}</UserID>}
+              <ChatMessage self={message.self}>{message.text}</ChatMessage>
+            </MessageContainer>
           </ChatContainer>
         ))}
+        <div ref={messagesEndRef} />
       </MidContainer>
+
       {/* 채팅입력 부분 */}
       <BottomContainer>
         <InputContainer>
@@ -337,7 +376,6 @@ const Title = styled.h2`
 const Person = styled.div`
   margin-left: 5px;
   color: #8f9098;
-  margin-top: 20px;
 `;
 
 const ModalBackground = styled.div`
@@ -384,6 +422,11 @@ const ModalPeople = styled.div`
 const MidContainer = styled.div`
   margin-top: 75px;
   margin-bottom: 85px;
+  overflow-y: scroll;
+  height: calc(
+    100vh - 70px - 80px
+  ); /* 전체 높이에서 헤더와 바텀의 높이를 제외한 값 */
+  overflow-x: hidden;
 `;
 
 const ChatMessage = styled.div`
@@ -392,8 +435,8 @@ const ChatMessage = styled.div`
   border: 1px solid ${(props) => (props.self ? "#FFEB3B" : "#E0E0E0")};
   border-radius: 12px;
   padding: 10px;
-  margin: 10px 15px 10px 10px;
-  max-width: 85%;
+  margin: 5px 5px 5px 0px;
+  max-width: 95%;
   word-break: break-word;
 `;
 
@@ -402,6 +445,7 @@ const ChatContainer = styled.div`
   flex-direction: row;
   width: 100%;
   padding: 5px;
+  margin-bottom: 5px;
   justify-content: ${(props) => (props.self ? "flex-end" : "flex-start")};
 
   img {
@@ -429,8 +473,8 @@ const ChatContent = styled.div`
   border: 1px solid ${(props) => (props.self ? "#FFEB3B" : "#E0E0E0")};
   border-radius: 12px;
   padding: 10px;
-  margin: 5px;
-  max-width: 85%;
+  margin: 5px 5px 5px 0px;
+  max-width: 95%;
   word-break: break-word;
 `;
 
@@ -510,6 +554,50 @@ transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
 }
 }
 
+`;
+
+const DropButton = styled.div`
+box-sizing: border-box;
+appearance: none;
+background-color: transparent;
+border: 2px solid #f97800;
+border-radius: 0.6em;
+color: #f97800;
+cursor: pointer;
+align-self: center;
+font-size: 13px;
+font-family: "Nanum Gothic", sans-serif;
+line-height: 1;
+padding: 0.5em 0.5em;
+text-decoration: none;
+letter-spacing: 2px;
+font-weight: 700;
+margin-bottom: 10px;
+margin-left:115px;
+text-align:center;
+
+&:hover,
+&:focus {
+  color: #fff;
+  outline: 0;
+}
+transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+&:hover {
+  box-shadow: 0 0 40px 40px #f97800 inset;
+}
+
+&:focus:not(:hover) {
+  color: #f97800;
+  box-shadow: none;
+}
+}
+
+`;
+
+const Dropout = styled.div`
+  right: 0;
+  position: absolute; /*  */
+  margin-right: 10px;
 `;
 
 export default ChattingRoom;

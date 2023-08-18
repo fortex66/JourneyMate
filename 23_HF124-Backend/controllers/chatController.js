@@ -169,29 +169,32 @@ const forcedExit = async (req, res) => {
   try {
     const roomAdmin = await chat.GroupChat.findOne({
       attributes: ["admin"],
-      where: { chatID: req.body.chatID },
+      where: { chatID: req.params.chatID },
     });
+
+    console.log(req.body.userID);
 
     if (roomAdmin.admin != req.decode.userID) {
       res
         .status(500)
         .json({ result: false, message: "권한이 없는 접근 입니다." });
     } else {
-      await chat.user_chat.update({
-        balckList: 2,
-        where: { userID: req.body.userID, chatID: req.body.chatID },
-      }),
-        then(
-          res.status(200).json({
-            result: true,
-            message: "퇴장이 성공적으로 이루어졌습니다.",
-          })
-        ).catch((error) => {
-          console.error(error);
-          res
-            .status(404)
-            .json({ result: false, message: "퇴장 조치에 문제가 생겼습니다." });
-        });
+      const quit = await chat.user_chat.update(
+        {
+          blackList: 0,
+        },
+        { where: { userID: req.body.userID, chatID: req.params.chatID } }
+      );
+
+      if (quit) {
+        res
+          .status(200)
+          .json({ result: true, message: "퇴장이 성공적으로 이루어졌습니다." });
+      } else {
+        res
+          .status(500)
+          .json({ result: false, message: "서버에 문제가 생겼습니다." });
+      }
     }
   } catch (err) {
     console.error(err);
@@ -199,22 +202,19 @@ const forcedExit = async (req, res) => {
 };
 //채팅방 퇴장 기능
 const getOut = async (req, res) => {
+  console.log(req.params.chatID);
   try {
-    await chat.user_chat
-      .destroy({
-        where: { userID: req.decode.userID, chatID: req.body.chatID },
-      })
-      .then(
-        res
-          .status(200)
-          .json({ result: true, message: "채팅방에서 퇴장하였습니다" })
-      )
-      .catch((err) => {
-        console.error(err);
-        res
-          .status(404)
-          .json({ result: false, message: "채팅방 퇴장에 실패하였습니다." });
-      });
+    const result = await chat.user_chat.destroy({
+      where: { userID: req.decode.userID, chatID: req.params.chatID },
+    });
+    res
+      .status(200)
+      .json({ result: true, message: "채팅방에서 퇴장하였습니다" });
+    // if (result) {
+
+    // } else {
+    //   console.error(err);
+    // }
   } catch (err) {
     res
       .status(500)

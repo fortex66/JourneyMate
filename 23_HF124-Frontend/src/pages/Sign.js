@@ -40,9 +40,9 @@ const Sign = () => {
   const handleSubmit = async () => {
     if (!emailVerified) {
       alert("Please verify your email first.");
-      return; 
+      return;
     }
-    if(password !== checkpassword){
+    if (password !== checkpassword) {
       alert("비밀번호 재확인에 실패하였습니다.");
       return;
     }
