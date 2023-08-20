@@ -36,7 +36,7 @@ const Community_Detail = () => {
       closeModal();
     }
   };
-
+  // console.log(typeof(data.post.postDate))
   useEffect(() => {
     const jwtToken = localStorage.getItem("jwtToken");
 
@@ -86,6 +86,9 @@ const Community_Detail = () => {
         console.log(error);
       });
   };
+
+
+
 
   const EditCommunity = () => {
     const postID = window.location.pathname.split("/").pop();
@@ -164,6 +167,14 @@ const Community_Detail = () => {
       </Top>
 
       <Title>{data && data.post.title}</Title>
+      <PostDate>업로드 : {new Intl.DateTimeFormat("ko-KR", {
+                    year: "numeric",
+                    month: "long",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  }).format(new Date(data && data.post.postDate))}</PostDate>
       <Info>위치 : {data && data.post.location}</Info>
 
       <div>
@@ -403,7 +414,12 @@ const Title = styled.div`
   font-size: 20px;
   margin-top: 20px;
 `;
-
+const PostDate = styled.div`
+  text-align: left;
+  font-size: 13px;
+  margin-left: 25px;
+  margin-bottom: -10px;
+`;
 const Info = styled.div`
   border: 1px solid #f97800;
   border-radius: 15px;
@@ -423,6 +439,7 @@ const Content = styled.div`
   padding-bottom: 20px;
   border: 1px solid #dadada;
   border-radius: 10px;
+  white-space: pre-line;
 `;
 
 const CommentSection = styled.div`
