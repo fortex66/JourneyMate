@@ -189,7 +189,7 @@ const getSearchlist = async (req, res) => {
 //24시간 동안 가장 많이 검색된 키워드 위치 Top10 출력
 const getTopSearches = async (req, res) => {
   try {
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
+    const oneDayAgo = new Date(Date.now() - 240 * 60 * 60 * 1000); // 24 hours ago
     const topSearches = await SearchHistories.SearchHistories.findAll({
       where: {
         searchDate: {

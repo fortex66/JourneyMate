@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -19,6 +19,9 @@ const ChattingRoom = () => {
   const chattingmessages = useContext(ChattingMessage); // 이 코드를 추가합니다.
 
   const messagesEndRef = useRef(null);
+  const observer = useRef();
+
+
   const navigate = useNavigate();
 
   const [roomdata, setRoomdata] = useState("");
@@ -27,7 +30,55 @@ const ChattingRoom = () => {
   const [inputValue, setInputValue] = useState(""); // 채팅 입력값 저장
   const [messages, setMessages] = useState([]); // 전송된 채팅 목록 저장
   const [currentUser, setCurrentUser] = useState(null);
+  const [page, setPage]=useState(1);
 
+  
+  console.log(messageData)
+  const lastPostElementRef = useCallback((node) => {
+    if (observer.current) observer.current.disconnect();
+    
+    
+      observer.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        setPage((prevPage) => prevPage + 1);
+      }
+    });
+    if (node) observer.current.observe(node);
+    
+    
+  }, []);
+
+  
+  useEffect(() => {
+    
+    const fetchMoreData = async () => {
+     
+      try {
+        const response = await axios.get(
+          `${baseURL}chat/${chatID}/?page=${page}`
+        );
+        setMessageData((prevMessageData) => ({
+          
+            ...prevMessageData,
+          data: {
+            ...prevMessageData.data,
+          chatMessage: {
+            ...prevMessageData.chatMessage,
+            rows: [...prevMessageData.data.chatMessage.rows, ...response.data.chatMessage.rows],
+          },
+          }
+
+    }));
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    if (page > 1) {
+      // 페이지가 1보다 크거나, 검색이 실행되지 않은 경우에 추가 결과를 불러옵니다.
+      fetchMoreData();
+    }
+  }, [page]); // 의존성 배열에 page를 추가합니다.
   useEffect(() => {
     if (!socket) {
       return;
@@ -163,7 +214,7 @@ const ChattingRoom = () => {
     console.log(response.message);
     navigate("/Chatting");
   };
-
+  
   return (
     <RoomContainer>
       <TopContainer>
@@ -245,23 +296,35 @@ const ChattingRoom = () => {
                 );
               const profileImage = matchedUser?.User?.profileImage;
               const isCurrentUser = currentUser === prevchat.userID; // 현재 사용자와 이전의 채팅 userID가 일치하는지 확인
-
+             
               return (
-                <ChatContainer key={index} self={isCurrentUser}>
+                <ChatContainer 
+                  ref={index === 0 ? lastPostElementRef : null} 
+                  key={index} 
+                  self={isCurrentUser}
+                >
                   {!isCurrentUser && profileImage && (
                     <img
                       src={`${baseURL}${profileImage.replace(/\\/, "/")}`}
                       alt="Profile"
                     />
                   )}
+                  
                   <MessageContainer>
                     {!isCurrentUser && <UserID>{prevchat.userID}</UserID>}
-                    <ChatContent self={isCurrentUser}>
-                      {prevchat.content}
-                    </ChatContent>
+                        <ChatContent self={isCurrentUser}>
+                        {prevchat.content}
+                      </ChatContent>
+                      <MessageTime isCurrentUser={isCurrentUser}>
+                        {new Intl.DateTimeFormat("ko-KR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }).format(new Date(prevchat.sendtime))}
+                      </MessageTime>
                   </MessageContainer>
                 </ChatContainer>
               );
+              
             })}
 
         {messages.map((message, index) => (
@@ -275,7 +338,14 @@ const ChattingRoom = () => {
             <MessageContainer>
               {!message.self && <UserID>{message.userID}</UserID>}
               <ChatMessage self={message.self}>{message.text}</ChatMessage>
+              <MessageTime>
+              {new Intl.DateTimeFormat("ko-KR", {
+                hour: "2-digit",
+                minute: "2-digit",
+              }).format(new Date())}
+            </MessageTime>
             </MessageContainer>
+            
           </ChatContainer>
         ))}
         <div ref={messagesEndRef} />
@@ -299,6 +369,15 @@ const ChattingRoom = () => {
     </RoomContainer>
   );
 };
+
+const HiddenDiv = styled.div`
+  position: absolute;
+  visibility: hidden;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: -1;
+`;
 const Getout = styled.div`
   border-top: 1px solid #dadada;
   margin-top: 200px;
@@ -427,6 +506,7 @@ const MidContainer = styled.div`
     100vh - 70px - 80px
   ); /* 전체 높이에서 헤더와 바텀의 높이를 제외한 값 */
   overflow-x: hidden;
+
 `;
 
 const ChatMessage = styled.div`
@@ -461,7 +541,13 @@ const MessageContainer = styled.div`
   flex-direction: column;
   margin-right: 10px;
 `;
-
+const MessageTime = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-right: 10px;
+  margin-top: auto;
+  font-size: x-small;
+`;
 const UserID = styled.span`
   font-size: 12px; // 이 값을 원하는대로 조절하여 ID의 글자 크기를 조정할 수 있습니다.
   color: #888; // ID의 글자색을 조절하고 싶다면 이 값을 변경하세요.
