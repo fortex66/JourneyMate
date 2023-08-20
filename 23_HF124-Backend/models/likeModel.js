@@ -1,3 +1,4 @@
+//likeModel.js
 require('dotenv').config();
 
 const { Sequelize, DataTypes, Model } = require('sequelize');
@@ -14,12 +15,12 @@ class LikeModel extends Model {}
 
 LikeModel.init({
   // 'userId' 필드를 정의합니다. 이 필드의 데이터 타입은 문자열이며, NULL 값을 허용하지 않습니다.
-  userId: {
+  userID: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   // 'postId' 필드를 정의합니다. 이 필드의 데이터 타입은 문자열이며, NULL 값을 허용하지 않습니다.
-  tpostId: {
+  tpostID: {
     type: DataTypes.INTEGER,
     allowNull: false,
     primaryKey: true, // 필수로 기본키를 설정해야만 코드가 정상적으로 동작해서 지정했습니다
@@ -27,8 +28,8 @@ LikeModel.init({
 }, {
   timestamps: false, // 기본 옵션으로 선택되는 설정을 취소하기 위해
   sequelize, 
-  modelName: 'postlikes'
-  
+  modelName: 'postlikes',
 });
+
 
 module.exports = LikeModel;

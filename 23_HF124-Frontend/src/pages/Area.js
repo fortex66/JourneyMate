@@ -15,19 +15,15 @@ function AddressForm() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const headers = {
-      Authorization: `KakaoAK ${process.env.REACT_APP_KAKAO_API_KEY}`,
-    };
-
+  
     try {
       const response = await axios.get(
-        `http://localhost:3000/signup/search-address?query=${addressInput}`,
-        { headers }
+        `http://localhost:3000/signup/search-address?query=${addressInput}`
       );
   
       if (response.status === 200) {
         setAddressList(response.data);
-        console.log(response.data);
+
       } else {
         console.error("주소 검색 실패", response.status);
       }

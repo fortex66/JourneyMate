@@ -10,6 +10,7 @@ import {
   faBars,
   faComments,
 } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 
 const Navigationbar = () => {
   const navigate = useNavigate();
@@ -23,14 +24,11 @@ const Navigationbar = () => {
   const handleTabClick = (tabName) => {
     navigate(`/${tabName}`);
   };
-
   return (
     <Navigation>
       <Bottomview>
         <BottomBox>
-          <NavBox
-            onClick={() => handleTabClick("Community")} // onClick 함수 수정
-          >
+          <NavBox onClick={() => handleTabClick("Community")}>
             <FontAwesomeIcon
               icon={faGlobe}
               size="2x"
@@ -39,9 +37,7 @@ const Navigationbar = () => {
             <Text active={activeTab === "Community"}>커뮤니티</Text>
           </NavBox>
 
-          <NavBox
-            onClick={() => handleTabClick("Companion")} // onClick 함수 수정
-          >
+          <NavBox onClick={() => handleTabClick("Companion")}>
             <FontAwesomeIcon
               icon={faUserGroup}
               size="2x"
@@ -50,9 +46,7 @@ const Navigationbar = () => {
             <Text active={activeTab === "Companion"}>동행인 구하기</Text>
           </NavBox>
 
-          <NavBox
-            onClick={() => handleTabClick("Home")} // onClick 함수 수정
-          >
+          <NavBox onClick={() => handleTabClick("Home")}>
             <FontAwesomeIcon
               icon={faHouse}
               size="2x"
@@ -61,20 +55,16 @@ const Navigationbar = () => {
             <Text active={activeTab === "Home"}>홈</Text>
           </NavBox>
 
-          <NavBox
-            onClick={() => handleTabClick("Chat")} // onClick 함수 수정
-          >
+          <NavBox onClick={() => handleTabClick("Chatting")}>
             <FontAwesomeIcon
               icon={faComments}
               size="2x"
-              color={activeTab === "Chat" ? "#F97800" : "black"}
+              color={activeTab === "Chatting" ? "#F97800" : "black"}
             />
-            <Text active={activeTab === "Chat"}>채팅방</Text>
+            <Text active={activeTab === "Chatting"}>채팅방</Text>
           </NavBox>
 
-          <NavBox
-            onClick={() => handleTabClick("Mypage")} // onClick 함수 수정
-          >
+          <NavBox onClick={() => handleTabClick("Mypage")}>
             <FontAwesomeIcon
               icon={faBars}
               size="2x"
@@ -117,6 +107,7 @@ const NavBox = styled.div`
   width: 50%;
   height: 100%;
   border-top: 1px solid #dddddd;
+  border-right: 1px solid #dddddd;
   flex-direction: column;
   display: flex;
   align-items: center;
@@ -139,6 +130,8 @@ const Text = styled.span.withConfig({
   shouldForwardProp: (prop) => prop !== "active",
 })`
   color: ${(props) => (props.active ? "#F97800" : "black")};
+  margin-top: 5px;
+  font-size: 12px;
 `;
 
 export default Navigationbar;

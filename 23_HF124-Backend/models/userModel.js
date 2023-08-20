@@ -28,7 +28,10 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull:true,
   },
-
+  profileImage: {
+    type: DataTypes.STRING,
+    allownull: true
+  }
   
 }, {
   // Other model options go here

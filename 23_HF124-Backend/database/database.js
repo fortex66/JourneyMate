@@ -1,5 +1,5 @@
 const mysql = require('mysql');  // mysql 모듈 로드
-const dotenv = require('dotenv');
+const dotenv = require('dotenv'); //환경변수 처리
 dotenv.config();
 
 const connectDB = function() {

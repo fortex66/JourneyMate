@@ -9,8 +9,11 @@
 
 .TMenuBar span,
 .TMenuBar p {
+  display: flex;
   font-size: 20px;
   font-weight: bold;
+  align-items: center;
+  justify-content: center;
 }
 
 .BMenuBox + .BMenuBox {

@@ -1,5 +1,5 @@
 // signupController.js
-require('dotenv').config(); //환경변수 처리함수입니다.
+require('dotenv').config(); //환경변수 처리함수입니다
 const nodemailer = require('nodemailer'); // 이메일 인증용 라이브러리
 const dotenv = require('dotenv');
 const axios = require('axios'); // HTTP 통신을 위한 라이브러리
@@ -8,7 +8,6 @@ const bcrypt = require('bcrypt'); // 비밀번호 해쉬로 변경을 위한 라
 dotenv.config();
 
 const { User, UserTagging } = require('../models/signupModel');
-
 
 
 exports.processPart1 = async (req, res) => {
@@ -60,10 +59,9 @@ exports.processPart1 = async (req, res) => {
   exports.processPart2 = async (req, res) => {
     try {
       console.log('세션정보 = '+ req.session.user);
-  
       // 입력 받은 주소 가져오기
       const { address } = req.body;
-  
+
       // 세션에서 사용자 ID 가져오기
       const userId = req.session.user.userID;
       console.log('세션 userID 정보 = '+ userId);
@@ -89,20 +87,20 @@ exports.processPart1 = async (req, res) => {
       res.status(400).send('회원가입2 과정에서 문제가 발생했습니다.');
     }
   };
+
   exports.searchAddress = async (req, res) => {
     try {
       const query = req.query.query;
-  
       const headers = {
         Authorization: `KakaoAK ${process.env.KAKAO_API_KEY}`,
       };
   
       const response = await axios.get(
-        `https://dapi.kakao.com/v2/local/search/keyword.json`,
+        `https://dapi.kakao.com/v2/local/search/address.json`,
         { params: { query }, headers }
       );
   
-      res.json(response.data.documents.map((document) => document.place_name));
+      res.json(response.data.documents.map((document) => document.address_name));
     } catch (error) {
       console.error(error);
       res.status(500).send('주소 검색에서 문제가 발생했습니다.');
@@ -147,8 +145,6 @@ exports.processPart1 = async (req, res) => {
     }
 };
 
-
-  
 
 exports.sendEmail = async (req, res) => {
   // nodemailer 설정
