@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const baseURL = "http://localhost:3000/";
 
 const PasswordChange = () => {
   const navigate = useNavigate();
+  const detaildata = useLocation();
 
   const chagnepwRef = useRef();
   const checkpwRef = useRef();
@@ -16,20 +17,39 @@ const PasswordChange = () => {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
+    console.log(detaildata);
 
-    try {
-      const response = await axios.put(baseURL + "mypage/passwordChange", {
-        password: checkpwRef.current.value,
-      });
+    if (detaildata.state === null) {
+      try {
+        console.log("마이페이지");
+        const response = await axios.put(baseURL + "mypage/passwordChange", {
+          password: checkpwRef.current.value,
+        });
 
-      if (response.status === 200) {
-        navigate(-1, { replace: true });
-      } else {
-        console.error("변경 실패");
+        if (response.status === 200) {
+          navigate(-1, { replace: true });
+        } else {
+          console.error("변경 실패");
+        }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
+    }else{
+      if (detaildata) {
+        const response = await axios.put(baseURL + "users/updatepassword", {
+          password: checkpwRef.current.value,
+          userID: detaildata.state.userID,
+        });
+        console.log("보내기");
+        if (response.status === 200) {
+          alert("성공");
+          navigate("/Login", { replace: true });
+        } else {
+          console.error("변경 실패");
+        }
+      }
     }
+    
   };
   return (
     <Container>

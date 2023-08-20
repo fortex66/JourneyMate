@@ -28,6 +28,8 @@ import Community_Search from "./pages/Community_Search";
 import Companion_Search from "./pages/Companion_Search";
 import ChattingRoom from "./components/ChattingRoom";
 import HomeC from "./pages/HomeC";
+import DiscoverId from "./pages/DiscoverId";
+import DiscoverPw from "./pages/DiscoverPw";
 // import {socket,SOCKET_EVENT,SocketContext} from "./components/Chatting/Chat";
 import io from "socket.io-client";
 
@@ -86,6 +88,8 @@ function App() {
             <Route path="/Companion_Search" element={<Companion_Search />} />
             <Route path="/UserDetail/:userId" element={<UserDetail />} />
             <Route path="/HomeC" element={<HomeC />} />
+            <Route path="/DiscoverId" element={<DiscoverId />} />
+            <Route path="/DiscoverPw" element={<DiscoverPw />} />
           </Routes>
         </div>
       </SocketContext.Provider>
