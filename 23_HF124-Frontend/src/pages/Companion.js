@@ -5,7 +5,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSquarePlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faSquarePlus,
+  faWindowRestore,
+} from "@fortawesome/free-solid-svg-icons";
 import { faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import Cmodal from "../components/Cmodal";
 
@@ -186,6 +189,15 @@ const Companion = () => {
         <IconContainer onClick={() => setWrite(!write)}>
           {write && <Cmodal closeModal={() => setWrite(!write)}></Cmodal>}
           <FontAwesomeIcon icon={faSquarePlus} size="3x" color={"#f97800"} />
+        </IconContainer>
+        <IconContainer>
+          {" "}
+          <FontAwesomeIcon
+            onClick={() => navigate("/Community")}
+            icon={faWindowRestore}
+            size="2x"
+            color={"#f97800"}
+          />
         </IconContainer>
       </Header>
       <Content>

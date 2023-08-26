@@ -9,7 +9,7 @@ import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
 import {
   faSquarePlus,
   faChevronUp,
-  faUsersViewfinder,
+  faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 
 import Cmodal from "../components/Cmodal";
@@ -172,7 +172,8 @@ const Community = () => {
         <IconContainer>
           {" "}
           <FontAwesomeIcon
-            icon={faUsersViewfinder}
+            onClick={() => navigate("/Companion")}
+            icon={faUsers}
             size="2x"
             color={"#f97800"}
           />

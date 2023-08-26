@@ -1,0 +1,255 @@
+import styled from "styled-components";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+const Festival_detail = () => {
+  const [data, setData] = useState();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const festivalData = location.state.festivalData;
+  console.log(festivalData);
+  const [detailInfo, setDetailInfo] = useState("");
+  const [showDetails, setShowDetails] = useState(false);
+
+  const formatDate = (date) => {
+    if (!date || date.length !== 8) return ""; // 데이터의 길이가 8이 아닐 경우 빈 문자열 반환
+
+    const year = date.substring(0, 4);
+    const month = date.substring(4, 6);
+    const day = date.substring(6, 8);
+
+    return `${year}년 ${month}월 ${day}일`;
+  };
+
+  const getContent = async () => {
+    try {
+      const response = await fetch(
+        `https://apis.data.go.kr/B551011/KorService1/detailInfo1?MobileOS=ETC&MobileApp=Journeymate&_type=json&contentId=${festivalData.contentid}&contentTypeId=15&serviceKey=gjCAjUo72Uf%2BjMwy1BdQo85%2B1vNiWiTVe4X987jUj42meneObLKNI%2F4pAYfK%2BysqF%2FObJvxdZp7Fe4uA6%2FPxKQ%3D%3D`
+      );
+      const json = await response.json();
+      console.log(json.response.body.items.item);
+      setData(json.response.body.items.item);
+      const detailItem = json.response.body.items.item.find(
+        (item) => item.infoname === "행사내용"
+      );
+      if (detailItem) {
+        setDetailInfo(detailItem.infotext);
+      }
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    getContent();
+  }, []);
+
+  const getIntroText = () => {
+    const introItem = data?.find((item) => item.infoname === "행사소개");
+    return introItem?.infotext || "";
+  };
+  return (
+    <div>
+      <Top>
+        <StyledButton onClick={() => navigate(-1)}>{"<"}</StyledButton>
+        <Text>{festivalData.title}</Text>
+      </Top>
+
+      <ImgWrapper>
+        <Img src={festivalData.firstimage} />
+      </ImgWrapper>
+
+      <Content>
+        <ContentTitle>
+          <BackgroundBar showDetails={showDetails} />
+          <Button onClick={() => setShowDetails(false)} selected={!showDetails}>
+            기본정보
+          </Button>
+          <Button onClick={() => setShowDetails(true)} selected={showDetails}>
+            행사내용
+          </Button>
+        </ContentTitle>
+
+        {showDetails ? (
+          <DetailBox dangerouslySetInnerHTML={{ __html: detailInfo }} />
+        ) : (
+          <BasicBox>
+            <Location>위치: {festivalData.addr1}</Location>
+            <Location>상세위치: {festivalData.addr2}</Location>
+            <Day>
+              행사일: {formatDate(festivalData.eventstartdate)} ~{" "}
+              {formatDate(festivalData.eventenddate)}
+            </Day>
+            <Tel>전화번호: {festivalData.tel}</Tel>
+          </BasicBox>
+        )}
+      </Content>
+
+      <Introduce>
+        행사소개
+        <I_Content
+          dangerouslySetInnerHTML={{ __html: getIntroText() }}
+        ></I_Content>
+      </Introduce>
+    </div>
+  );
+};
+
+// 테두리를 위한 스타일을 추가
+const BasicBox = styled.div`
+  border: 1px solid #dadada;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px 0;
+  width: 500px;
+  margin-left: 60px;
+`;
+
+const DetailBox = styled.div`
+  border: 1px solid #dadada;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px 0;
+  width: 500px;
+  margin-left: 60px;
+`;
+
+const Introduce = styled.div`
+  background-color: transparent;
+  border: 2px solid #f97800;
+  border-radius: 0.6em;
+`;
+const I_Content = styled.div``;
+const Button = styled.button`
+  appearance: none;
+  background-color: transparent; // 배경색을 투명으로 변경
+  border: none; // 테두리를 제거
+  border-radius: 2em;
+  color: ${(props) =>
+    props.selected
+      ? "#fff"
+      : "#000"}; // 선택될 경우 글자 색상을 하얀색으로 변경
+  cursor: pointer;
+  align-self: center;
+  font-size: 16px;
+  font-family: "Nanum Gothic", sans-serif;
+  line-height: 1;
+  padding: 0.8em 2em;
+  text-decoration: none;
+  letter-spacing: 2px;
+  font-weight: 700;
+
+  transform: ${(props) =>
+    props.selected ? "translateX(10px)" : "translateX(0)"};
+`;
+
+const ContentTitle = styled.div`
+  display: flex;
+  justify-content: center; // 버튼을 중앙으로 배치
+  padding: 5px;
+  border-radius: 30px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.25);
+  position: relative;
+  gap: 100px; // 버튼 간의 간격 설정
+  width: 500px;
+  height: 50px;
+  margin-left: 65px;
+  position: relative;
+  overflow: hidden; // 이 부분이 추가됨
+`;
+
+const BackgroundBar = styled.div`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0; // 초기 위치
+  width: 50%; // ContentTitle의 50% 너비에 해당하는 값
+  background-color: #f97800;
+  transition: transform 300ms ease-in-out;
+  transform: translateX(
+    ${(props) => (props.showDetails ? "100%" : "0")}
+  ); // showDetails 값에 따라 움직임
+`;
+const Detail = styled.div``;
+const Basic = styled.div``;
+const Tel = styled.div``;
+const Content = styled.div``;
+const Location = styled.div``;
+const Day = styled.div``;
+const ImgWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; // 필요에 따라 조절하실 수 있습니다.
+`;
+
+const Img = styled.img`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  width: 500px;
+  cursor: pointer;
+  padding-top: 5px;
+  border-radius: 30px; // 둥근 모서리를 위한 코드 추가
+`;
+const Top = styled.div`
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center; /* Text를 중앙으로 정렬하기 위해 추가 */
+  align-items: center; /* 세로로 중앙으로 정렬하기 위해 추가 */
+  border-bottom: 1px solid #dadada;
+  position: relative; /* StyledButton을 절대 위치로 설정하기 위해 추가 */
+  padding-bottom: 20px; /* 여기에 원하는 크기의 padding 값을 설정하세요 */
+  button {
+    position: absolute; /* 버튼을 절대 위치로 설정 */
+    left: 1px; /* Top 컨테이너의 왼쪽 모서리에서 시작 */
+  }
+`;
+
+const Text = styled.div`
+  display: flex;
+  font-size: 24px; /* 원하는 글자 크기로 설정하세요 */
+  font-weight: bold; /* 글자를 굵게 만듭니다 */
+`;
+
+const StyledButton = styled.button`
+box-sizing: border-box;
+appearance: none;
+background-color: transparent;
+border: 2px solid #f97800;
+border-radius: 0.6em;
+color: #f97800;
+cursor: pointer;
+align-self: center;
+font-size: 16px;
+font-family: "Nanum Gothic", sans-serif;
+line-height: 1;
+padding: 0.6em 1.5em;
+text-decoration: none;
+letter-spacing: 2px;
+font-weight: 700;
+margin-bottom: 10px;
+margin-top:10px;
+
+&:hover,
+&:focus {
+  color: #fff;
+  outline: 0;
+}
+transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+&:hover {
+  box-shadow: 0 0 40px 40px #f97800 inset;
+}
+
+&:focus:not(:hover) {
+  color: #f97800;
+  box-shadow: none;
+}
+}
+button.back_btn {
+padding: 0.6em 1em;
+}
+`;
+
+export default Festival_detail;
