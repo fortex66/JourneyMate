@@ -159,6 +159,7 @@ const Home = () => {
             onClick={handleSearchClick}
             placeholder="검색"
           />
+
           <IconContainer onClick={() => setWrite(!write)}>
             {write && <Cmodal closeModal={() => setWrite(!write)} />}
             <FontAwesomeIcon icon={faSquarePlus} size="3x" color={"#f97800"} />

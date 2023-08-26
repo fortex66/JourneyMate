@@ -11,12 +11,17 @@ import {
   faComments,
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
+import Pmodal from "../components/Pmodal";
 
 const Navigationbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("");
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const toggleModal = () => {
+    setIsModalOpen((prevWrite) => !prevWrite);
+    console.log("Toggling modal:", !isModalOpen); // 이 로그를 추가합니다.
+  };
   useEffect(() => {
     setActiveTab(location.pathname.split("/")[1]);
   }, [location.pathname]); //location.pathname이 바뀔 때 마다 setActiveTab(location.pathname.split("/")[1]) 실행
@@ -28,22 +33,22 @@ const Navigationbar = () => {
     <Navigation>
       <Bottomview>
         <BottomBox>
-          <NavBox onClick={() => handleTabClick("Community")}>
+          <NavBox onClick={() => handleTabClick("Local_Festival")}>
             <FontAwesomeIcon
               icon={faGlobe}
               size="2x"
-              color={activeTab === "Community" ? "#F97800" : "black"}
+              color={activeTab === "Local_Festival" ? "#F97800" : "black"}
             />
-            <Text active={activeTab === "Community"}>커뮤니티</Text>
+            <Text active={activeTab === "Local_Festival"}>지역축제</Text>
           </NavBox>
 
-          <NavBox onClick={() => handleTabClick("Companion")}>
+          <NavBox onClick={() => handleTabClick("Community")}>
             <FontAwesomeIcon
               icon={faUserGroup}
               size="2x"
-              color={activeTab === "Companion" ? "#F97800" : "black"}
+              color={activeTab === "Community" ? "#F97800" : "black"}
             />
-            <Text active={activeTab === "Companion"}>동행인 구하기</Text>
+            <Text active={activeTab === "Community"}>커뮤니티·동행인</Text>
           </NavBox>
 
           <NavBox onClick={() => handleTabClick("Home")}>

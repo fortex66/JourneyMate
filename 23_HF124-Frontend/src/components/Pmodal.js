@@ -2,27 +2,26 @@ import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
-function Cmodal(props) {
+function Pmodal(props) {
   function closeModal() {
     props.closeModal();
   }
 
   const navigate = useNavigate();
+
   return (
-    <div>
-      <Frame onClick={closeModal}>
-        <Body onClick={(e) => e.stopPropagation()}>
-          <CummunityBtn onClick={() => navigate("/Community_Write")}>
-            커뮤니티 글쓰기
-          </CummunityBtn>
-          <CompanionBtn onClick={() => navigate("/Companion_Write")}>
-            동행인 글쓰기
-          </CompanionBtn>
-          <CloseBtn onClick={closeModal}>✖</CloseBtn>
-          {props.children}
-        </Body>
-      </Frame>
-    </div>
+    <Frame onClick={closeModal}>
+      <Body onClick={(e) => e.stopPropagation()}>
+        <CummunityBtn onClick={() => navigate("/Community")}>
+          커뮤니티 게시글
+        </CummunityBtn>
+        <CompanionBtn onClick={() => navigate("/Companion")}>
+          동행인 게시글
+        </CompanionBtn>
+        <CloseBtn onClick={closeModal}>✖</CloseBtn>
+        {props.children}
+      </Body>
+    </Frame>
   );
 }
 
@@ -36,21 +35,24 @@ const Frame = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 5001;
-  align-items: flex-start; // 위쪽 정렬
-  padding-top: 200px; // This will move the content 50 pixels down from the top
+  padding-top: 290px; // This will move the content 50 pixels down from the top
 `;
 
 const Body = styled.div`
-  width: 200px;
-  padding: 10px;
+  display: flex; // 플렉스박스로 설정
+  flex-direction: column; // 세로 방향으로 배치
+  align-items: center; // 가로 방향으로 중앙 정렬
+  justify-content: center; // 세로 방향으로 중앙 정렬
+  width: 600px;
+  padding: 5px;
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  z-index: 5002;
+  z-index: 9999;
 `;
 
 const CummunityBtn = styled.button`box-sizing: border-box;
+width:97%;
 appearance: none;
 background-color: transparent;
 border: 2px solid #f97800;
@@ -67,7 +69,7 @@ letter-spacing: 2px;
 font-weight: 700;
 margin-bottom: 10px;
 margin-top:5px;
-margin-left:14px;
+
 
 &:hover,
 &:focus {
@@ -90,6 +92,8 @@ padding: 0.6em 1em;
 `;
 
 const CompanionBtn = styled.button`box-sizing: border-box;
+width:97%;
+margin: 10px auto; // 버튼을 중앙에 위치시키기 위한 마진 설정
 appearance: none;
 background-color: transparent;
 border: 2px solid #f97800;
@@ -105,7 +109,7 @@ text-decoration: none;
 letter-spacing: 2px;
 font-weight: 700;
 margin-bottom: 10px;
-margin-left:14px;
+
 
 &:hover,
 &:focus {
@@ -135,10 +139,10 @@ const CloseBtn = styled.button`
   color: rgba(0, 0, 0, 0.7);
   background-color: transparent;
   font-size: 20px;
-  z-index: 5003;
+
   &:hover{  
     cursor: pointer;
 
 `;
 
-export default Cmodal;
+export default Pmodal;

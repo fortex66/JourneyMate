@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useContext, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+  useCallback,
+} from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -20,7 +26,8 @@ const ChattingRoom = () => {
 
   const messagesEndRef = useRef(null);
   const observer = useRef();
-
+  const scrollRef = useRef(null);
+  const previousScrollHeightRef = useRef(null); // 이전 scrollHeight 값을 저장할 ref
 
   const navigate = useNavigate();
 
@@ -30,55 +37,66 @@ const ChattingRoom = () => {
   const [inputValue, setInputValue] = useState(""); // 채팅 입력값 저장
   const [messages, setMessages] = useState([]); // 전송된 채팅 목록 저장
   const [currentUser, setCurrentUser] = useState(null);
-  const [page, setPage]=useState(1);
+  const [page, setPage] = useState(1);
+  const [isInitialLoading, setIsInitialLoading] = useState(true); // 초기 로딩 상태 관리
 
-  
-  console.log(messageData)
-  const lastPostElementRef = useCallback((node) => {
-    if (observer.current) observer.current.disconnect();
-    
-    
+  console.log(messageData);
+  const lastPostElementRef = useCallback(
+    (node) => {
+      if (isInitialLoading) return; // 초기 로딩 중이면 Observer 작동 X
+      if (observer.current) observer.current.disconnect();
+
       observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setPage((prevPage) => prevPage + 1);
-      }
-    });
-    if (node) observer.current.observe(node);
-    
-    
-  }, []);
+        if (entries[0].isIntersecting) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isInitialLoading]
+  );
 
-  
   useEffect(() => {
-    
     const fetchMoreData = async () => {
-     
+      const currentScrollHeight = scrollRef.current.scrollHeight; // 현재 콘텐츠의 전체 높이를 저장
+
       try {
         const response = await axios.get(
           `${baseURL}chat/${chatID}/?page=${page}`
         );
         setMessageData((prevMessageData) => ({
-          
-            ...prevMessageData,
+          ...prevMessageData,
           data: {
             ...prevMessageData.data,
-          chatMessage: {
-            ...prevMessageData.chatMessage,
-            rows: [...prevMessageData.data.chatMessage.rows, ...response.data.chatMessage.rows],
+            chatMessage: {
+              ...prevMessageData.chatMessage,
+              rows: [
+                ...prevMessageData.data.chatMessage.rows,
+                ...response.data.chatMessage.rows,
+              ],
+            },
           },
-          }
+        }));
 
-    }));
-        console.log(response);
+        if (previousScrollHeightRef.current !== null) {
+          // 새로운 데이터의 높이 = 현재의 전체 높이 - 이전의 전체 높이
+          const newContentHeight =
+            currentScrollHeight - previousScrollHeightRef.current;
+          scrollRef.current.scrollTop += newContentHeight; // 스크롤 위치를 새로운 데이터의 높이만큼 조정
+        }
+
+        previousScrollHeightRef.current = currentScrollHeight; // 현재의 scrollHeight 값을 저장
       } catch (error) {
         console.log(error);
       }
     };
+
     if (page > 1) {
       // 페이지가 1보다 크거나, 검색이 실행되지 않은 경우에 추가 결과를 불러옵니다.
       fetchMoreData();
     }
-  }, [page]); // 의존성 배열에 page를 추가합니다.
+  }, [page]);
+
   useEffect(() => {
     if (!socket) {
       return;
@@ -138,6 +156,7 @@ const ChattingRoom = () => {
 
     fetchMessage().then(() => {
       scrollToBottom();
+      setIsInitialLoading(false); // 초기 로딩 완료
     });
   }, []);
 
@@ -214,7 +233,7 @@ const ChattingRoom = () => {
     console.log(response.message);
     navigate("/Chatting");
   };
-  
+
   return (
     <RoomContainer>
       <TopContainer>
@@ -283,7 +302,7 @@ const ChattingRoom = () => {
       </TopContainer>
 
       {/* 채팅내역 부분 */}
-      <MidContainer>
+      <MidContainer ref={scrollRef}>
         {/* 이전의 채팅을 가져오는 부분 */}
         {messageData &&
           [...messageData.data.chatMessage.rows]
@@ -296,11 +315,11 @@ const ChattingRoom = () => {
                 );
               const profileImage = matchedUser?.User?.profileImage;
               const isCurrentUser = currentUser === prevchat.userID; // 현재 사용자와 이전의 채팅 userID가 일치하는지 확인
-             
+
               return (
-                <ChatContainer 
-                  ref={index === 0 ? lastPostElementRef : null} 
-                  key={index} 
+                <ChatContainer
+                  ref={index === 0 ? lastPostElementRef : null}
+                  key={index}
                   self={isCurrentUser}
                 >
                   {!isCurrentUser && profileImage && (
@@ -309,22 +328,21 @@ const ChattingRoom = () => {
                       alt="Profile"
                     />
                   )}
-                  
+
                   <MessageContainer>
                     {!isCurrentUser && <UserID>{prevchat.userID}</UserID>}
-                        <ChatContent self={isCurrentUser}>
-                        {prevchat.content}
-                      </ChatContent>
-                      <MessageTime isCurrentUser={isCurrentUser}>
-                        {new Intl.DateTimeFormat("ko-KR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }).format(new Date(prevchat.sendtime))}
-                      </MessageTime>
+                    <ChatContent self={isCurrentUser}>
+                      {prevchat.content}
+                    </ChatContent>
+                    <MessageTime isCurrentUser={isCurrentUser}>
+                      {new Intl.DateTimeFormat("ko-KR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }).format(new Date(prevchat.sendtime))}
+                    </MessageTime>
                   </MessageContainer>
                 </ChatContainer>
               );
-              
             })}
 
         {messages.map((message, index) => (
@@ -339,13 +357,12 @@ const ChattingRoom = () => {
               {!message.self && <UserID>{message.userID}</UserID>}
               <ChatMessage self={message.self}>{message.text}</ChatMessage>
               <MessageTime>
-              {new Intl.DateTimeFormat("ko-KR", {
-                hour: "2-digit",
-                minute: "2-digit",
-              }).format(new Date())}
-            </MessageTime>
+                {new Intl.DateTimeFormat("ko-KR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }).format(new Date())}
+              </MessageTime>
             </MessageContainer>
-            
           </ChatContainer>
         ))}
         <div ref={messagesEndRef} />
@@ -506,7 +523,6 @@ const MidContainer = styled.div`
     100vh - 70px - 80px
   ); /* 전체 높이에서 헤더와 바텀의 높이를 제외한 값 */
   overflow-x: hidden;
-
 `;
 
 const ChatMessage = styled.div`
