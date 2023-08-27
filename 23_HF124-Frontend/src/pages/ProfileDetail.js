@@ -50,7 +50,7 @@ const ProfileDetail = () => {
     }
     try {
       const response = await axios.get(
-        `http://localhost:3000/community/posts/search-keyword?query=${locationRef.current.value}`
+        `${baseURL}community/posts/search-keyword?query=${locationRef.current.value}`
       );
       if (response.status === 200) {
         // response.data가 배열인지 확인하고, 배열이 아니면 빈 배열로 설정
@@ -135,7 +135,7 @@ const ProfileDetail = () => {
   const sendVerificationCode = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/signup/email-verification",
+        `${baseURL}signup/email-verification`,
         {
           method: "POST",
           body: JSON.stringify({ email }),

@@ -19,7 +19,7 @@ import axios from "axios";
 import { SocketContext } from "../App";
 import ChattingMessage from "./ChattingMessage";
 const baseURL = "http://localhost:3000/";
-
+const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 const ChattingRoom = () => {
   const { chatID } = useParams(); // postId 추출
   const socket = useContext(SocketContext);
@@ -313,7 +313,7 @@ const ChattingRoom = () => {
                             />
                           ) : (
                             <img
-                              src={`${baseURL}${list.User.profileImage.replace(
+                              src={`${imgURL}${list.User.profileImage.replace(
                                 /\\/g,
                                 "/"
                               )}`}
@@ -362,7 +362,7 @@ const ChattingRoom = () => {
                 >
                   {!isCurrentUser && profileImage && (
                     <img
-                      src={`${baseURL}${profileImage.replace(/\\/, "/")}`}
+                      src={`${imgURL}${profileImage.replace(/\\/, "/")}`}
                       alt="Profile"
                     />
                   )}
@@ -387,7 +387,7 @@ const ChattingRoom = () => {
           <ChatContainer key={index} self={message.self}>
             {!message.self && message.profileImage && (
               <img
-                src={`${baseURL}${message.profileImage.replace(/\\/g, "/")}`}
+                src={`${imgURL}${message.profileImage.replace(/\\/g, "/")}`}
                 alt="Profile"
               />
             )}

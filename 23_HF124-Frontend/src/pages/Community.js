@@ -13,8 +13,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import Cmodal from "../components/Cmodal";
+import Pmodel from "../components/Pmodal";
 
 const baseURL = "http://localhost:3000/";
+const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 
 const Community = () => {
   const navigate = useNavigate();
@@ -228,7 +230,7 @@ const Community = () => {
                   <Picture>
                     <div>
                       <img
-                        src={`${baseURL}${
+                        src={`${imgURL}${
                           post.post_images[0]
                             ? post.post_images[0].imageURL.replace(/\\/g, "/")
                             : ""
@@ -254,7 +256,7 @@ const Community = () => {
                             />
                           ) : (
                             <img
-                              src={`${baseURL}${post.User.profileImage.replace(
+                              src={`${imgURL}${post.User.profileImage.replace(
                                 /\\/g,
                                 "/"
                               )}`}

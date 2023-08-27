@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const baseURL = "http://localhost:3000/";
-
+const imgURL="https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 const Nearby = ({ marker, sortType }) => {
   const [data, setData] = useState({ posts: { rows: [] } });
   const [page, setPage] = useState(1); // 페이지 상태 추가
@@ -76,7 +76,7 @@ const Nearby = ({ marker, sortType }) => {
                 <Picture>
                   <div>
                     <img
-                      src={`${baseURL}${
+                      src={`${imgURL}${
                         post.post_images[0]
                           ? post.post_images[0].imageURL.replace(/\\/g, "/")
                           : ""

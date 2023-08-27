@@ -23,6 +23,7 @@ const Community_Detail = () => {
     }
   };
   const baseURL = "http://localhost:3000/";
+  const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
   function openModal() {
     setIsModalOpen(true);
   }
@@ -70,7 +71,7 @@ const Community_Detail = () => {
     const tpostID = window.location.pathname.split("/").pop();
     axios
       .post(
-        `http://localhost:3000/community/comments/${tpostID}`,
+        `${baseURL}community/comments/${tpostID}`,
         newCommentObject,
         {
           headers: {
@@ -100,7 +101,7 @@ const Community_Detail = () => {
   const deleteCommunity = async () => {
     const postID = window.location.pathname.split("/").pop();
     try {
-      await axios.delete(`http://localhost:3000/community/${postID}`);
+      await axios.delete(`${baseURL}community/${postID}`);
       navigate(-1);
     } catch (error) {
       console.log(error);
@@ -110,7 +111,7 @@ const Community_Detail = () => {
   const deleteComment = (tcommentId) => {
     const tpostID = window.location.pathname.split("/").pop();
     axios
-      .delete(`http://localhost:3000/community/comments/${tpostID}`, {
+      .delete(`${baseURL}community/comments/${tpostID}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("jwtToken")}`, // JWT 토큰을 Authorization 헤더에 포함시킵니다.
         },
@@ -182,7 +183,7 @@ const Community_Detail = () => {
           data.post.post_images.map((posts, index) => (
             <Main key={index}>
               <img
-                src={`${baseURL}${posts.imageURL.replace(/\\/g, "/")}`}
+                src={`${imgURL}${posts.imageURL.replace(/\\/g, "/")}`}
                 style={{ maxWidth: "600px", height: "auto" }}
               />
               <Content>{posts.content}</Content>

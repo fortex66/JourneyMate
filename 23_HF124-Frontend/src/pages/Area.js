@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const baseURL="http://localhost:3000/";
 function AddressForm() {
   const [addressInput, setAddressInput] = useState("");
   const [addressList, setAddressList] = useState([]);
@@ -18,7 +19,7 @@ function AddressForm() {
   
     try {
       const response = await axios.get(
-        `http://localhost:3000/signup/search-address?query=${addressInput}`
+        `${baseURL}signup/search-address?query=${addressInput}`
       );
   
       if (response.status === 200) {
@@ -38,7 +39,7 @@ function AddressForm() {
       console.log({ selectedAddress: place_name });
 
       try {
-        const response = await fetch("http://localhost:3000/signup/part2", {
+        const response = await fetch(baseURL+"signup/part2", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
