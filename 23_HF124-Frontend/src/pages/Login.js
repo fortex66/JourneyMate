@@ -3,6 +3,8 @@ import axios from "axios"; // 추가
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { SocketContext } from "../App";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlane } from "@fortawesome/free-solid-svg-icons";
 
 function Login() {
   const [userID, setUsername] = useState("");
@@ -77,7 +79,10 @@ function Login() {
   return (
     <Content>
       <div>
-        <Title>JOURNEYMATE</Title>
+        <Title>
+          Journeymate{" "}
+          <FontAwesomeIcon icon={faPlane} size="1x" color={"#f97800"} />
+        </Title>
         <Form onSubmit={handleSubmit}>
           <Wrap>
             <Input
@@ -151,14 +156,16 @@ const Title = styled.div`
   color: #f97800;
   font-size: 30px;
   font-weight: bold; //글짜 굵게
+  margin-top: 120px;
+  margin-bottom: 50px;
 `;
 
 const Content = styled.div`
-  padding: 40px 20px 0;
   display: flex;
-  align-items: center;
   justify-content: center;
   text-align: center;
+  width: 100%;
+  height: 100vh;
 
   em {
     font-size: 20px;

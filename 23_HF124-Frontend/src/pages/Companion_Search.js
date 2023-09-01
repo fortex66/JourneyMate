@@ -9,6 +9,8 @@ import "react-datepicker/dist/react-datepicker.css"; // 필요한 CSS
 
 axios.defaults.withCredentials = true;
 
+const baseURL = "http://localhost:3000/";
+
 const Companion_Search = () => {
   const navigate = useNavigate();
   const locationRef = useRef();
@@ -18,7 +20,7 @@ const Companion_Search = () => {
   const [selectedLocation, setSelectedLocation] = useState({});
   const [posts, setPosts] = useState([]);
   const [searchTriggered, setSearchTriggered] = useState(true); //Community에 searchTriggered값을 true로
-  
+  const [title, setTitle] = useState([]);
   // 추가된 state
   const [gender, setGender] = useState(null);
   const [age, setAge] = useState(null);
@@ -26,11 +28,6 @@ const Companion_Search = () => {
   const [endDate, setEndDate] = useState(new Date());
   const [startDateSelected, setStartDateSelected] = useState(false);
   const [endDateSelected, setEndDateSelected] = useState(false);
-
-
-  
-  
-  
 
   const searchLocation = async () => {
     const query = locationRef.current.value;
@@ -40,7 +37,7 @@ const Companion_Search = () => {
     }
     try {
       const response = await axios.get(
-        `http://localhost:3000/companion/posts/search-keyword?query=${locationRef.current.value}`
+        `${baseURL}companion/posts/search-keyword?query=${locationRef.current.value}`
       );
       if (response.status === 200) {
         setLocationList(Array.isArray(response.data) ? response.data : []);
@@ -49,6 +46,11 @@ const Companion_Search = () => {
       }
     } catch (error) {
       console.error("주소를 검색하는 도중 에러가 발생했습니다", error);
+    }
+  };
+  const searchTitle = (value) => {
+    if (value) {
+      setTitle(value);
     }
   };
 
@@ -76,12 +78,11 @@ const Companion_Search = () => {
     setStartDate(date);
     setStartDateSelected(true);
   };
-  
+
   const handleEndDateChange = (date) => {
     setEndDate(date);
     setEndDateSelected(true);
   };
-  
 
   const handleLocationSelect = (location) => {
     locationRef.current.value = location.place_name;
@@ -105,6 +106,12 @@ const Companion_Search = () => {
       </Navigation>
 
       <Info>
+        <input
+          name="title"
+          id="title"
+          placeholder="제목 입력"
+          onChange={(e) => searchTitle(e.target.value)}
+        />
         <input
           name="location"
           placeholder="위치 입력"
@@ -152,10 +159,7 @@ const Companion_Search = () => {
 
         <div>
           <label>나이: </label>
-          <select
-            value={age}
-            onChange={(e) => setAge(e.target.value)}
-          >
+          <select value={age} onChange={(e) => setAge(e.target.value)}>
             <option value="">선택하세요</option>
             <option value="10대">10대</option>
             <option value="20대">20대</option>
@@ -173,24 +177,23 @@ const Companion_Search = () => {
           <label>여행 종료 날짜: </label>
           <DatePicker selected={endDate} onChange={handleEndDateChange} />
         </div>
-
       </Info>
-
 
       <Button>
         <button
           className="complete_btn"
           onClick={() => {
             navigate("/Companion", {
-              state: { 
-                posts, 
+              state: {
+                posts,
                 location: selectedLocation,
                 searchTriggered,
-                tagList, 
-                gender, 
-                age, 
-                startDate: startDateSelected ? startDate : null, 
-                endDate: endDateSelected ? endDate : null 
+                tagList,
+                gender,
+                age,
+                title,
+                startDate: startDateSelected ? startDate : null,
+                endDate: endDateSelected ? endDate : null,
               },
             });
           }}

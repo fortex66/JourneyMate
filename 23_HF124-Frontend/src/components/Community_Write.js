@@ -27,6 +27,7 @@ const Community_Write = () => {
   const [detail, setDetail] = useState(
     detaildata.state ? detaildata.state.data.post : ""
   );
+  const [tagList, setTagList] = useState([]); // 태그 리스트
 
   const [title, setTitle] = useState(detail ? detail.title : "");
 
@@ -43,7 +44,15 @@ const Community_Write = () => {
       : [{ photo: "", content: "", file: null }]
   );
 
-  const [tagList, setTagList] = useState([]); // 태그 리스트
+  // 수정페이지에서 textarea 동적 높이 조절
+  useEffect(() => {
+    contentRefs.current.forEach((textarea) => {
+      if (textarea) {
+        textarea.style.height = "auto";
+        textarea.style.height = `${textarea.scrollHeight}px`;
+      }
+    });
+  }, [detaildata.state]);
 
   useEffect(() => {
     if (detaildata.state !== null) {
@@ -54,11 +63,16 @@ const Community_Write = () => {
     }
   }, []);
 
-  console.log(detail);
-
   //위치를 입력 받을때 kakaoapi를 활용하기 위함
   const searchLocation = async () => {
     const query = locationRef.current.value;
+    if (detaildata.state !== null) {
+      // detail 상태 업데이트
+      setDetail((prevDetail) => ({
+        ...prevDetail,
+        location: query,
+      }));
+    }
 
     if (!query.trim()) {
       // 입력값이 비어있는 경우 API 호출을 막습니다.
@@ -106,7 +120,14 @@ const Community_Write = () => {
 
   // 선택한 위치를 사용하기 위함
   const handleLocationSelect = (location) => {
-    locationRef.current.value = location.place_name;
+    if (detaildata.state === null) {
+      locationRef.current.value = location.place_name;
+    } else {
+      setDetail((prevDetail) => ({
+        ...prevDetail,
+        location: location.place_name,
+      }));
+    }
     setSelectedLocation({
       x: location.x,
       y: location.y,
@@ -317,7 +338,7 @@ const Community_Write = () => {
       formData.append("jsonData", JSON.stringify(jsonData)); // 위치와 제목데이터를 formdata에 담기
       // 서버로 formData전송
       try {
-        await axios.post(baseURL+"community/upload", formData, {
+        await axios.post(baseURL + "community/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data", // multipart/form-data로 보낸다고 명시
           },
@@ -345,10 +366,11 @@ const Community_Write = () => {
 
       const contentArray = data.map((item) => item.content);
       // 서버로 formData전송
+
       try {
         await axios.put(`${baseURL}community/${postId}`, {
           title: titleRef.current.value,
-          location: selectedLocation.address_name,
+          location: locationRef.current.value,
           tags: JSON.stringify(tagList),
           contents: contentArray,
         });
@@ -411,7 +433,7 @@ const Community_Write = () => {
           ) : (
             <input
               name="location"
-              placeholder={detail.location}
+              value={detail.location}
               ref={locationRef}
               onChange={searchLocation}
             />
@@ -524,13 +546,22 @@ const Community_Write = () => {
               )}
             </PhotoWrapper>
             <Contents>
-              <textarea
-                name="content"
-                placeholder="내용 입력"
-                value={val.content}
-                onChange={(e) => handleChange(e, i)}
-                ref={(el) => (contentRefs.current[i] = el)}
-              />
+              {detaildata.state === null ? (
+                <textarea
+                  name="content"
+                  placeholder="내용 입력"
+                  onChange={(e) => handleChange(e, i)}
+                  ref={(el) => (contentRefs.current[i] = el)}
+                />
+              ) : (
+                <textarea
+                  name="content"
+                  placeholder="빈 내용"
+                  value={val.content}
+                  onChange={(e) => handleChange(e, i)}
+                  ref={(el) => (contentRefs.current[i] = el)}
+                />
+              )}
             </Contents>
           </RepeatWrapper>
         ))}
@@ -788,6 +819,7 @@ const Contents = styled.div`
     letter-spacing: 1px;
     line-height: 28px;
     font-family: "Noto Sans KR", sans-serif;
+    overflowy: hidden;
   }
 `;
 

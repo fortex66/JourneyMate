@@ -12,39 +12,13 @@ import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSquarePlus,
+  faWindowRestore,
   faLocationCrosshairs,
   faUsers,
-  faGlobe,
 } from "@fortawesome/free-solid-svg-icons";
 import Cmodal from "../components/Cmodal";
 import Nearby from "../components/Nearby";
 const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
-
-// NearbyModal 컴포넌트 선언
-const NearbyModal = (props) => {
-  const { closeModal, marker } = props;
-  const [sortType, setSortType] = useState("latest");
-
-  // 정렬 방식 변경 핸들러
-  const handleSortChange = (newSortType) => {
-    setSortType(newSortType);
-  };
-
-  return (
-    <NearbyModalStyled>
-      <div>
-        <button className="close-button" onClick={closeModal}>
-          ✖
-        </button>
-        <div className="sorting-buttons">
-          <button onClick={() => handleSortChange("popular")}>인기순</button>
-          <button onClick={() => handleSortChange("latest")}>최신순</button>
-        </div>
-        <Nearby marker={marker} sortType={sortType} />
-      </div>
-    </NearbyModalStyled>
-  );
-};
 
 const latChangeByLevel = {
   13: 0.37,
@@ -67,7 +41,6 @@ const Home = () => {
   const [latestMarkers, setLatestMarkers] = useState(null);
   const navigate = useNavigate();
   const [write, setWrite] = useState(false);
-
   const [showNearbyModal, setShowNearbyModal] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [isMarkerHovered, setMarkerHovered] = useState(false);
@@ -83,7 +56,6 @@ const Home = () => {
   });
   const markerHoverTimeout = useRef();
   const [currentLevel, setCurrentLevel] = useState(13);
-
   const handleMouseOverMarker = (marker) => {
     if (markerHoverTimeout.current) {
       clearTimeout(markerHoverTimeout.current);
@@ -109,38 +81,32 @@ const Home = () => {
       }
     };
   }, []);
+  const getTodayDate = () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0"); // January is 0!
+    const dd = String(today.getDate()).padStart(2, "0");
 
-  const baseURL = "http://localhost:3000/";
+    return `${yyyy}${mm}${dd}`;
+  };
 
+  const currentDate = getTodayDate();
   useEffect(() => {
     const fetchMarkerData = async () => {
       try {
-        const response = await axios.get(baseURL + "community/mapimage");
-        const markerData = response.data;
-
-        // Group markers by location.
-        const markerGroups = markerData.posts.rows.reduce((groups, marker) => {
-          const key = `${marker.x},${marker.y}`;
-          if (!groups[key]) {
-            groups[key] = [];
-          }
-          groups[key].push(marker);
-          return groups;
-        }, {});
-
-        // For each group, keep only the latest marker.
-        const latestMarkers = Object.values(markerGroups).map(
-          (group) => group.sort((a, b) => b.createdAt - a.createdAt)[0]
+        const response = await fetch(
+          `https://apis.data.go.kr/B551011/KorService1/searchFestival1?numOfRows=2000&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&eventStartDate=${currentDate}&serviceKey=gjCAjUo72Uf%2BjMwy1BdQo85%2B1vNiWiTVe4X987jUj42meneObLKNI%2F4pAYfK%2BysqF%2FObJvxdZp7Fe4uA6%2FPxKQ%3D%3D`
         );
-
-        setMarkerData(markerData);
-        setLatestMarkers(latestMarkers);
+        const json = await response.json();
+        console.log(json.response.body.items.item);
+        setLatestMarkers(json.response.body.items.item);
+        // Group markers by location.
       } catch (err) {
         console.error(err);
       }
     };
 
-    fetchMarkerData();
+    fetchMarkerData(markerData);
   }, []);
 
   const handleMarkerClick = (marker) => {
@@ -159,8 +125,6 @@ const Home = () => {
     setMarkerClicked(false);
     setMarkerHovered(null);
   };
-
-  console.log(location);
   const mylocationClick = () => {
     if (navigator.geolocation) {
       // GeoLocation을 이용해서 접속 위치를 얻어옵니다
@@ -191,9 +155,6 @@ const Home = () => {
       });
     }
   };
-  useEffect(() => {
-    console.log("Location state has changed:", location);
-  }, [location]);
   return (
     <div>
       <Container>
@@ -203,7 +164,6 @@ const Home = () => {
             onClick={handleSearchClick}
             placeholder="검색"
           />
-
           <IconContainer onClick={() => setWrite(!write)}>
             {write && <Cmodal closeModal={() => setWrite(!write)} />}
             <FontAwesomeIcon icon={faSquarePlus} size="3x" color={"#f97800"} />
@@ -229,24 +189,17 @@ const Home = () => {
               })
             }
           >
-            {/* {!location.isLoading && (
-          <MapMarker position={location.center}>
-            <div style={{ padding: "5px", color: "#000" }}>
-              {location.errMsg ? location.errMsg : "여기에 계신가요?!"}
-            </div>
-          </MapMarker>
-        )} */}
             <MarkerClusterer
               averageCenter={true} // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
               minLevel={10} // 클러스터 할 최소 지도 레벨
             >
               {latestMarkers &&
                 latestMarkers.map((marker, index) => (
-                  <Circle key={index}>
+                  <React.Fragment key={index}>
                     <MapMarker
                       position={{
-                        lat: marker.y,
-                        lng: marker.x,
+                        lat: parseFloat(marker.mapy), // API의 y 좌표
+                        lng: parseFloat(marker.mapx), // API의 x 좌표
                       }}
                       clickable={true}
                       onMouseOver={() => handleMouseOverMarker(marker)}
@@ -257,25 +210,30 @@ const Home = () => {
                       isMarkerClicked === false && (
                         <MapInfoWindow
                           position={{
-                            lat: marker.y + latChangeByLevel[currentLevel], // latitude 값을 조정하여 정보창을 위로 이동시킵니다.
-                            lng: marker.x,
+                            lat:
+                              parseFloat(marker.mapy) +
+                              latChangeByLevel[currentLevel], // latitude 값을 조정하여 정보창을 위로 이동시킵니다.
+                            lng: parseFloat(marker.mapx),
                           }}
                         >
-                          <img
-                            src={
-                              marker.post_images[0]
-                                ? `${imgURL}${marker.post_images[0].imageURL.replace(
-                                    /\\/g,
-                                    "/"
-                                  )}`
-                                : ""
-                            }
-                            alt="post"
-                            style={{ width: "150px", height: "100px" }}
-                          />
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <img
+                              src={marker.firstimage}
+                              alt={marker.title}
+                              style={{ width: "150px", height: "100px" }}
+                            />
+                            <p style={{ margin: 0 }}>{marker.title}</p>
+                          </div>
                         </MapInfoWindow>
                       )}
-                  </Circle>
+                  </React.Fragment>
                 ))}
             </MarkerClusterer>
           </Map>
@@ -290,6 +248,14 @@ const Home = () => {
             />
           </MyLocation>
 
+          <Community>
+            <FontAwesomeIcon
+              onClick={() => navigate("/Home")}
+              icon={faWindowRestore}
+              size="2x"
+              color={"#f97800"}
+            />
+          </Community>
           <Companion>
             <FontAwesomeIcon
               onClick={() => navigate("/HomeC")}
@@ -298,84 +264,25 @@ const Home = () => {
               color={"#f97800"}
             />
           </Companion>
-          <Festival>
-            <FontAwesomeIcon
-              onClick={() => navigate("/HomeF")}
-              icon={faGlobe}
-              size="2x"
-              color={"#f97800"}
-            />
-          </Festival>
         </MapContainer>
         <Navigationbar />
       </Container>
-      {showNearbyModal && selectedMarker && (
-        <NearbyModal closeModal={closeNearbyModal} marker={selectedMarker} />
-      )}
     </div>
   );
 };
 export default Home;
-
-const NearbyModalStyled = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-
-  & > div {
-    position: relative;
-    width: 320px;
-
-    padding: 40px;
-    text-align: center;
-    background-color: rgb(255, 255, 255);
-    border-radius: 10px;
-    box-shadow: 0 2px 3px 0 rgba(34, 36, 38, 0.15);
-  }
-
-  & .close-button {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    border: none;
-    color: rgba(0, 0, 0, 0.7);
-    background-color: transparent;
-    font-size: 20px;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-
-  & .sorting-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-
-  & .sorting-buttons > button {
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: #f97800;
-    color: white;
-    font-size: 16px;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-`;
-
-const Circle = styled.div`
-  border-radius: 20px;
+const Companion = styled.div`
+  position: absolute;
+  left: 10px;
+  bottom: 81px;
+  z-index: 3;
+  margin-bottom: 10px;
+  margin-left: 7px;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: white;
+  padding-right: 6px;
+  padding-left: 6px;
 `;
 
 const Container = styled.div`
@@ -428,35 +335,22 @@ const MyLocation = styled.div`
   z-index: 3;
   margin-bottom: 20px;
   margin-left: 7px;
-  padding: 11px;
-  border-radius: 8px;
-  background-color: white;
-`;
-
-const Companion = styled.div`
-  position: absolute;
-  left: 10px;
-  bottom: 81px;
-  z-index: 3;
-  margin-bottom: 10px;
-  margin-left: 7px;
   padding: 10px;
   border-radius: 8px;
   background-color: white;
-  padding-right: 7px;
-  padding-left: 7px;
 `;
 
-const Festival = styled.div`
+const Community = styled.div`
   position: absolute;
   left: 10px;
   bottom: 140px;
   z-index: 3;
   margin-bottom: 10px;
   margin-left: 7px;
-  padding: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 10px;
+  padding-left: 10px;
   border-radius: 8px;
   background-color: white;
-  padding-right: 12px;
-  padding-left: 12px;
 `;

@@ -198,7 +198,7 @@ const Companion_Write = () => {
       };
       formData.append("jsonData", JSON.stringify(jsonData));
       axios
-        .post(baseURL+"companion/cupload", formData, {
+        .post(baseURL + "companion/cupload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -282,6 +282,17 @@ const Companion_Write = () => {
     };
   };
 
+  useEffect(() => {
+    //모집날짜 현재날짜보다 전이면 선택 못 하게함.
+    const today = new Date();
+    const dateString = `${today.getFullYear()}-${String(
+      today.getMonth() + 1
+    ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+    start_dateRef.current.setAttribute("min", dateString);
+    finish_dateRef.current.setAttribute("min", dateString);
+  }, []);
+
   return (
     <Container>
       <Section>
@@ -352,7 +363,7 @@ const Companion_Write = () => {
         </InputContainer>
 
         <InputContainer>
-          <InputLabel>성별</InputLabel>
+          <InputLabel>모집 성별</InputLabel>
           <RadioContainer>
             <RadioButton
               type="radio"
@@ -382,7 +393,7 @@ const Companion_Write = () => {
         </InputContainer>
 
         <InputContainer>
-          <InputLabel>나이</InputLabel>
+          <InputLabel>모집 나이</InputLabel>
           <Select
             name="age"
             ref={ageRef}

@@ -1,7 +1,9 @@
 import styled from "styled-components";
 import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 const DiscoverId = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
   const [data, setData] = useState("");
@@ -38,6 +40,11 @@ const DiscoverId = () => {
   console.log(data);
   return (
     <div>
+      <Top>
+        {" "}
+        <StyledButton onClick={() => navigate(-1)}>{"<"}</StyledButton>
+      </Top>
+
       <EmailBar>
         <Email>이메일</Email>
         <EmailData
@@ -68,6 +75,52 @@ const EmailButton = styled.button`
   background-color: #f97800;
   color: #fff;
   cursor: pointer;
+`;
+const StyledButton = styled.button`
+box-sizing: border-box;
+appearance: none;
+background-color: transparent;
+border: 2px solid #f97800;
+border-radius: 0.6em;
+color: #f97800;
+cursor: pointer;
+align-self: center;
+font-size: 16px;
+font-family: "Nanum Gothic", sans-serif;
+line-height: 1;
+padding: 0.6em 1.5em;
+text-decoration: none;
+letter-spacing: 2px;
+font-weight: 700;
+margin-bottom: 10px;
+margin-top:10px;
+
+&:hover,
+&:focus {
+  color: #fff;
+  outline: 0;
+}
+transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+&:hover {
+  box-shadow: 0 0 40px 40px #f97800 inset;
+}
+
+&:focus:not(:hover) {
+  color: #f97800;
+  box-shadow: none;
+}
+}
+
+`;
+const Top = styled.div`
+  margin-left: 20px;
+  margin-right: 20px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #dadada;
+  button {
+    margin-right: 5px;
+  }
 `;
 
 export default DiscoverId;

@@ -16,7 +16,8 @@ import {
   faLocationCrosshairs,
 } from "@fortawesome/free-solid-svg-icons";
 import Cmodal from "../components/Cmodal";
-import Nearby from "../components/Nearby";
+import NearbyC from "../components/NearbyC";
+const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 
 // NearbyModal 컴포넌트 선언
 const NearbyModal = (props) => {
@@ -38,7 +39,7 @@ const NearbyModal = (props) => {
           <button onClick={() => handleSortChange("popular")}>인기순</button>
           <button onClick={() => handleSortChange("latest")}>최신순</button>
         </div>
-        <Nearby marker={marker} sortType={sortType} />
+        <NearbyC marker={marker} sortType={sortType} />
       </div>
     </NearbyModalStyled>
   );
@@ -69,7 +70,15 @@ const Home = () => {
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [isMarkerHovered, setMarkerHovered] = useState(false);
   const [isMarkerClicked, setMarkerClicked] = useState(false);
-
+  const [location, setLocation] = useState({
+    center: {
+      lat: 36.8,
+      lng: 127.5,
+    },
+    level: 13,
+    errMsg: null,
+    isLoading: true,
+  });
   const markerHoverTimeout = useRef();
   const [currentLevel, setCurrentLevel] = useState(13);
   const handleMouseOverMarker = (marker) => {
@@ -98,7 +107,6 @@ const Home = () => {
     };
   }, []);
   const baseURL = "http://localhost:3000/";
-  const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
   useEffect(() => {
     const fetchMarkerData = async () => {
       try {
@@ -122,7 +130,6 @@ const Home = () => {
 
         setMarkerData(markerData);
         setLatestMarkers(latestMarkers);
-        console.log(latestMarkers.data);
         console.log(response.data);
       } catch (err) {
         console.error(err);
@@ -148,7 +155,36 @@ const Home = () => {
     setMarkerClicked(false);
     setMarkerHovered(null);
   };
-
+  const mylocationClick = () => {
+    if (navigator.geolocation) {
+      // GeoLocation을 이용해서 접속 위치를 얻어옵니다
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation((prev) => ({
+            ...prev,
+            center: {
+              lat: position.coords.latitude, // 위도
+              lng: position.coords.longitude, // 경도
+            },
+            isLoading: false,
+            level: 5,
+          }));
+        },
+        (err) => {
+          setLocation({
+            errMsg: err.message,
+            isLoading: false,
+          });
+        }
+      );
+    } else {
+      // HTML5의 GeoLocation을 사용할 수 없을때 마커 표시 위치와 인포윈도우 내용을 설정합니다
+      setLocation({
+        errMsg: "geolocation을 사용할수 없어요..",
+        isLoading: false,
+      });
+    }
+  };
   return (
     <div>
       <Container>
@@ -165,17 +201,23 @@ const Home = () => {
         </Header>
         <MapContainer>
           <Map
-            center={{
-              lat: 36.8,
-              lng: 127.5,
-            }}
+            center={location.center}
             style={{
               width: "100%",
               height: "100%",
             }}
-            level={13}
+            level={location.level}
             maxLevel={13}
             onZoomChanged={(map) => setCurrentLevel(map.getLevel())} // 지도 줌 변경 시 핸들러 함수
+            onCenterChanged={(map) =>
+              setLocation({
+                level: map.getLevel(),
+                center: {
+                  lat: map.getCenter().getLat(),
+                  lng: map.getCenter().getLng(),
+                },
+              })
+            }
           >
             <MarkerClusterer
               averageCenter={true} // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
@@ -205,10 +247,10 @@ const Home = () => {
                           <img
                             src={
                               marker.post_images[0]
-                                ? marker.post_images[0].imageURL.replace(
+                                ? `${imgURL}${marker.post_images[0].imageURL.replace(
                                     /\\/g,
                                     "/"
-                                  )
+                                  )}`
                                 : ""
                             }
                             alt="post"
@@ -221,8 +263,10 @@ const Home = () => {
             </MarkerClusterer>
           </Map>
           <MyLocation>
-            {" "}
             <FontAwesomeIcon
+              onClick={() => {
+                mylocationClick();
+              }}
               icon={faLocationCrosshairs}
               size="2x"
               color={"#f97800"}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Navigationbar from "../components/Navigationbar";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,11 @@ const Local_Festival = () => {
   const [searchKeyword, setSearchKeyword] = useState(""); // 검색어 상태 추가
   const [showModal, setShowModal] = useState(false); // 모달 보이기 상태
   const [selectedRegion, setSelectedRegion] = useState(""); // 선택된 지역 상태
+  //최대날짜 지정용 변수
+  const [maxDate, setMaxDate] = useState("");
+  const [pageNo, setPageNo] = useState(1); // 페이지 번호 상태 추가
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
+  const observer = useRef(); // IntersectionObserver를 위한 ref
   const areaCodes = {
     서울: 1,
     인천: 2,
@@ -28,6 +33,19 @@ const Local_Festival = () => {
     제주도: 39,
   };
 
+  const lastPostElementRef = useCallback(
+    (node) => {
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !isLoading) {
+          setPageNo((prevPageNo) => prevPageNo + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isLoading]
+  ); // 마지막에 isLoading을 dependency로 추가
+
   const handleRegionClick = (region) => {
     setSelectedRegion(region === "상관없음" ? null : areaCodes[region]);
     setShowModal(false);
@@ -40,44 +58,73 @@ const Local_Festival = () => {
 
   const baseURL = "http://apis.data.go.kr/B551011/KorService1/";
   const OPEN_KEY =
-    "gjCAjUo72Uf%2BjMwy1BdQo85%2B1vNiWiTVe4X987jUj42meneObLKNI%2F4pAYfK%2BysqF%2FObJvxdZp7Fe4uA6%2FPxKQ%3D%3D";
+    "gjCAjUo72Uf+jMwy1BdQo85+1vNiWiTVe4X987jUj42meneObLKNI/4pAYfK+ysqF/ObJvxdZp7Fe4uA6/PxKQ==";
+
+  const fetchData = async () => {
+    setIsLoading(true); // 로딩 시작
+    try {
+      let url = ""; // URL을 저장할 변수
+      const realkeyword = encodeURIComponent(searchKeyword); // 검색 키워드 인코딩
+      const areaCodeParam = selectedRegion ? `&areaCode=${selectedRegion}` : ""; // 지역 코드 설정
+      console.log("Generated API URL:", url);
+      // 검색 키워드가 있는 경우와 없는 경우에 따라 URL을 변경합니다.
+      if (selectedRegion && !searchKeyword) {
+        console.log("지역코드 : (" + selectedRegion + ") 만 선택");
+        url = `https://apis.data.go.kr/B551011/KorService1/searchKeyword1?numOfRows=10&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&keyword=null&areaCode=${areaCodeParam}&contentTypeId=15&serviceKey=${OPEN_KEY}`;
+      } else if (searchKeyword && !selectedRegion) {
+        console.log("검색어 : (" + searchKeyword + ") 만 선택");
+        url = `https://apis.data.go.kr/B551011/KorService1/searchKeyword1?numOfRows=10&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&keyword=${realkeyword}&areaCode=${areaCodeParam}&contentTypeId=15&serviceKey=${OPEN_KEY}`;
+      } else if (searchKeyword && selectedRegion) {
+        console.log(
+          "검색어 : " +
+            searchKeyword +
+            " 지역코드 : " +
+            selectedRegion +
+            " 둘다 선택"
+        );
+        url = `https://apis.data.go.kr/B551011/KorService1/searchKeyword1?numOfRows=10&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&keyword=${realkeyword}&areaCode=${areaCodeParam}&contentTypeId=15&serviceKey=${OPEN_KEY}`;
+      } else {
+        console.log("아무것도 안선택");
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
+        const maxDate = `${year}${month}${day}`;
+        url = `https://apis.data.go.kr/B551011/KorService1/searchFestival1?numOfRows=10&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&eventStartDate=${maxDate}&serviceKey=${OPEN_KEY}`;
+      }
+
+      const response = await fetch(url); // API 호출
+      if (!response.ok)
+        throw new Error(`HTTP error! Status: ${response.status}`);
+
+      const json = await response.json(); // 응답을 JSON으로 변환
+      const newItems = json.response?.body?.items?.item || []; // 새 아이템들, 없으면 빈 배열
+
+      // 페이지 번호가 1이면 새로운 데이터로, 그렇지 않으면 기존 데이터에 추가합니다.
+      if (pageNo === 1) {
+        setData(newItems);
+      } else {
+        setData((prevData) => [...prevData, ...newItems]);
+      }
+    } catch (error) {
+      console.error("Fetching API failed:", error);
+    }
+    setIsLoading(false); // 로딩 완료
+  };
 
   useEffect(() => {
-    (async () => {
-      try {
-        const response = await fetch(
-          "https://apis.data.go.kr/B551011/KorService1/searchFestival1?numOfRows=2000&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&eventStartDate=19000101&serviceKey=gjCAjUo72Uf%2BjMwy1BdQo85%2B1vNiWiTVe4X987jUj42meneObLKNI%2F4pAYfK%2BysqF%2FObJvxdZp7Fe4uA6%2FPxKQ%3D%3D"
-        );
+    fetchData();
+  }, [pageNo, searchKeyword, selectedRegion]);
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const json = await response.json();
-        console.log(json.response.body.items.item);
-        setData(json.response.body.items.item);
-      } catch (error) {
-        console.error("Fetching API failed:", error);
-      }
-    })();
-  }, [baseURL]);
-  console.log(data);
-
-  const getByKeyword = async () => {
-    const realkeyword = encodeURIComponent(searchKeyword);
-    const areaCodeParam = selectedRegion ? `&areaCode=${selectedRegion}` : "";
-    try {
-      const response = await fetch(
-        `https://apis.data.go.kr/B551011/KorService1/searchKeyword1?numOfRows=1000&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&keyword=${realkeyword}&contentTypeId=15&areaCode=${areaCodeParam}&serviceKey=gjCAjUo72Uf%2BjMwy1BdQo85%2B1vNiWiTVe4X987jUj42meneObLKNI%2F4pAYfK%2BysqF%2FObJvxdZp7Fe4uA6%2FPxKQ%3D%3D`
-      );
-      const json = await response.json();
-      console.log(json.response.body.items.item);
-      setData(json.response.body.items.item);
-    } catch (error) {}
+  const getByKeyword = () => {
+    setPageNo(1); // 페이지 번호를 1로 리셋
+    fetchData(); // 검색 실행
   };
+
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
-      getByKeyword();
+      setPageNo(1); // 페이지 번호를 1로 리셋
+      fetchData(); // 검색 실행
     }
   };
   const goDetail = (info) => {
@@ -93,22 +140,26 @@ const Local_Festival = () => {
   return (
     <Container>
       <Header>
-        <SearchInput1
-          type="text"
-          placeholder="지역"
-          value={getRegionNameByCode(selectedRegion)} // 선택된 지역을 표시
-          readOnly // 입력창은 읽기 전용
-        />
-        <Button onClick={() => setShowModal(true)}>지역</Button>
-        <SearchInput
-          id="search-input"
-          type="text"
-          placeholder="검색"
-          value={searchKeyword}
-          onChange={(e) => setSearchKeyword(e.target.value)}
-          onKeyPress={handleKeyPress}
-        />
-        <Button onClick={getByKeyword}>검색</Button>
+        <Local>
+          <SearchInput1
+            type="text"
+            placeholder="지역"
+            value={getRegionNameByCode(selectedRegion)} // 선택된 지역을 표시
+            readOnly // 입력창은 읽기 전용
+          />
+          <Button onClick={() => setShowModal(true)}>지역</Button>
+        </Local>
+        <Keyword>
+          <SearchInput
+            id="search-input"
+            type="text"
+            placeholder="검색"
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            onKeyPress={handleKeyPress}
+          />
+          <Button onClick={getByKeyword}>검색</Button>
+        </Keyword>
       </Header>
 
       {showModal && (
@@ -156,38 +207,63 @@ const Local_Festival = () => {
           </ModalContent>
         </Modal>
       )}
-      <Sort>
-        <button>최신순</button>
-        <button>인기순</button>
-        <button>댓글순</button>
-      </Sort>
-
       <div>
-        {data &&
-          data.map((info, index) => {
-            // 주소를 스페이스로 나눈 다음 처음 세 부분만 가져옵니다.
-            const address = info.addr1.split(" ").slice(0, 2).join(" ");
-            return (
-              <Box key={index}>
-                <Back>
-                  {" "}
-                  <Img
-                    onClick={() => goDetail(info)}
-                    src={info.firstimage}
-                    alt={"사진이 없습니다."}
-                  />
-                  <Title>{info.title}</Title>
-                  <Address>{address}</Address>
-                </Back>
-              </Box>
-            );
-          })}
+        <Content>
+          {data &&
+            data.map((info, index) => {
+              const address = info.addr1.split(" ").slice(0, 2).join(" ");
+              if (data.length === index + 1) {
+                return (
+                  <Box ref={lastPostElementRef} key={index}>
+                    <Back>
+                      <Img
+                        onClick={() => goDetail(info)}
+                        src={info.firstimage}
+                        alt={"사진이 없습니다."}
+                      />
+                      <Title>{info.title}</Title>
+                      <Address>{address}</Address>
+                    </Back>
+                  </Box>
+                );
+              } else {
+                return (
+                  <Box key={index}>
+                    <Back>
+                      <Img
+                        onClick={() => goDetail(info)}
+                        src={info.firstimage}
+                        alt={"사진이 없습니다."}
+                      />
+                      <Title>{info.title}</Title>
+                      <Address>{address}</Address>
+                    </Back>
+                  </Box>
+                );
+              }
+            })}
+        </Content>
       </div>
 
       <Navigationbar />
     </Container>
   );
 };
+const Content = styled.div`
+  margin-top: 125px;
+`;
+
+const Local = styled.div`
+  display: flex; // 오타 수정
+  justify-content: center;
+  align-items: center; // 추가
+`;
+
+const Keyword = styled.div`
+  display: flex; // 오타 수정
+  justify-content: center;
+  align-items: center; // 추가
+`;
 
 const ModalContent = styled.div`
   background-color: #fff;
@@ -366,11 +442,13 @@ const Header = styled.div`
   justify-content: space-evenly;
   align-items: center;
   width: 640px;
+
   position: fixed;
   top: 0;
   height: 90px;
   background-color: #fff;
   border-bottom: 1px solid;
+  padding-bottom: 30px; // 또는 원하는 크기로 설정
   z-index: 1; // Bring the header to the front
 `;
 
@@ -379,7 +457,8 @@ const SearchInput = styled.input`
   height: 40px;
   border-radius: 15px;
   border: 1px solid #dadde0;
-  padding: 0 10px;
+  //padding: 0 10px;
+  margin-left: 15px;
   &:focus {
     outline: none;
   }
@@ -391,11 +470,13 @@ const SearchInput1 = styled.input`
   height: 40px;
   border-radius: 15px;
   border: 1px solid #dadde0;
-  padding: 0 10px;
+  //padding: 0 10px;
   &:focus {
     outline: none;
   }
   margin-top: 10px;
   pointer-events: auto;
+  margin-left: 18px;
+  width: 445px;
 `;
 export default Local_Festival;
