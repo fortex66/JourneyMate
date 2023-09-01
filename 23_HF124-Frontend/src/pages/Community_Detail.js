@@ -19,7 +19,7 @@ const Community_Detail = () => {
   const [posts, setPosts] = useState([]);
   const handleKeyPress = (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
-      // shiftKey를 체크하여 shift + enter는 줄바꿈으로 작동하게 함.
+      // shiftKey를 체크하여 shift + enter는 줄바꿈으로 작동하게 함!
       event.preventDefault(); // 기본적인 Enter 행동(줄바꿈)을 방지
       addComment();
     }
