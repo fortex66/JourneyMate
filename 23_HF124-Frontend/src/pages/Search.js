@@ -5,12 +5,18 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import SearchModal from "../components/SearchModal";
 import React, { useState, useEffect } from "react";
 import axios from "axios"; // Assuming you are using axios for HTTP requests
+import { useNavigate } from "react-router-dom";
 
 const baseURL = "http://localhost:3000/";
 
 const Search = () => {
   const [write, setWrite] = useState(false);
   const [topSearches, setTopSearches] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [tagList, setTagList] = useState([]);
+  const navigate = useNavigate();
+  const [locationTriggered, setLocationTriggered] = useState(true); //Community에 searchTriggered값을 true로
+  //날려서 검색 useeffect가 실행되게 하기 위함
 
   const handleModalOpen = () => {
     setWrite(true);
@@ -35,6 +41,7 @@ const Search = () => {
       console.error(err);
     }
   };
+  const searchLocation = async (location) => {};
 
   return (
     <div>
@@ -55,7 +62,18 @@ const Search = () => {
       <TopSearches>
         {topSearches &&
           topSearches.map((search, index) => (
-            <SearchItem key={index}>
+            <SearchItem
+              key={index}
+              onClick={async () => {
+                navigate("/Community", {
+                  state: {
+                    posts,
+                    location: search.location,
+                    locationTriggered,
+                  },
+                });
+              }}
+            >
               <span>
                 {index + 1}. {search.location}
               </span>

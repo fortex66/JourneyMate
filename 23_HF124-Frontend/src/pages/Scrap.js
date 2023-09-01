@@ -34,6 +34,10 @@ const Scrap = () => {
 
   return (
     <div>
+      <Top>
+        {" "}
+        <StyledButton onClick={() => navigate(-1)}>{"<"}</StyledButton>
+      </Top>
       <Icon>
         <FontAwesomeIcon icon={faScroll} size="2x" color={"#f97800"} />
       </Icon>
@@ -84,10 +88,56 @@ const Icon = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
+  margin-top: -38px;
 `;
 
 const Line = styled.div`
   border-bottom: 1px solid #f97800;
+  margin-top: 20px;
+`;
+const StyledButton = styled.button`
+box-sizing: border-box;
+appearance: none;
+background-color: transparent;
+border: 2px solid #f97800;
+border-radius: 0.6em;
+color: #f97800;
+cursor: pointer;
+align-self: center;
+font-size: 16px;
+font-family: "Nanum Gothic", sans-serif;
+line-height: 1;
+padding: 0.6em 1.5em;
+text-decoration: none;
+letter-spacing: 2px;
+font-weight: 700;
+
+margin-top:10px;
+
+&:hover,
+&:focus {
+  color: #fff;
+  outline: 0;
+}
+transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+&:hover {
+  box-shadow: 0 0 40px 40px #f97800 inset;
+}
+
+&:focus:not(:hover) {
+  color: #f97800;
+  box-shadow: none;
+}
+}
+
+`;
+const Top = styled.div`
+  margin-left: 20px;
+  margin-right: 20px;
+  display: flex;
+  justify-content: space-between;
+  button {
+    margin-right: 5px;
+  }
 `;
 export default Scrap;

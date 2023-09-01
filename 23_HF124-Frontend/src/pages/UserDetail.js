@@ -23,6 +23,8 @@ function UserDetail() {
   const [image, setImage] = useState(null);
   const [userData, setUserData] = useState(null); // new state for storing user data
   const { userId } = useParams();
+  const [userTags, setUserTags] = useState([]); // 유저 태그를 저장할 새로운 상태 변수
+
 
   const getUserProfile = async () => {
     try {
@@ -33,6 +35,8 @@ function UserDetail() {
       });
       setUserData(resUser.data);
       setImage(resUser.data.profile.profileImage);
+      setUserTags(resUser.data.userTag); // userTags 상태 업데이트
+
     } catch (error) {
       console.log(error);
     }
@@ -95,7 +99,7 @@ function UserDetail() {
     <div className="Wrap">
       <div className="topView">
         <MyInfoBox>
-          <div style={{ alignItems: "center" }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Circle>
               {image ? (
                 <img
@@ -107,9 +111,25 @@ function UserDetail() {
                 <FontAwesomeIcon icon={faUser} size="2x" color={"#f97800"} />
               )}
             </Circle>
+            {userId}
           </div>
-          {userId}
+          <div>
+            <h4>관심사:</h4>
+            <ul style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '10px',
+              maxWidth: '300px'
+            }}>
+              {userTags.map((tag, index) => (
+                <TagStyle key={index}> {/* styled-components로 정의한 TagStyle 사용 */}
+                  {tag.tagName}
+                </TagStyle>
+              ))}
+            </ul>
+          </div>
         </MyInfoBox>
+
       </div>
 
       <MyList>
@@ -193,6 +213,18 @@ function UserDetail() {
 
 const Name = styled.div``;
 
+const TagStyle = styled.li`
+  list-style: none;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  color: #333;
+  font-size: 14px;
+  margin: 5px;
+`;
+
+
 const MyInfoBox = styled.div`
   display: flex;
   justify-content: space-around;
@@ -201,9 +233,10 @@ const MyInfoBox = styled.div`
   margin-top: 20px;
   align-items: center;
   text-align: center;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
+  padding: 0 20px;  /* 좌우 패딩 추가 */
 `;
 const MyMenuMiddle = styled.div`
   height: 120px;

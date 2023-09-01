@@ -9,11 +9,12 @@ import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
 import {
   faSquarePlus,
   faChevronUp,
+  faUsersViewfinder,
   faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 
 import Cmodal from "../components/Cmodal";
-import Pmodel from "../components/Pmodal";
+import Pmodal from "../components/Pmodal";
 
 const baseURL = "http://localhost:3000/";
 const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
@@ -25,6 +26,7 @@ const Community = () => {
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("latest");
   const [write, setWrite] = useState(false);
+  const [change, setChange] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState("20px");
   const [userData, setUserData] = useState(null);
@@ -33,8 +35,11 @@ const Community = () => {
 
   const location = useLocation();
   const searchTriggered = location.state?.searchTriggered || false;
+  const locationTriggered = location.state?.locationTriggered || false;
+  const tagTriggered = location.state?.tagTriggered || false;
   const tagList = location.state ? location.state.tagList : [];
   const selectedLocation = location.state ? location.state.location : "";
+  const title = location.state ? location.state.title : "";
 
   useEffect(() => {
     const updateButtonPosition = () => {
@@ -99,7 +104,7 @@ const Community = () => {
     navigate(`/UserDetail/${userId}`);
   };
   useEffect(() => {
-    if (searchTriggered) return; // 검색이 실행되면 아무 것도 하지 않습니다.
+    if (searchTriggered + locationTriggered + tagTriggered != 0) return; // 검색이 실행되면 아무 것도 하지 않습니다.
     const fetchMoreData = async () => {
       try {
         const response = await axios.get(
@@ -112,7 +117,6 @@ const Community = () => {
             rows: [...prevData.posts.rows, ...response.data.posts.rows],
           },
         }));
-        console.log(response);
       } catch (error) {
         console.log(error);
       }
@@ -124,30 +128,82 @@ const Community = () => {
   }, [page, searchTriggered, sort]); // 의존성 배열에 page를 추가합니다.
 
   useEffect(() => {
-    if (!searchTriggered) return;
+    if (searchTriggered + locationTriggered + tagTriggered === 0) return;
+
     const fetchData = async () => {
       try {
-        if (selectedLocation || tagList) {
-          const response = await axios.get(`${baseURL}community/search`, {
-            params: {
-              page,
-              tags: tagList.join(","),
-              location: selectedLocation ? selectedLocation.address_name : null,
-              sort,
-            },
-          });
-          if (page > 1) {
-            // 페이지가 1보다 크면 기존 데이터에 추가
-            setData((prevData) => ({
-              ...prevData,
-              posts: {
-                ...prevData.posts,
-                rows: [...prevData.posts.rows, ...response.data.posts.rows],
+        if (searchTriggered) {
+          if (selectedLocation || tagList || title) {
+            const response = await axios.get(`${baseURL}community/search`, {
+              params: {
+                page,
+                tags: tagList.join(","),
+                location: selectedLocation
+                  ? selectedLocation.address_name
+                  : null,
+                title: title,
+                sort,
               },
-            }));
-          } else {
-            // 페이지가 1이면 새로운 데이터로 설정
-            setData(response.data);
+            });
+            if (page > 1) {
+              // 페이지가 1보다 크면 기존 데이터에 추가
+              setData((prevData) => ({
+                ...prevData,
+                posts: {
+                  ...prevData.posts,
+                  rows: [...prevData.posts.rows, ...response.data.posts.rows],
+                },
+              }));
+            } else {
+              // 페이지가 1이면 새로운 데이터로 설정
+              setData(response.data);
+            }
+          }
+        } else if (locationTriggered) {
+          if (selectedLocation) {
+            const response = await axios.get(`${baseURL}community/search`, {
+              params: {
+                page,
+                location: selectedLocation ? selectedLocation : null,
+                sort,
+              },
+            });
+            if (page > 1) {
+              // 페이지가 1보다 크면 기존 데이터에 추가
+              setData((prevData) => ({
+                ...prevData,
+                posts: {
+                  ...prevData.posts,
+                  rows: [...prevData.posts.rows, ...response.data.posts.rows],
+                },
+              }));
+            } else {
+              // 페이지가 1이면 새로운 데이터로 설정
+              setData(response.data);
+            }
+          }
+        } else if (tagTriggered) {
+          if (tagList) {
+            const response = await axios.get(`${baseURL}community/search`, {
+              params: {
+                page,
+                tags: tagList,
+                sort,
+              },
+            });
+            if (page > 1) {
+              // 페이지가 1보다 크면 기존 데이터에 추가
+              setData((prevData) => ({
+                ...prevData,
+                posts: {
+                  ...prevData.posts,
+                  rows: [...prevData.posts.rows, ...response.data.posts.rows],
+                },
+              }));
+            } else {
+              // 페이지가 1이면 새로운 데이터로 설정
+              setData(response.data);
+            }
           }
         }
       } catch (error) {
@@ -155,7 +211,15 @@ const Community = () => {
       }
     };
     fetchData();
-  }, [selectedLocation, tagList, searchTriggered, page, sort]);
+  }, [
+    selectedLocation,
+    tagList,
+    searchTriggered,
+    locationTriggered,
+    tagTriggered,
+    page,
+    sort,
+  ]);
 
   if (!data || !data.posts || !data.posts.rows) return null;
 
