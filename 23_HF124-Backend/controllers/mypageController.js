@@ -43,6 +43,7 @@ const getCompanionList = async (req, res) => {
     res.status(500).json({ message: "동행인 게시글 조회에 실패하였습니다" });
   }
 };
+
 const getProfile = async (req, res) => {
   try {
     const profile = await user.User.findAll({
@@ -74,8 +75,12 @@ const getUserProfile = async (req, res) => {
         userID: userID,
       },
     });
-    console.log(profile);
-    res.status(200).json({ profile });
+    const userTag = await user.UserTagging.findAll({
+      where: {
+        userID: userID,
+      },
+    });
+    res.status(200).json({ profile, userTag });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "유저 정보 조회에 실패했습니다." });
