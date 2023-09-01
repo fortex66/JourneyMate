@@ -26,18 +26,24 @@ const mapGetlist = async (req, res) => {
 
 const mapGetclist = async (req, res) => {
   try {
-    const date = new Date();
-    date.setDate(date.getDate() - 7); // 특정 날짜보다 오래된 날짜는 출력하지 않는 기능 ex) 7로 설정시 일주일간의 데이터만 보여줌
+    const currentDate = new Date(); // 현재 날짜와 시간을 가져옵니다.
+    
+    // const date = new Date();
+    // date.setDate(date.getDate() - 7); // 특정 날짜보다 오래된 날짜는 출력하지 않는 기능 ex) 7로 설정시 일주일간의 데이터만 보여줌
 
     const posts = await tPost.cPost.findAndCountAll({
       where: {
-        postDate: {
-          [Op.gte]: date, // postDate가 date보다 크거나 같은 게시글만 조회
-        },
+        // postDate: {
+        //   [Op.gte]: date, // postDate가 date보다 크거나 같은 게시글만 조회
+        // },
+        finishDate: {
+          [Op.gte]: currentDate, // finishDate가 현재 날짜보다 크거나 같은 게시글만 조회
+        }
       },
       order: [["postDate", "DESC"]],
       include: [{ model: tPost.cPostImage, as: "post_images" }],
     });
+
     console.log(posts);
     const total_pages = posts.count;
 

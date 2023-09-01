@@ -18,18 +18,18 @@ exports.processPart1 = async (req, res) => {
       if (!(user && userID && password && birth && email && gender)) {
         return res.status(400).send('모든 필드를 채워주세요.');
       }
-      // //아이디 중복 검사
-      const existingUser = await User.findOne({
-        where: {
-          userID: userID,
-        },
-      });
-      console.log('아이디 중복검사 진행중');
+      // // //아이디 중복 검사
+      // const existingUser = await User.findOne({
+      //   where: {
+      //     userID: userID,
+      //   },
+      // });
+      // console.log('아이디 중복검사 진행중');
 
-      if (existingUser) {
-        console.log('아이디 중복됨');
-        return res.status(400).send(`아이디 '${userID}'는 이미 사용 중입니다`);
-      }
+      // if (existingUser) {
+      //   console.log('아이디 중복됨');
+      //   return res.status(400).send(`아이디 '${userID}'는 이미 사용 중입니다`);
+      // }
       //회원 정보 저장
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -54,8 +54,10 @@ exports.processPart1 = async (req, res) => {
       res.status(400).send('회원가입1 과정에서 문제가 발생했습니다.');
     }
   };
-  
 
+
+
+  
   exports.processPart2 = async (req, res) => {
     try {
       console.log('세션정보 = '+ req.session.user);
@@ -145,6 +147,28 @@ exports.processPart1 = async (req, res) => {
     }
 };
 
+exports.checkUserID = async (req, res) => {
+  try {
+    const { userID } = req.body;
+    const existingUser = await User.findOne({
+      where: {
+        userID: userID,
+      },
+    });
+    if (existingUser) {
+      console.log("아이디 사용중")
+      return res.status(400).send(`아이디 '${userID}'는 이미 사용 중입니다.`);
+    } else {
+      console.log("아이디 사용가능")
+      return res.status(200).send({ message: '사용 가능한 아이디입니다.', available: true });
+    }
+
+  } catch (error) {
+    console.error(error);
+    res.status(400).send('아이디 중복 검사 중 문제가 발생했습니다.');
+  }
+};
+
 
 exports.sendEmail = async (req, res) => {
   // nodemailer 설정
@@ -178,5 +202,7 @@ exports.sendEmail = async (req, res) => {
     }
   });
 };
+
+
 
 module.exports = exports;
