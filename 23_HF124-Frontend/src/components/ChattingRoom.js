@@ -303,32 +303,45 @@ const ChattingRoom = () => {
                 )}
                 <div>
                   {roomdata &&
-                    roomdata.data.chatRoomData.user_chats.map((list, index) => (
-                      <People key={index}>
-                        <ModalImage>
-                          {list.User.profileImage === null ? (
-                            <img
-                              alt="chosen"
-                              style={{ width: "100%", borderRadius: "100%" }}
-                            />
-                          ) : (
-                            <img
-                              src={`${imgURL}${list.User.profileImage.replace(
-                                /\\/g,
-                                "/"
-                              )}`}
-                              style={{ width: "100%", borderRadius: "100%" }}
-                            />
-                          )}
-                        </ModalImage>
-                        <ModalPeople>{list.userID}</ModalPeople>
-                        {roomdata.data.chatRoomData.admin === currentUser && (
-                          <Dropout>
-                            <DropButton onClick={dropOut}>강퇴하기</DropButton>
-                          </Dropout>
-                        )}
-                      </People>
-                    ))}
+                    roomdata.data.chatRoomData.user_chats
+                      // admin 사용자를 첫 번째로 정렬
+                      .sort((a, b) => {
+                        if (a.userID === roomdata.data.chatRoomData.admin)
+                          return -1;
+                        if (b.userID === roomdata.data.chatRoomData.admin)
+                          return 1;
+                        return 0;
+                      })
+                      .map((list, index) => (
+                        <People key={index}>
+                          <ModalImage>
+                            {list.User.profileImage === null ? (
+                              <img
+                                alt="chosen"
+                                style={{ width: "100%", borderRadius: "100%" }}
+                              />
+                            ) : (
+                              <img
+                                src={`${imgURL}${list.User.profileImage.replace(
+                                  /\\/g,
+                                  "/"
+                                )}`}
+                                style={{ width: "100%", borderRadius: "100%" }}
+                              />
+                            )}
+                          </ModalImage>
+                          <ModalPeople>{list.userID}</ModalPeople>
+                          {roomdata.data.chatRoomData.admin === currentUser &&
+                            list.userID !==
+                              roomdata.data.chatRoomData.admin && (
+                              <Dropout>
+                                <DropButton onClick={dropOut}>
+                                  강퇴하기
+                                </DropButton>
+                              </Dropout>
+                            )}
+                        </People>
+                      ))}
                 </div>
                 <Getout>
                   <Button onClick={getOut}>나가기</Button>

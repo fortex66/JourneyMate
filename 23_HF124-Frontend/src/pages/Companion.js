@@ -3,12 +3,13 @@ import styled from "styled-components";
 import Navigationbar from "../components/Navigationbar";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faSquarePlus,
+  faComment as faCommentSolid,
+  faUsersViewfinder,
   faWindowRestore,
 } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSquarePlus } from "@fortawesome/free-solid-svg-icons";
 import { faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import Cmodal from "../components/Cmodal";
 import Pmodal from "../components/Pmodal";
@@ -21,7 +22,7 @@ const Companion = () => {
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("latest");
   const [write, setWrite] = useState(false);
-  const [change, setChange]=useState(false);
+  const [change, setChange] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState("20px");
   const observer = useRef();
@@ -34,7 +35,7 @@ const Companion = () => {
   const age = location.state ? location.state.age : null;
   const startDate = location.state ? location.state.startDate : null;
   const endDate = location.state ? location.state.endDate : null;
-
+  const title = location.state ? location.state.title : null;
   useEffect(() => {
     const updateButtonPosition = () => {
       const windowWidth = window.innerWidth;
@@ -130,7 +131,7 @@ const Companion = () => {
     const fetchData = async () => {
       console.log(`서치 시작전 페이지 :  ${page},${searchTriggered}`);
       try {
-        if (selectedLocation || tagList) {
+        if (selectedLocation || tagList || title) {
           console.log(`서치 ${page}`);
           const response = await axios.get(`${baseURL}companion/search`, {
             params: {
@@ -139,6 +140,7 @@ const Companion = () => {
               location: selectedLocation ? selectedLocation.address_name : null,
               pgender: gender,
               age: age,
+              title: title,
               startDate: startDate
                 ? startDate.toISOString().split("T")[0]
                 : null,

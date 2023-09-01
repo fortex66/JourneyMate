@@ -94,6 +94,40 @@ const getNearbylist = async (req, res) => {
   }
 };
 
+const getCNearbylist = async (req, res) => {
+  try {
+    const { page = 1, per_page = 9, sort = "latest", x, y, radius } = req.query; //경도 : x, 위도 : y, 반경 : radius(km), 정렬방식 : sort
+
+    let order;
+    switch (sort) {
+      case "popular":
+        order = [["likeCount", "DESC"]];
+        break;
+      case "latest":
+      default:
+        order = [["postDate", "DESC"]];
+    }
+
+    // Use the Haversine formula in the where clause to get posts within the specified radius
+    const posts = await cPost.cPost.findAndCountAll({
+      offset: per_page * (page - 1),
+      limit: per_page,
+      order: order,
+      //하버사인 공식
+      where: sequelize.literal(
+        `(6371 * acos(cos(radians(${y})) * cos(radians(y)) * cos(radians(x) - radians(${x})) + sin(radians(${y})) * sin(radians(y)))) < ${radius}`
+      ),
+      include: [{ model: cPost.cPostImage, as: "post_images" }],
+    });
+
+    const total_pages = Math.ceil(posts.count / per_page);
+    res.status(200).json({ posts, total_pages });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "게시글 조회에 실패하였습니다" });
+  }
+};
+
 const searchCount = async (req, res) => {
   try {
     const { location } = req.query;
@@ -121,6 +155,7 @@ const getSearchlist = async (req, res) => {
       sort = "latest",
       tags,
       location,
+      title,
     } = req.query;
     console.log(req.query);
 
@@ -133,15 +168,18 @@ const getSearchlist = async (req, res) => {
       default:
         order = [["postDate", "DESC"]];
     }
-
+    // title 검색 조건
+    const titleCondition = title
+      ? { title: { [Op.like]: `%${title}%` } } // 수정된 부분
+      : {};
     // location 검색 조건
     const locationCondition = location
       ? { location: { [Op.like]: `%${location}%` } }
       : {};
 
-    // 먼저 location을 기반으로 게시물 찾기
+    // 먼저 location과 title을 기반으로 게시물 찾기
     let posts = await tPost.tPost.findAndCountAll({
-      where: locationCondition,
+      where: { ...locationCondition, ...titleCondition },
       include: [
         {
           model: tPost.tPostImage,
@@ -189,7 +227,7 @@ const getSearchlist = async (req, res) => {
 //24시간 동안 가장 많이 검색된 키워드 위치 Top10 출력
 const getTopSearches = async (req, res) => {
   try {
-    const oneDayAgo = new Date(Date.now() - 24000 * 60 * 60 * 1000); // 24 hours ago
+    const oneDayAgo = new Date(Date.now() - 240 * 60 * 60 * 1000); // 24 hours ago
     const topSearches = await SearchHistories.SearchHistories.findAll({
       where: {
         searchDate: {
@@ -316,6 +354,7 @@ const getCSearchlist = async (req, res) => {
       age,
       startDate,
       finishDate,
+      title,
     } = req.query;
     console.log(req.query);
     let order;
@@ -332,6 +371,7 @@ const getCSearchlist = async (req, res) => {
     const locationCondition = location
       ? { location: { [Op.like]: `%${location}%` } }
       : {};
+    const titleCondition = title ? { title: { [Op.like]: `%${title}%` } } : {};
     const genderCondition = pgender ? { pgender: { [Op.eq]: pgender } } : {};
     const ageCondition = age ? { age: { [Op.like]: `%${age}%` } } : {};
     const startDateCondition = startDate
@@ -349,6 +389,7 @@ const getCSearchlist = async (req, res) => {
         ...ageCondition,
         ...startDateCondition,
         ...endDateCondition,
+        ...titleCondition,
       },
       include: [
         {
@@ -404,6 +445,7 @@ module.exports = {
   getSearchlist,
   getCSearchlist,
   getNearbylist,
+  getCNearbylist,
   getTopSearches,
   searchCount,
 };

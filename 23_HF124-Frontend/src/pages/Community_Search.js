@@ -15,6 +15,7 @@ const Community_Search = () => {
   const [tagList, setTagList] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState({});
   const [posts, setPosts] = useState([]);
+  const [title, setTitle] = useState([]);
   const [searchTriggered, setSearchTriggered] = useState(true); //Community에 searchTriggered값을 true로
   //날려서 검색 useeffect가 실행되게 하기 위함
 
@@ -26,7 +27,7 @@ const Community_Search = () => {
     }
     try {
       const response = await axios.get(
-        `http://localhost:3000/community/posts/search-keyword?query=${locationRef.current.value}`
+        `${baseURL}community/posts/search-keyword?query=${locationRef.current.value}`
       );
       if (response.status === 200) {
         setLocationList(Array.isArray(response.data) ? response.data : []);
@@ -37,7 +38,11 @@ const Community_Search = () => {
       console.error("주소를 검색하는 도중 에러가 발생했습니다", error);
     }
   };
-
+  const searchTitle = (value) => {
+    if (value) {
+      setTitle(value);
+    }
+  };
   const onKeyDown = (e) => {
     if (e.target.value.length !== 0 && e.key === "Enter") {
       submitTagItem();
@@ -61,27 +66,24 @@ const Community_Search = () => {
 
   const handleCompleteBtnClick = async () => {
     try {
-      const response = await axios.get(
-        `${baseURL}community/searchcount`,
-        {
-          params: {
-            location: selectedLocation.address_name
-          }
-        }
-      );
+      const response = await axios.get(`${baseURL}community/searchcount`, {
+        params: {
+          location: selectedLocation.address_name,
+        },
+      });
       console.log(response);
       if (response.status === 200) {
         return true; // Return true on success
       } else {
-        console.error('Failed to update search count', response.status);
+        console.error("Failed to update search count", response.status);
         return false; // Return false on failure
       }
     } catch (error) {
-      console.error('An error occurred while updating search count', error);
+      console.error("An error occurred while updating search count", error);
       return false; // Return false on error
     }
   };
-  
+
   const handleLocationSelect = (location) => {
     locationRef.current.value = location.place_name;
     setSelectedLocation({
@@ -89,7 +91,6 @@ const Community_Search = () => {
     });
     setLocationList([]);
   };
-
 
   return (
     <div>
@@ -106,6 +107,12 @@ const Community_Search = () => {
       </Navigation>
 
       <Info>
+        <input
+          name="title"
+          id="title"
+          placeholder="제목 입력"
+          onChange={(e) => searchTitle(e.target.value)}
+        />
         <input
           name="location"
           placeholder="위치 입력"
@@ -140,7 +147,13 @@ const Community_Search = () => {
             const isSuccess = await handleCompleteBtnClick();
             if (isSuccess) {
               navigate("/Community", {
-                state: { posts, location: selectedLocation, searchTriggered, tagList },
+                state: {
+                  posts,
+                  title,
+                  location: selectedLocation,
+                  searchTriggered,
+                  tagList,
+                },
               });
             }
           }}

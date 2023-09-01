@@ -58,7 +58,7 @@ const Local_Festival = () => {
 
   const baseURL = "http://apis.data.go.kr/B551011/KorService1/";
   const OPEN_KEY =
-    "gjCAjUo72Uf%2BjMwy1BdQo85%2B1vNiWiTVe4X987jUj42meneObLKNI%2F4pAYfK%2BysqF%2FObJvxdZp7Fe4uA6%2FPxKQ%3D%3D";
+    "gjCAjUo72Uf+jMwy1BdQo85+1vNiWiTVe4X987jUj42meneObLKNI/4pAYfK+ysqF/ObJvxdZp7Fe4uA6/PxKQ==";
 
   const fetchData = async () => {
     setIsLoading(true); // 로딩 시작

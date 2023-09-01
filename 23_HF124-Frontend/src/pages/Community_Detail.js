@@ -15,10 +15,12 @@ const Community_Detail = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [showButtons, setShowButtons] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tagTriggered, setTagTriggered] = useState(true); //Community에 searchTriggered값을 true로
+  const [posts, setPosts] = useState([]);
   const handleKeyPress = (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
-      // shiftKey를 체크하여 shift + enter는 줄바꿈으로 작동하게 함.
-      event.preventDefault(); // 기본적인 Enter 행동(줄바꿈)을 방지
+      // shiftKey를 체크하여 shift + enter는 줄바꿈으로 작동하게 함!
+      event.preventDefault(); // 기본적인 Enter 행동(줄바꿈)을 방지!
       addComment();
     }
   };
@@ -70,15 +72,11 @@ const Community_Detail = () => {
 
     const tpostID = window.location.pathname.split("/").pop();
     axios
-      .post(
-        `${baseURL}community/comments/${tpostID}`,
-        newCommentObject,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-          },
-        }
-      )
+      .post(`${baseURL}community/comments/${tpostID}`, newCommentObject, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+        },
+      })
       .then(function (response) {
         setComments((prevComments) => [...prevComments, response.data]);
         setNewComment(""); // 댓글 작성 후 작성창을 비웁니다.
@@ -87,9 +85,6 @@ const Community_Detail = () => {
         console.log(error);
       });
   };
-
-
-
 
   const EditCommunity = () => {
     const postID = window.location.pathname.split("/").pop();
@@ -147,6 +142,7 @@ const Community_Detail = () => {
               size="2x"
               color={"#f97800"}
               onClick={openModal}
+              style={{ cursor: "pointer" }}
             />
             {isModalOpen && (
               <ModalBackground onClick={handleOutsideClick}>
@@ -168,14 +164,17 @@ const Community_Detail = () => {
       </Top>
 
       <Title>{data && data.post.title}</Title>
-      <PostDate>업로드 : {new Intl.DateTimeFormat("ko-KR", {
-                    year: "numeric",
-                    month: "long",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                  }).format(new Date(data && data.post.postDate))}</PostDate>
+      <PostDate>
+        업로드 :{" "}
+        {new Intl.DateTimeFormat("ko-KR", {
+          year: "numeric",
+          month: "long",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }).format(new Date(data && data.post.postDate))}
+      </PostDate>
       <Info>위치 : {data && data.post.location}</Info>
 
       <div>
@@ -195,7 +194,17 @@ const Community_Detail = () => {
         <TagList>
           {data &&
             data.post.tags &&
-            data.post.tags.map((tag) => <TagItem>#{tag.content}</TagItem>)}
+            data.post.tags.map((tag) => (
+              <TagItem
+                onClick={async () => {
+                  navigate("/Community", {
+                    state: { posts, tagList: tag.content, tagTriggered },
+                  });
+                }}
+              >
+                #{tag.content}
+              </TagItem>
+            ))}
         </TagList>
       </TagContainer>
 
@@ -441,6 +450,7 @@ const Content = styled.div`
   border: 1px solid #dadada;
   border-radius: 10px;
   white-space: pre-line;
+  text-align: left;
 `;
 
 const CommentSection = styled.div`
