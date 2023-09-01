@@ -1,6 +1,12 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faLocationDot,
+  faCalendarDays,
+  faPhone,
+} from "@fortawesome/free-solid-svg-icons";
 const Festival_detail = () => {
   const [data, setData] = useState();
   const navigate = useNavigate();
@@ -71,19 +77,31 @@ const Festival_detail = () => {
           <DetailBox dangerouslySetInnerHTML={{ __html: detailInfo }} />
         ) : (
           <BasicBox>
-            <Location>위치: {festivalData.addr1}</Location>
-            <Location>상세위치: {festivalData.addr2}</Location>
-            <Day>
-              행사일: {formatDate(festivalData.eventstartdate)} ~{" "}
-              {formatDate(festivalData.eventenddate)}
-            </Day>
-            <Tel>전화번호: {festivalData.tel}</Tel>
+            <Location1>
+              <FontAwesomeIcon icon={faLocationDot} color={"#f97800"} />
+              <Location>위치: {festivalData.addr1}</Location>
+            </Location1>
+            <Location2>
+              <FontAwesomeIcon icon={faLocationDot} color={"#f97800"} />
+              <Locationdetail>상세위치: {festivalData.addr2}</Locationdetail>
+            </Location2>
+            <Day1>
+              {" "}
+              <FontAwesomeIcon icon={faCalendarDays} color={"#f97800"} />
+              <Day>
+                행사일: {formatDate(festivalData.eventstartdate)} ~{" "}
+                {formatDate(festivalData.eventenddate)}
+              </Day>
+            </Day1>
+            <Tel1>
+              <FontAwesomeIcon icon={faPhone} color={"#f97800"} />
+              <Tel>전화번호: {festivalData.tel}</Tel>
+            </Tel1>
           </BasicBox>
         )}
       </Content>
-
+      <EventTitle>행사소개</EventTitle>
       <Introduce>
-        행사소개
         <I_Content
           dangerouslySetInnerHTML={{ __html: getIntroText() }}
         ></I_Content>
@@ -92,6 +110,67 @@ const Festival_detail = () => {
   );
 };
 
+const EventTitle = styled.div`
+  display: flex;
+  font-size: 20px;
+  font-weight: bold;
+  justify-content: center;
+  color: white;
+  margin-bottom: 5px;
+  border: 1px solid #f97800;
+  border-radius: 30px;
+  width: 540px;
+  margin-left: 50px;
+  margin-top: 15px;
+  background-color: #f97800;
+`;
+
+const Introduce = styled.div`
+  background-color: transparent;
+  border: 1px solid #dadada;
+  border-radius: 5px;
+  width: 530px;
+  margin-left: 55px;
+  margin-top: 20px;
+`;
+const Tel1 = styled.div`
+  display: flex;
+`;
+
+const Tel = styled.div`
+  font-size: 15px;
+  margin-left: 5px;
+  margin-top: -7px;
+`;
+const Day1 = styled.div`
+  display: flex;
+`;
+
+const Day = styled.div`
+  font-size: 15px;
+  margin-left: 5px;
+  margin-top: -7px;
+  margin-bottom: 10px;
+`;
+const Location2 = styled.div`
+  display: flex;
+`;
+const Locationdetail = styled.div`
+  font-size: 15px;
+  margin-left: 5px;
+  margin-top: -7px;
+  margin-bottom: 10px;
+`;
+const Location1 = styled.div`
+  display: flex;
+`;
+
+const Location = styled.div`
+  font-size: 15px;
+  margin-left: 5px;
+  margin-top: -7px;
+  margin-bottom: 10px;
+`;
 // 테두리를 위한 스타일을 추가
 const BasicBox = styled.div`
   border: 1px solid #dadada;
@@ -100,6 +179,7 @@ const BasicBox = styled.div`
   margin: 10px 0;
   width: 500px;
   margin-left: 60px;
+  margin-top: 20px;
 `;
 
 const DetailBox = styled.div`
@@ -111,12 +191,9 @@ const DetailBox = styled.div`
   margin-left: 60px;
 `;
 
-const Introduce = styled.div`
-  background-color: transparent;
-  border: 2px solid #f97800;
-  border-radius: 0.6em;
+const I_Content = styled.div`
+  padding: 10px;
 `;
-const I_Content = styled.div``;
 const Button = styled.button`
   appearance: none;
   background-color: transparent; // 배경색을 투명으로 변경
@@ -149,7 +226,7 @@ const ContentTitle = styled.div`
   position: relative;
   gap: 100px; // 버튼 간의 간격 설정
   width: 500px;
-  height: 50px;
+  height: 30px;
   margin-left: 65px;
   position: relative;
   overflow: hidden; // 이 부분이 추가됨
@@ -169,10 +246,9 @@ const BackgroundBar = styled.div`
 `;
 const Detail = styled.div``;
 const Basic = styled.div``;
-const Tel = styled.div``;
+
 const Content = styled.div``;
-const Location = styled.div``;
-const Day = styled.div``;
+
 const ImgWrapper = styled.div`
   display: flex;
   justify-content: center;
