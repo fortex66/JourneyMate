@@ -7,7 +7,7 @@ import { faCamera } from "@fortawesome/free-solid-svg-icons";
 axios.defaults.withCredentials = true;
 
 const baseURL = "http://localhost:3000/";
-
+const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 const Community_Write = () => {
   const navigate = useNavigate();
   const detaildata = useLocation();
@@ -36,7 +36,7 @@ const Community_Write = () => {
           photo: "",
           content: image.content,
           file: null,
-          previewURL: baseURL + image.imageURL, // 이미지 URL을 previewURL에 저장
+          previewURL: imgURL + image.imageURL, // 이미지 URL을 previewURL에 저장
           urlName: image.imageURL,
           imageID: image.imageID,
         }))
@@ -67,7 +67,7 @@ const Community_Write = () => {
     }
     try {
       const response = await axios.get(
-        `http://localhost:3000/community/posts/search-keyword?query=${locationRef.current.value}`
+        `${baseURL}community/posts/search-keyword?query=${locationRef.current.value}`
       );
       if (response.status === 200) {
         // response.data가 배열인지 확인하고, 배열이 아니면 빈 배열로 설정
@@ -317,7 +317,7 @@ const Community_Write = () => {
       formData.append("jsonData", JSON.stringify(jsonData)); // 위치와 제목데이터를 formdata에 담기
       // 서버로 formData전송
       try {
-        await axios.post("http://localhost:3000/community/upload", formData, {
+        await axios.post(baseURL+"community/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data", // multipart/form-data로 보낸다고 명시
           },
@@ -346,7 +346,7 @@ const Community_Write = () => {
       const contentArray = data.map((item) => item.content);
       // 서버로 formData전송
       try {
-        await axios.put(`http://localhost:3000/community/${postId}`, {
+        await axios.put(`${baseURL}community/${postId}`, {
           title: titleRef.current.value,
           location: selectedLocation.address_name,
           tags: JSON.stringify(tagList),

@@ -15,6 +15,7 @@ const Companion_Detail = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const baseURL = "http://localhost:3000/";
+  const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
   function openModal() {
     setIsModalOpen(true);
   }
@@ -79,7 +80,7 @@ const Companion_Detail = () => {
     const cpostID = window.location.pathname.split("/").pop();
     axios
       .post(
-        `http://localhost:3000/companion/comments/${cpostID}`,
+        `${baseURL}companion/comments/${cpostID}`,
         newCommentObject,
         {
           headers: {
@@ -117,7 +118,7 @@ const Companion_Detail = () => {
   const deleteComment = (ccommentID) => {
     const cpostID = window.location.pathname.split("/").pop();
     axios
-      .delete(`http://localhost:3000/companion/comments/${cpostID}`, {
+      .delete(`${baseURL}companion/comments/${cpostID}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("jwtToken")}`, // JWT 토큰을 Authorization 헤더에 포함시킵니다.
         },
@@ -197,7 +198,7 @@ const Companion_Detail = () => {
 
         <ImageContainer>
           <img
-            src={`${baseURL}${
+            src={`${imgURL}${
               data && data.post.post_images[0].imageURL.replace(/\\/g, "/")
             }`}
             style={{ maxWidth: "600px", height: "auto" }}
@@ -232,7 +233,7 @@ const Companion_Detail = () => {
                   />
                 ) : (
                   <img
-                    src={`${baseURL}${data.post.users.profileImage.replace(
+                    src={`${imgURL}${data.post.users.profileImage.replace(
                       /\\/g,
                       "/"
                     )}`}

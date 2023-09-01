@@ -6,10 +6,17 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
-import { faSquarePlus, faChevronUp } from "@fortawesome/free-solid-svg-icons";
+import {
+  faSquarePlus,
+  faChevronUp,
+  faUsers,
+} from "@fortawesome/free-solid-svg-icons";
+
 import Cmodal from "../components/Cmodal";
+import Pmodel from "../components/Pmodal";
 
 const baseURL = "http://localhost:3000/";
+const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 
 const Community = () => {
   const navigate = useNavigate();
@@ -164,6 +171,15 @@ const Community = () => {
           {write && <Cmodal closeModal={() => setWrite(!write)}></Cmodal>}
           <FontAwesomeIcon icon={faSquarePlus} size="3x" color={"#f97800"} />
         </IconContainer>
+        <IconContainer>
+          {" "}
+          <FontAwesomeIcon
+            onClick={() => navigate("/Companion")}
+            icon={faUsers}
+            size="2x"
+            color={"#f97800"}
+          />
+        </IconContainer>
       </Header>
       <Content>
         <Sort>
@@ -214,7 +230,7 @@ const Community = () => {
                   <Picture>
                     <div>
                       <img
-                        src={`${baseURL}${
+                        src={`${imgURL}${
                           post.post_images[0]
                             ? post.post_images[0].imageURL.replace(/\\/g, "/")
                             : ""
@@ -240,7 +256,7 @@ const Community = () => {
                             />
                           ) : (
                             <img
-                              src={`${baseURL}${post.User.profileImage.replace(
+                              src={`${imgURL}${post.User.profileImage.replace(
                                 /\\/g,
                                 "/"
                               )}`}

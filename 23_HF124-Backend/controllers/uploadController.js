@@ -9,16 +9,16 @@ const axios = require("axios"); // HTTP 통신을 위한 라이브러리
 const { Tag, TTagging, CTagging } = require("../models/uploadModel");
 const { Sequelize, DataTypes, Model } = require("sequelize");
 
-const sequelize = new Sequelize(
-  process.env.MYSQL_DATABASE,
-  process.env.MYSQL_USERNAME,
-  process.env.MYSQL_PASSWORD,
-  {
-    host: process.env.MYSQL_HOST,
-    port: process.env.MYSQL_PORT,
-    dialect: "mysql",
-  }
-);
+// const sequelize = new Sequelize(
+//   process.env.MYSQL_DATABASE,
+//   process.env.MYSQL_USERNAME,
+//   process.env.MYSQL_PASSWORD,
+//   {
+//     host: process.env.MYSQL_HOST,
+//     port: process.env.MYSQL_PORT,
+//     dialect: "mysql",
+//   }
+// );
 
 async function uploadpost(req, res) {
   if (!req.files) {
@@ -47,9 +47,8 @@ async function uploadpost(req, res) {
 
     // 이미지를 저장합니다.
     const imageSavePromises = req.files.map((file, index) => {
-      const imageUrl = path.join(file.destination, file.filename);
       return tUpload.tPostImage.create({
-        imageURL: imageUrl,
+        imageURL: file.key,
         tpostID: tpostID,
         content: req.body.contents[index],
       });
@@ -120,7 +119,6 @@ async function updatePost(req, res) {
           where: { tpostID: tpostID },
         }
       );
-      console.log(tags);
       // await tUpload.tPostImage.destroy({ where: { tpostID: tpostID/*, userID:req.body.userID */} }); // 기존 게시물의 사진을 삭제
 
       const currentArray = await tUpload.TTagging.findAll({
@@ -182,11 +180,8 @@ async function deleteImage(req, res) {
       attributes: ["imageId"],
       where: { tpostID: tpostID },
     });
-    console.log(number);
-    console.log(imageArray);
+
     const temp = imageArray[number];
-    console.log("----------");
-    console.log(imageArray[number]);
 
     const deleteImageID = temp.dataValues.imageId;
 
@@ -218,10 +213,10 @@ async function updateImage(req, res) {
     });
     const existedURL = imageArray[number].dataValues.imageUrl;
     const imageSavePromises = req.files.map(async (file, index) => {
-      const Url = path.join(file.destination, file.filename);
+      
       const posting = await tUpload.tPostImage.update(
         {
-          imageURL: Url,
+          imageURL: file.key,
         },
         {
           where: { tpostID: tpostID, imageUrl: existedURL },
@@ -246,14 +241,12 @@ async function newImage(req, res) {
   const jsonData = JSON.parse(req.body.jsonData);
   try {
     const imageSavePromises = req.files.map(async (file, index) => {
-      const imageUrl = path.join(file.destination, file.filename);
       const posting = await tUpload.tPostImage.create({
-        imageURL: imageUrl,
+        imageURL: file.key,
         tpostID: jsonData.tpostID,
       });
       const imageID = posting.getDataValue("imageID");
-      console.log(posting);
-      console.log(imageID);
+
       if (posting) {
         res
           .status(200)
@@ -333,10 +326,9 @@ async function companionUpdatePost(req, res) {
       if (!req.files) {
       } else {
         for (const [index, file] of req.files.entries()) {
-          const imageUrl = path.join(file.destination, file.filename);
           await cUpload.cPostImage.update(
             {
-              imageURL: imageUrl,
+              imageURL: file.key,
             },
             {
               where: { cpostID: cpostID },
@@ -412,9 +404,9 @@ async function companionUploadpost(req, res) {
 
     // 이미지를 저장합니다.
     const imageSavePromises = req.files.map(async (file) => {
-      const imageUrl = path.join(file.destination, file.filename);
+
       await cUpload.cPostImage.create({
-        imageURL: imageUrl,
+        imageURL: file.key,
         cpostID: cpostID,
         chattime: new Date(),
       });

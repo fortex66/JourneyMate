@@ -30,6 +30,8 @@ import ChattingRoom from "./components/ChattingRoom";
 import HomeC from "./pages/HomeC";
 import DiscoverId from "./pages/DiscoverId";
 import DiscoverPw from "./pages/DiscoverPw";
+import Local_Festival from "./pages/Local_Festival";
+import Festival_detail from "./pages/Festival_detail";
 // import {socket,SOCKET_EVENT,SocketContext} from "./components/Chatting/Chat";
 import io from "socket.io-client";
 
@@ -90,6 +92,8 @@ function App() {
             <Route path="/HomeC" element={<HomeC />} />
             <Route path="/DiscoverId" element={<DiscoverId />} />
             <Route path="/DiscoverPw" element={<DiscoverPw />} />
+            <Route path="/Local_Festival" element={<Local_Festival />} />
+            <Route path="/Festival_detail" element={<Festival_detail />} />
           </Routes>
         </div>
       </SocketContext.Provider>

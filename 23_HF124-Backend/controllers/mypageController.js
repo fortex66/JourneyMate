@@ -188,10 +188,10 @@ const setProfileImage = async (req, res) => {
 
     // 이미지를 저장합니다.
     const imageSavePromises = req.files.map((file, index) => {
-      const imageUrl = path.join(file.destination, file.filename);
+
       return user.User.update(
         {
-          profileImage: imageUrl,
+          profileImage: file.key,
         },
         { where: { userID: userID } }
       );

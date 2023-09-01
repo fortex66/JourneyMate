@@ -23,6 +23,7 @@ const Community_Detail = () => {
     }
   };
   const baseURL = "http://localhost:3000/";
+  const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
   function openModal() {
     setIsModalOpen(true);
   }
@@ -36,7 +37,7 @@ const Community_Detail = () => {
       closeModal();
     }
   };
-
+  // console.log(typeof(data.post.postDate))
   useEffect(() => {
     const jwtToken = localStorage.getItem("jwtToken");
 
@@ -70,7 +71,7 @@ const Community_Detail = () => {
     const tpostID = window.location.pathname.split("/").pop();
     axios
       .post(
-        `http://localhost:3000/community/comments/${tpostID}`,
+        `${baseURL}community/comments/${tpostID}`,
         newCommentObject,
         {
           headers: {
@@ -87,6 +88,9 @@ const Community_Detail = () => {
       });
   };
 
+
+
+
   const EditCommunity = () => {
     const postID = window.location.pathname.split("/").pop();
     navigate("/Community_Write", {
@@ -97,7 +101,7 @@ const Community_Detail = () => {
   const deleteCommunity = async () => {
     const postID = window.location.pathname.split("/").pop();
     try {
-      await axios.delete(`http://localhost:3000/community/${postID}`);
+      await axios.delete(`${baseURL}community/${postID}`);
       navigate(-1);
     } catch (error) {
       console.log(error);
@@ -107,7 +111,7 @@ const Community_Detail = () => {
   const deleteComment = (tcommentId) => {
     const tpostID = window.location.pathname.split("/").pop();
     axios
-      .delete(`http://localhost:3000/community/comments/${tpostID}`, {
+      .delete(`${baseURL}community/comments/${tpostID}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("jwtToken")}`, // JWT 토큰을 Authorization 헤더에 포함시킵니다.
         },
@@ -164,6 +168,14 @@ const Community_Detail = () => {
       </Top>
 
       <Title>{data && data.post.title}</Title>
+      <PostDate>업로드 : {new Intl.DateTimeFormat("ko-KR", {
+                    year: "numeric",
+                    month: "long",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  }).format(new Date(data && data.post.postDate))}</PostDate>
       <Info>위치 : {data && data.post.location}</Info>
 
       <div>
@@ -171,7 +183,7 @@ const Community_Detail = () => {
           data.post.post_images.map((posts, index) => (
             <Main key={index}>
               <img
-                src={`${baseURL}${posts.imageURL.replace(/\\/g, "/")}`}
+                src={`${imgURL}${posts.imageURL.replace(/\\/g, "/")}`}
                 style={{ maxWidth: "600px", height: "auto" }}
               />
               <Content>{posts.content}</Content>
@@ -403,7 +415,12 @@ const Title = styled.div`
   font-size: 20px;
   margin-top: 20px;
 `;
-
+const PostDate = styled.div`
+  text-align: left;
+  font-size: 13px;
+  margin-left: 25px;
+  margin-bottom: -10px;
+`;
 const Info = styled.div`
   border: 1px solid #f97800;
   border-radius: 15px;
@@ -423,6 +440,7 @@ const Content = styled.div`
   padding-bottom: 20px;
   border: 1px solid #dadada;
   border-radius: 10px;
+  white-space: pre-line;
 `;
 
 const CommentSection = styled.div`

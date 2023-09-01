@@ -1,0 +1,68 @@
+.container {
+    width: 100%;
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  .address-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  
+  .address-label {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  .address-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .submit-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .selected-address {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .address-list-container {
+    margin-top: 20px;
+  }
+  
+  .address-list {
+    list-style-type: none;
+  }
+  
+  .address-item {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+  }
+  
+  .address-item:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .next-button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  

@@ -9,7 +9,7 @@ import { SocketContext } from "../App";
 import bcrypt from "bcryptjs";
 
 const baseURL = "http://localhost:3000/";
-
+const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 const Profile = () => {
   const navigate = useNavigate();
   const socket=useContext(SocketContext);
@@ -48,8 +48,8 @@ const Profile = () => {
         );
         console.log(profileImage);
         const newURL =
-          "uploads\\" + userData.profile[0].userID + "-" + file.name;
-        console.log(newURL);
+          "profileImage/" + userData.profile[0].userID + "-" + file.name;
+
         setImage(newURL);
       } catch (err) {
         console.error(err);
@@ -60,9 +60,9 @@ const Profile = () => {
   const getProfileImage = async () => {
     try {
       const resUser = await axios.get(baseURL + `mypage/profile`);
-      console.log(resUser);
+
       setUserData(resUser.data);
-      console.log(resUser.data.profile[0].profileImage);
+
       setImage(resUser.data.profile[0].profileImage);
     } catch (error) {
       console.log(error);
@@ -139,7 +139,7 @@ const Profile = () => {
         <Circle onClick={onIconClick}>
           {image ? (
             <img
-              src={`${baseURL}${image && image.replace(/\\/g, "/")}`}
+              src={`${imgURL}${image && image.replace(/\\/g, "/")}`}
               alt="chosen"
               style={{ width: "100%", borderRadius: "100%" }}
             />

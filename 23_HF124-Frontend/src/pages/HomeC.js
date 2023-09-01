@@ -98,6 +98,7 @@ const Home = () => {
     };
   }, []);
   const baseURL = "http://localhost:3000/";
+  const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
   useEffect(() => {
     const fetchMarkerData = async () => {
       try {
@@ -121,6 +122,7 @@ const Home = () => {
 
         setMarkerData(markerData);
         setLatestMarkers(latestMarkers);
+        console.log(latestMarkers.data);
         console.log(response.data);
       } catch (err) {
         console.error(err);

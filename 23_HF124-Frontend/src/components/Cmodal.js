@@ -36,7 +36,7 @@ const Frame = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 5000;
+  z-index: 5001;
   align-items: flex-start; // 위쪽 정렬
   padding-top: 200px; // This will move the content 50 pixels down from the top
 `;
@@ -47,6 +47,7 @@ const Body = styled.div`
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 5002;
 `;
 
 const CummunityBtn = styled.button`box-sizing: border-box;
@@ -134,7 +135,7 @@ const CloseBtn = styled.button`
   color: rgba(0, 0, 0, 0.7);
   background-color: transparent;
   font-size: 20px;
-
+  z-index: 5003;
   &:hover{  
     cursor: pointer;
 

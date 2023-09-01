@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faScroll } from "@fortawesome/free-solid-svg-icons";
 const baseURL = "http://localhost:3000/";
-
+const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 const Scrap = () => {
   const [scrapedPosts, setScrapedPosts] = useState([]);
   const navigate = useNavigate();
@@ -46,7 +46,7 @@ const Scrap = () => {
             <div>
               <Picture>
                 <img
-                  src={`${baseURL}${
+                  src={`${imgURL}${
                     post.post_images[0]
                       ? post.post_images[0].imageURL.replace(/\\/g, "/")
                       : ""

@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+  useCallback,
+} from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,18 +13,23 @@ import {
   faUser,
   faArrowLeft,
   faPaperPlane,
+  faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { SocketContext } from "../App";
 import ChattingMessage from "./ChattingMessage";
 const baseURL = "http://localhost:3000/";
-
+const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 const ChattingRoom = () => {
   const { chatID } = useParams(); // postId 추출
   const socket = useContext(SocketContext);
   const chattingmessages = useContext(ChattingMessage); // 이 코드를 추가합니다.
 
   const messagesEndRef = useRef(null);
+  const observer = useRef();
+  const scrollRef = useRef(null);
+  const previousScrollHeightRef = useRef(null); // 이전 scrollHeight 값을 저장할 ref
+
   const navigate = useNavigate();
 
   const [roomdata, setRoomdata] = useState("");
@@ -27,6 +38,107 @@ const ChattingRoom = () => {
   const [inputValue, setInputValue] = useState(""); // 채팅 입력값 저장
   const [messages, setMessages] = useState([]); // 전송된 채팅 목록 저장
   const [currentUser, setCurrentUser] = useState(null);
+  const [page, setPage] = useState(1);
+  const [isVisible, setIsVisible] = useState(false);
+  const [buttonPosition, setButtonPosition] = useState("20px");
+
+  const lastPostElementRef = useCallback((node) => {
+    if (observer.current) observer.current.disconnect();
+
+    observer.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        setPage((prevPage) => prevPage + 1);
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, []);
+
+  useEffect(() => {
+    const updateButtonPosition = () => {
+      const windowWidth = window.innerWidth;
+      const breakpoint = 600;
+      if (windowWidth > breakpoint) {
+        setButtonPosition(`${(windowWidth - breakpoint) / 2}px`);
+      } else {
+        setButtonPosition("0px");
+      }
+    };
+
+    // Set initial position
+    updateButtonPosition();
+
+    // Update position on window resize
+    window.addEventListener("resize", updateButtonPosition);
+
+    // Clean up
+    return () => {
+      window.removeEventListener("resize", updateButtonPosition);
+    };
+  }, []);
+
+  const toggleVisibility = () => {
+    if (scrollRef.current) {
+      const isNotBottom =
+        scrollRef.current.scrollTop + scrollRef.current.clientHeight <
+        scrollRef.current.scrollHeight - 5; // 5는 임의의 버퍼값입니다. 정확하게 바닥에 가까운지 여부를 확인하는 데 도움이 됩니다.
+
+      setIsVisible(isNotBottom);
+    }
+  };
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.addEventListener("scroll", toggleVisibility);
+
+      // 클린업 함수에서도 null 체크
+      return () => {
+        if (scrollRef.current) {
+          scrollRef.current.removeEventListener("scroll", toggleVisibility);
+        }
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchMoreData = async () => {
+      const currentScrollHeight = scrollRef.current.scrollHeight; // 현재 콘텐츠의 전체 높이를 저장
+
+      try {
+        const response = await axios.get(
+          `${baseURL}chat/${chatID}/?page=${page}`
+        );
+        setMessageData((prevMessageData) => ({
+          ...prevMessageData,
+          data: {
+            ...prevMessageData.data,
+            chatMessage: {
+              ...prevMessageData.chatMessage,
+              rows: [
+                ...prevMessageData.data.chatMessage.rows,
+                ...response.data.chatMessage.rows,
+              ],
+            },
+          },
+        }));
+
+        if (previousScrollHeightRef.current !== null) {
+          // 새로운 데이터의 높이 = 현재의 전체 높이 - 이전의 전체 높이
+          const newContentHeight =
+            currentScrollHeight - previousScrollHeightRef.current;
+          scrollRef.current.scrollTop += newContentHeight; // 스크롤 위치를 새로운 데이터의 높이만큼 조정
+        }
+
+        previousScrollHeightRef.current = currentScrollHeight; // 현재의 scrollHeight 값을 저장
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (page > 1) {
+      // 페이지가 1보다 크거나, 검색이 실행되지 않은 경우에 추가 결과를 불러옵니다.
+      fetchMoreData();
+    }
+  }, [page]);
 
   useEffect(() => {
     if (!socket) {
@@ -71,23 +183,18 @@ const ChattingRoom = () => {
   // 채팅방 메시지
   useEffect(() => {
     const fetchMessage = async () => {
-      return new Promise((resolve, reject) => {
-        axios
-          .get(baseURL + `chat/${chatID}`)
-          .then((response) => {
-            setMessageData(response);
-            resolve(true);
-          })
-          .catch((error) => {
-            console.error("Error fetching messages:", error);
-            reject(false);
-          });
-      });
+      try {
+        const response = await axios.get(baseURL + `chat/${chatID}`);
+        setMessageData(response);
+        setTimeout(() => {
+          scrollToBottom();
+        }, 400);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
     };
 
-    fetchMessage().then(() => {
-      scrollToBottom();
-    });
+    fetchMessage();
   }, []);
 
   useEffect(() => {
@@ -107,6 +214,7 @@ const ChattingRoom = () => {
   function closeModal() {
     setIsModalOpen(false);
   }
+
   const handleOutsideClick = (e) => {
     if (e.target === e.currentTarget) {
       // Check if the target is the ModalBackground
@@ -205,7 +313,7 @@ const ChattingRoom = () => {
                             />
                           ) : (
                             <img
-                              src={`${baseURL}${list.User.profileImage.replace(
+                              src={`${imgURL}${list.User.profileImage.replace(
                                 /\\/g,
                                 "/"
                               )}`}
@@ -232,7 +340,7 @@ const ChattingRoom = () => {
       </TopContainer>
 
       {/* 채팅내역 부분 */}
-      <MidContainer>
+      <MidContainer ref={scrollRef}>
         {/* 이전의 채팅을 가져오는 부분 */}
         {messageData &&
           [...messageData.data.chatMessage.rows]
@@ -247,18 +355,29 @@ const ChattingRoom = () => {
               const isCurrentUser = currentUser === prevchat.userID; // 현재 사용자와 이전의 채팅 userID가 일치하는지 확인
 
               return (
-                <ChatContainer key={index} self={isCurrentUser}>
+                <ChatContainer
+                  ref={index === 0 ? lastPostElementRef : null}
+                  key={index}
+                  self={isCurrentUser}
+                >
                   {!isCurrentUser && profileImage && (
                     <img
-                      src={`${baseURL}${profileImage.replace(/\\/, "/")}`}
+                      src={`${imgURL}${profileImage.replace(/\\/, "/")}`}
                       alt="Profile"
                     />
                   )}
+
                   <MessageContainer>
                     {!isCurrentUser && <UserID>{prevchat.userID}</UserID>}
                     <ChatContent self={isCurrentUser}>
                       {prevchat.content}
                     </ChatContent>
+                    <MessageTime isCurrentUser={isCurrentUser}>
+                      {new Intl.DateTimeFormat("ko-KR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }).format(new Date(prevchat.sendtime))}
+                    </MessageTime>
                   </MessageContainer>
                 </ChatContainer>
               );
@@ -268,13 +387,19 @@ const ChattingRoom = () => {
           <ChatContainer key={index} self={message.self}>
             {!message.self && message.profileImage && (
               <img
-                src={`${baseURL}${message.profileImage.replace(/\\/g, "/")}`}
+                src={`${imgURL}${message.profileImage.replace(/\\/g, "/")}`}
                 alt="Profile"
               />
             )}
             <MessageContainer>
               {!message.self && <UserID>{message.userID}</UserID>}
               <ChatMessage self={message.self}>{message.text}</ChatMessage>
+              <MessageTime>
+                {new Intl.DateTimeFormat("ko-KR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }).format(new Date())}
+              </MessageTime>
             </MessageContainer>
           </ChatContainer>
         ))}
@@ -282,6 +407,7 @@ const ChattingRoom = () => {
       </MidContainer>
 
       {/* 채팅입력 부분 */}
+
       <BottomContainer>
         <InputContainer>
           <ChatInput
@@ -296,9 +422,24 @@ const ChattingRoom = () => {
           </SendButton>
         </InputContainer>
       </BottomContainer>
+      <ScrollToBottomButton
+        onClick={scrollToBottom}
+        style={{ display: isVisible ? "block" : "none", right: buttonPosition }}
+      >
+        <FontAwesomeIcon icon={faChevronDown} size="3x" color="#f97800" />
+      </ScrollToBottomButton>
     </RoomContainer>
   );
 };
+
+const HiddenDiv = styled.div`
+  position: absolute;
+  visibility: hidden;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: -1;
+`;
 const Getout = styled.div`
   border-top: 1px solid #dadada;
   margin-top: 200px;
@@ -456,16 +597,37 @@ const ChatContainer = styled.div`
   }
 `;
 
+const ScrollToBottomButton = styled.button`
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  border: none;
+  background-color: #fff;
+  position: fixed;
+  bottom: 120px;
+  cursor: pointer; // 커서 모양 변경
+  transition: background-color 0.3s; // 배경색 변경 애니메이션 효과
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05); // 약한 회색 배경색
+  }
+`;
+
 const MessageContainer = styled.div`
   display: flex;
   flex-direction: column;
   margin-right: 10px;
 `;
-
+const MessageTime = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-right: 10px;
+  margin-top: auto;
+  font-size: x-small;
+`;
 const UserID = styled.span`
-  font-size: 12px; // 이 값을 원하는대로 조절하여 ID의 글자 크기를 조정할 수 있습니다.
-  color: #888; // ID의 글자색을 조절하고 싶다면 이 값을 변경하세요.
-  margin-bottom: 5px; // ID와 메시지 사이의 간격을 조절하고 싶다면 이 값을 변경하세요.
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 5px;
 `;
 
 const ChatContent = styled.div`

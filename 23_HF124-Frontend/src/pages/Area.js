@@ -1,7 +1,10 @@
+// Area.js (회원가입 2단계 : 주소지설정)
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "./Area.css"; // Importing the CSS
 
+const baseURL="http://localhost:3000/";
 function AddressForm() {
   const [addressInput, setAddressInput] = useState("");
   const [addressList, setAddressList] = useState([]);
@@ -18,7 +21,7 @@ function AddressForm() {
   
     try {
       const response = await axios.get(
-        `http://localhost:3000/signup/search-address?query=${addressInput}`
+        `${baseURL}signup/search-address?query=${addressInput}`
       );
   
       if (response.status === 200) {
@@ -38,7 +41,7 @@ function AddressForm() {
       console.log({ selectedAddress: place_name });
 
       try {
-        const response = await fetch("http://localhost:3000/signup/part2", {
+        const response = await fetch(baseURL+"signup/part2", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -69,30 +72,39 @@ function AddressForm() {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <label>
+    <div className="container">
+      <form onSubmit={handleSubmit} className="address-form">
+        <label className="address-label">
           주소 검색:
-          <input type="text" value={addressInput} onChange={handleInputChange} />
+          <input 
+            type="text" 
+            value={addressInput} 
+            onChange={handleInputChange} 
+            placeholder="ex) 경기도 용인시, 대구광역시 동구..."
+            className="address-input"
+          />
         </label>
-        <input type="submit" value="주소 검색" />
+        <input type="submit" value="주소 검색" className="submit-button" />
       </form>
-      {selectedAddress && <p>선택한 주소: {selectedAddress}</p>}
+      {selectedAddress && <p className="selected-address">선택한 주소: {selectedAddress}</p>}
       {addressList.length > 0 && (
-        <div>
+        <div className="address-list-container">
           <h2>주소 목록</h2>
-          <ul>
+          <ul className="address-list">
             {addressList.map((place_name, index) => (
-              <li key={index} onClick={() => handleAddressSelect(place_name)}>
+              <li key={index} onClick={() => handleAddressSelect(place_name)} className="address-item">
                 {place_name}
               </li>
             ))}
           </ul>
         </div>
       )}
-      <button onClick={handleNext}>다음</button>
+      <button onClick={handleNext} className="next-button">다음</button>
     </div>
   );
+  
 }
 
 export default AddressForm;
+
+

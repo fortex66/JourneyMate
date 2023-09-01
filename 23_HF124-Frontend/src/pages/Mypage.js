@@ -15,7 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const baseURL = "http://localhost:3000/";
-
+const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 function MyPage() {
   const navigate = useNavigate();
   const [write, setWrite] = useState(false);
@@ -96,7 +96,7 @@ function MyPage() {
               >
                 {image ? (
                   <img
-                    src={`${baseURL}${image && image.replace(/\\/g, "/")}`}
+                    src={`${imgURL}${image && image.replace(/\\/g, "/")}`}
                     alt="chosen"
                     style={{ width: "100%", borderRadius: "100%" }}
                   />
@@ -166,7 +166,7 @@ function MyPage() {
                 <div>
                   <Picture>
                     <img
-                      src={`${baseURL}${
+                      src={`${imgURL}${
                         post.post_images[0]
                           ? post.post_images[0].imageURL.replace(/\\/g, "/")
                           : ""
@@ -190,7 +190,7 @@ function MyPage() {
                 <div>
                   <Picture>
                     <img
-                      src={`${baseURL}${post.post_images[0].imageURL.replace(
+                      src={`${imgURL}${post.post_images[0].imageURL.replace(
                         /\\/g,
                         "/"
                       )}`}
