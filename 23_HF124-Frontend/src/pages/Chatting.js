@@ -82,7 +82,7 @@ function Chatting() {
                 <TitleContainer>
                   <Title>{list.group_chatting.companion_posts.title}</Title>
                   <Person>
-                    {list.group_chatting.companion_posts.personnel}
+                    {list.group_chatting.userCount}
                   </Person>
                 </TitleContainer>
 
