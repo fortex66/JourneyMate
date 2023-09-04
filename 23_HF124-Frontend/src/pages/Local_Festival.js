@@ -14,6 +14,8 @@ const Local_Festival = () => {
   const [pageNo, setPageNo] = useState(1); // 페이지 번호 상태 추가
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
   const observer = useRef(); // IntersectionObserver를 위한 ref
+  const [isSearchButtonClicked, setIsSearchButtonClicked] = useState(false); // 검색 버튼이 눌렸는지 확인하는 상태
+  const [isPageLoaded, setIsPageLoaded] = useState(true); // 페이지 로딩 확인용 상태
   const areaCodes = {
     서울: 1,
     인천: 2,
@@ -58,33 +60,20 @@ const Local_Festival = () => {
 
   const baseURL = "http://apis.data.go.kr/B551011/KorService1/";
   const OPEN_KEY =
-    "gjCAjUo72Uf+jMwy1BdQo85+1vNiWiTVe4X987jUj42meneObLKNI/4pAYfK+ysqF/ObJvxdZp7Fe4uA6/PxKQ==";
+    "gjCAjUo72Uf%2BjMwy1BdQo85%2B1vNiWiTVe4X987jUj42meneObLKNI%2F4pAYfK%2BysqF%2FObJvxdZp7Fe4uA6%2FPxKQ%3D%3D";
 
   const fetchData = async () => {
-    setIsLoading(true); // 로딩 시작
+    setIsLoading(true);
     try {
-      let url = ""; // URL을 저장할 변수
-      const realkeyword = encodeURIComponent(searchKeyword); // 검색 키워드 인코딩
-      const areaCodeParam = selectedRegion ? `&areaCode=${selectedRegion}` : ""; // 지역 코드 설정
-      console.log("Generated API URL:", url);
-      // 검색 키워드가 있는 경우와 없는 경우에 따라 URL을 변경합니다.
-      if (selectedRegion && !searchKeyword) {
-        console.log("지역코드 : (" + selectedRegion + ") 만 선택");
-        url = `https://apis.data.go.kr/B551011/KorService1/searchKeyword1?numOfRows=10&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&keyword=null&areaCode=${areaCodeParam}&contentTypeId=15&serviceKey=${OPEN_KEY}`;
-      } else if (searchKeyword && !selectedRegion) {
-        console.log("검색어 : (" + searchKeyword + ") 만 선택");
-        url = `https://apis.data.go.kr/B551011/KorService1/searchKeyword1?numOfRows=10&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&keyword=${realkeyword}&areaCode=${areaCodeParam}&contentTypeId=15&serviceKey=${OPEN_KEY}`;
-      } else if (searchKeyword && selectedRegion) {
-        console.log(
-          "검색어 : " +
-            searchKeyword +
-            " 지역코드 : " +
-            selectedRegion +
-            " 둘다 선택"
-        );
-        url = `https://apis.data.go.kr/B551011/KorService1/searchKeyword1?numOfRows=10&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&keyword=${realkeyword}&areaCode=${areaCodeParam}&contentTypeId=15&serviceKey=${OPEN_KEY}`;
+      const realkeyword = encodeURIComponent(searchKeyword);
+      let url = "";
+      if (selectedRegion && searchKeyword) {
+        url = `https://apis.data.go.kr/B551011/KorService1/searchKeyword1?numOfRows=10&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&keyword=${realkeyword}&areaCode=${selectedRegion}&contentTypeId=15&serviceKey=${OPEN_KEY}`;
+      } else if (selectedRegion) {
+        url = `https://apis.data.go.kr/B551011/KorService1/areaBasedList1?numOfRows=10&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&contentTypeId=15&areaCode=${selectedRegion}&serviceKey=${OPEN_KEY}`;
+      } else if (searchKeyword) {
+        url = `https://apis.data.go.kr/B551011/KorService1/searchKeyword1?numOfRows=10&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&keyword=${realkeyword}&contentTypeId=15&serviceKey=${OPEN_KEY}`;
       } else {
-        console.log("아무것도 안선택");
         const today = new Date();
         const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, "0");
@@ -92,15 +81,11 @@ const Local_Festival = () => {
         const maxDate = `${year}${month}${day}`;
         url = `https://apis.data.go.kr/B551011/KorService1/searchFestival1?numOfRows=10&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&eventStartDate=${maxDate}&serviceKey=${OPEN_KEY}`;
       }
-
-      const response = await fetch(url); // API 호출
+      const response = await fetch(url);
       if (!response.ok)
         throw new Error(`HTTP error! Status: ${response.status}`);
-
-      const json = await response.json(); // 응답을 JSON으로 변환
-      const newItems = json.response?.body?.items?.item || []; // 새 아이템들, 없으면 빈 배열
-
-      // 페이지 번호가 1이면 새로운 데이터로, 그렇지 않으면 기존 데이터에 추가합니다.
+      const json = await response.json();
+      const newItems = json.response?.body?.items?.item || [];
       if (pageNo === 1) {
         setData(newItems);
       } else {
@@ -109,16 +94,30 @@ const Local_Festival = () => {
     } catch (error) {
       console.error("Fetching API failed:", error);
     }
-    setIsLoading(false); // 로딩 완료
+    setIsLoading(false);
   };
 
   useEffect(() => {
-    fetchData();
-  }, [pageNo, searchKeyword, selectedRegion]);
+    if (isSearchButtonClicked || isPageLoaded || pageNo > 1) {
+      fetchData();
+    }
+    if (isSearchButtonClicked) {
+      setIsSearchButtonClicked(false); // 다시 false로 설정
+    }
+    if (isPageLoaded) {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const day = String(today.getDate()).padStart(2, "0");
+      const maxDate = `${year}${month}${day}`;
+      setMaxDate(maxDate);
+      setIsPageLoaded(false); // 다시 false로 설정
+    }
+  }, [isSearchButtonClicked, isPageLoaded, pageNo]);
 
   const getByKeyword = () => {
     setPageNo(1); // 페이지 번호를 1로 리셋
-    fetchData(); // 검색 실행
+    setIsSearchButtonClicked(true); // 검색 버튼이 눌렸음을 설정
   };
 
   const handleKeyPress = (event) => {
