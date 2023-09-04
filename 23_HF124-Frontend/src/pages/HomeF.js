@@ -155,6 +155,11 @@ const Home = () => {
       });
     }
   };
+  const goDetail = (marker) => {
+    navigate("/Festival_detail", {
+      state: { festivalData: marker },
+    });
+  };
   return (
     <div>
       <Container>
@@ -204,7 +209,7 @@ const Home = () => {
                       clickable={true}
                       onMouseOver={() => handleMouseOverMarker(marker)}
                       onMouseOut={handleMouseOutMarker}
-                      onClick={() => handleMarkerClick(marker)}
+                      onClick={() => goDetail(marker)}
                     />
                     {isMarkerHovered === marker &&
                       isMarkerClicked === false && (
