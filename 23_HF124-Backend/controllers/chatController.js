@@ -4,29 +4,6 @@ const post = require("../models/uploadModel");
 const { Op, Sequelize, QueryTypes } = require("sequelize");
 const { sequelize } = require("../config");
 
-// 이벤트 핸들러 등록 부분
-// 원래 'io.on'이 시작되는 부분을 다음과 같이 변경합니다.
-// function registerSocketHandlers() {
-//   const {io} = require('../app');
-
-//   io.on('connection', (socket) => {
-//     console.log('a user connected');
-//     // 사용자가 연결을 끊었을 때
-//     socket.on('disconnect', () => {
-//       console.log('user disconnected');
-//     });
-
-//     // 사용자가 메시지를 보냈을 때
-//     socket.on('chat message', (msg) => {
-//       console.log('message: ' + msg);
-//       // 메시지를 모든 클라이언트에게 보냅니다.
-//       io.emit('chat message', msg);
-//     });
-//   });
-// }
-
-// registerSocketHandlers();
-
 //채팅방 리스트 불러오기
 const getChatRoom = async (req, res) => {
   try {
@@ -59,7 +36,6 @@ const getChatRoom = async (req, res) => {
 
     const participatedChatIds = getlist.map((item) => item.chatID);
 
-    console.log(participatedChatIds);
     const userCounts = await chat.user_chat.findAll({
       attributes: [
         "chatID",
@@ -72,9 +48,27 @@ const getChatRoom = async (req, res) => {
       },
       group: ["chatID"],
     });
-    console.log(userCounts);
+    userCounts.map((item)=>{
+      console.log(`${item.dataValues.chatID}의 사용자수`+item.dataValues.userCount)
+    })
     console.log(getlist);
-    res.status(200).json(getlist);
+    console.log(userCounts);
+    const updatedItems = await Promise.all(
+      getlist.map(async (item) => {
+        const chatID = item.dataValues.chatID;
+        const matchingUserCount = await userCounts.find(function (uc){
+          return chatID === uc.dataValues.chatID
+        });
+        if (matchingUserCount) {
+          item.dataValues.group_chatting.dataValues.userCount = matchingUserCount.dataValues.userCount;
+        } else {
+          item.dataValues.userCount = 0;
+        }
+        return item;
+      })
+    );
+    
+    res.status(200).json(updatedItems);
   } catch (err) {
     console.error(err);
   }

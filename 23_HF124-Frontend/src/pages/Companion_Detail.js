@@ -1,3 +1,4 @@
+//Companion_Detail.js
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -61,7 +62,7 @@ const Companion_Detail = () => {
         .put(baseURL + `companion/chatroom/${cpostID}`)
         .then((res) => {
           console.log("성공");
-          navigate(`/Chatting`);
+          navigate(`/ChattingRoom/${cpostID}`);
         })
         .catch((err) => {
           console.error(err);
@@ -70,6 +71,7 @@ const Companion_Detail = () => {
       console.errror(err);
     }
   };
+
 
   const addComment = () => {
     const newCommentObject = {
