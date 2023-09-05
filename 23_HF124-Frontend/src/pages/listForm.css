@@ -21,7 +21,7 @@
 }
 
 .ContentsBox {
-  height: 250px;
+  height: 190px;
   display: flex;
   flex-direction: column;
 }

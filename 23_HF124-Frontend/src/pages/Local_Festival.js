@@ -1,3 +1,4 @@
+// 0905 Local_Festival 백업
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import Navigationbar from "../components/Navigationbar";
 import styled from "styled-components";
@@ -97,6 +98,7 @@ const Local_Festival = () => {
     setIsLoading(false);
   };
 
+  console.log(data);
   useEffect(() => {
     if (isSearchButtonClicked || isPageLoaded || pageNo > 1) {
       fetchData();
@@ -248,10 +250,49 @@ const Local_Festival = () => {
     </Container>
   );
 };
-const Content = styled.div`
-  margin-top: 125px;
+const Img = styled.img`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  width: 250px; /* 가로 너비를 고정합니다 */
+  height: 250px; /* 비율에 맞게 높이를 자동으로 설정합니다 */
+  object-fit: cover; /* 이미지가 부모 요소를 완전히 덮도록 설정하되 비율은 유지합니다 */
+  cursor: pointer;
+  margin-right: 50px;
+  border-radius: 10px;
 `;
 
+const Back = styled.div`
+  diplay: flex;
+  border: 2px solid #dadada;
+  //background-color: rgb(254, 237, 229);
+  border-radius: 10px; // 둥근 모서리를 위한 코드 추가
+  width: 250px;
+  margin-left: 30px;
+`;
+
+const Content = styled.div`
+  display: flex; // flex를 사용
+  flex-wrap: wrap; // 너비를 초과하면 다음 줄로 넘김
+  margin-top: 125px;
+  margin-left: 25px;
+  //justify-content: space-between; // 자식 요소들 사이에 공간을 균일하게 배분
+`;
+
+const Box = styled.div`
+  margin-top: 20px;
+  border-radius: 30px;
+`;
+/**
+ * const Box = styled.div`
+  flex-basis: calc(33.333% - 40px); // 33.333% 너비에서 마진 40px 제외
+  margin: 20px; // 원하는 마진
+  border-radius: 30px;
+`;
+
+ */
 const Local = styled.div`
   display: flex; // 오타 수정
   justify-content: center;
@@ -333,35 +374,17 @@ const Modal = styled.div`
   }
 `;
 const Title = styled.div`
-  display: flex;
-  justify-content: center;
   font-size: 20px;
   font-weight: bold;
-  //background-color: #ffca9b;
-  //border-radius: 30px; // 둥근 모서리를 위한 코드 추가
   margin-top: -20px;
   margin-bottom: 30px;
+  width: 100%;
+  text-align: center; // 기본은 중앙정렬
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
-const Img = styled.img`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
-  width: 500px;
-  cursor: pointer;
-  margin-right: 50px;
-
-  border-radius: 10px; // 둥근 모서리를 위한 코드 추가
-`;
-const Back = styled.div`
-  border: 2px solid #dadada;
-  //background-color: rgb(254, 237, 229);
-  border-radius: 10px; // 둥근 모서리를 위한 코드 추가
-  width: 500px;
-  margin-left: 50px;
-`;
 const Button = styled.button`
 appearance: none;
 background-color: transparent;
@@ -396,35 +419,7 @@ transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
 }
 }
 `;
-const Sort = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin: 100px 50px 20px 50px;
-  button {
-    box-sizing: border-box;
-    appearance: none;
-    background-color: #f97800;
-    border: 1px solid #f97800;
-    border-radius: 0.6em;
-    color: #fff;
-    cursor: pointer;
-    align-self: center;
-    font-size: 12px;
-    font-family: "Nanum Gothic", sans-serif;
-    line-height: 1;
-    margin: 10px;
-    padding: 0.6em 2em;
-    text-decoration: none;
-    letter-spacing: 2px;
-    font-weight: bold;
-  }
-`;
-const Box = styled.div`
-  margin-top: 20px;
-  border-radius: 30px; // 둥근 모서리를 위한 코드 추가
-  margin-right: 20px;
-  margin-left: 20px;
-`;
+
 const Address = styled.div`
   display: flex;
   justify-content: center;
@@ -478,4 +473,5 @@ const SearchInput1 = styled.input`
   margin-left: 18px;
   width: 445px;
 `;
+
 export default Local_Festival;

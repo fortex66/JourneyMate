@@ -32,6 +32,7 @@ const Scrap = () => {
     fetchScrapedPosts();
   }, []);
 
+  console.log(scrapedPosts);
   return (
     <div>
       <Top>
@@ -42,21 +43,23 @@ const Scrap = () => {
         <FontAwesomeIcon icon={faScroll} size="2x" color={"#f97800"} />
       </Icon>
 
-      <Line></Line>
       <br />
       <CommunityList>
         {scrapedPosts.map((post, index) => (
           <CommunityItem key={index} onClick={() => goDetail(post.tpostID)}>
             <div>
-              <Picture>
-                <img
-                  src={`${imgURL}${
-                    post.post_images[0]
-                      ? post.post_images[0].imageURL.replace(/\\/g, "/")
-                      : ""
-                  }`}
-                />
-              </Picture>
+              <Content>
+                {" "}
+                <Picture>
+                  <img
+                    src={`${imgURL}${
+                      post.post_images[0]
+                        ? post.post_images[0].imageURL.replace(/\\/g, "/")
+                        : ""
+                    }`}
+                  />
+                </Picture>
+              </Content>
             </div>
           </CommunityItem>
         ))}
@@ -66,6 +69,7 @@ const Scrap = () => {
   );
 };
 
+const Content = styled.div``;
 const CommunityList = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -88,12 +92,12 @@ const Icon = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: -38px;
+  margin-top: -35px;
 `;
 
 const Line = styled.div`
   border-bottom: 1px solid #f97800;
-  margin-top: 20px;
+  margin-top: 26px;
 `;
 const StyledButton = styled.button`
 box-sizing: border-box;
@@ -112,7 +116,7 @@ text-decoration: none;
 letter-spacing: 2px;
 font-weight: 700;
 
-margin-top:10px;
+margin-top:22px;
 
 &:hover,
 &:focus {

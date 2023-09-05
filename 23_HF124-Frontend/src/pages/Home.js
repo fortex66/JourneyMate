@@ -194,6 +194,19 @@ const Home = () => {
   useEffect(() => {
     console.log("Location state has changed:", location);
   }, [location]);
+  const getTexts = (size) => {
+    if (size > 20) {
+      return `
+        <div style="position: relative;">
+          <span style="position: absolute; top: -10px; right: -16px; z-index: -1; opacity: 0.8; font-size: 4em;">🔥</span>
+          <span style="position: relative; z-index: 1; color: red;">HOT</span>
+        </div>
+      `;
+    } else {
+      return size.toString();
+    }
+  };
+
   return (
     <div>
       <Container>
@@ -235,10 +248,11 @@ const Home = () => {
               {location.errMsg ? location.errMsg : "여기에 계신가요?!"}
             </div>
           </MapMarker>
-        )} */}
+        )} */}{" "}
             <MarkerClusterer
               averageCenter={true} // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
               minLevel={10} // 클러스터 할 최소 지도 레벨
+              texts={getTexts}
             >
               {latestMarkers &&
                 latestMarkers.map((marker, index) => (
@@ -316,6 +330,20 @@ const Home = () => {
   );
 };
 export default Home;
+
+const FireBackground = styled.span`
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  opacity: 0.5;
+`;
+
+const HotText = styled.span`
+  position: relative;
+  z-index: 1;
+  color: red;
+`;
 
 const NearbyModalStyled = styled.div`
   position: fixed;

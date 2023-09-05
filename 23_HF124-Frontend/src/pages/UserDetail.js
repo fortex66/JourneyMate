@@ -13,7 +13,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const baseURL = "http://localhost:3000/";
-const imgURL = "https://journeymate.s3.ap-northeast.amazonaws.com/";
+const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 function UserDetail() {
   const navigate = useNavigate();
   const [write, setWrite] = useState(false);
@@ -25,7 +25,6 @@ function UserDetail() {
   const { userId } = useParams();
   const [userTags, setUserTags] = useState([]); // 유저 태그를 저장할 새로운 상태 변수
 
-
   const getUserProfile = async () => {
     try {
       // const userId = window.location.pathname.split("/").pop();
@@ -36,7 +35,6 @@ function UserDetail() {
       setUserData(resUser.data);
       setImage(resUser.data.profile.profileImage);
       setUserTags(resUser.data.userTag); // userTags 상태 업데이트
-
     } catch (error) {
       console.log(error);
     }
@@ -99,7 +97,13 @@ function UserDetail() {
     <div className="Wrap">
       <div className="topView">
         <MyInfoBox>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
             <Circle>
               {image ? (
                 <img
@@ -111,28 +115,17 @@ function UserDetail() {
                 <FontAwesomeIcon icon={faUser} size="2x" color={"#f97800"} />
               )}
             </Circle>
-            {userId}
+            <ID> {userId}</ID>
           </div>
-          <div>
-            <h4>관심사:</h4>
-            <ul style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '10px',
-              maxWidth: '300px'
-            }}>
-              {userTags.map((tag, index) => (
-                <TagStyle key={index}> {/* styled-components로 정의한 TagStyle 사용 */}
-                  {tag.tagName}
-                </TagStyle>
-              ))}
-            </ul>
-          </div>
+          <Tagdiv>
+            {userTags.map((tag, index) => (
+              <TagStyle key={index}>#{tag.tagName}</TagStyle>
+            ))}
+          </Tagdiv>
         </MyInfoBox>
-
       </div>
 
-      <MyList>
+      <MyList selectedColor={selectedColor}>
         <div>
           <FontAwesomeIcon
             icon={faGlobe}
@@ -210,43 +203,41 @@ function UserDetail() {
     </div>
   );
 }
+const ID = styled.text`
+  font-weight: bold;
+`;
+const Tagdiv = styled.div`
+  display: flex;
+  /* flex-direction: row; 이 부분은 생략 가능 */
+  justify-content: center;
+  margin-top: 5px;
+`;
 
-const Name = styled.div``;
-
-const TagStyle = styled.li`
+const TagStyle = styled.div`
   list-style: none;
-  border: 1px solid #ccc;
+  //border: 1px solid #ccc;
   padding: 5px 10px;
-  border-radius: 4px;
-  background-color: #f5f5f5;
+  //border-radius: 4px;
+  //background-color: #f5f5f5;
   color: #333;
   font-size: 14px;
   margin: 5px;
 `;
 
-
 const MyInfoBox = styled.div`
-  display: flex;
   justify-content: space-around;
-  border-bottom: 1px solid #dddddd;
+  //border-bottom: 1px solid #dddddd;
   height: 130px;
-  margin-top: 20px;
+  margin-top: 40px;
   align-items: center;
   text-align: center;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  padding: 0 20px;  /* 좌우 패딩 추가 */
+  padding: 0 20px; /* 좌우 패딩 추가 */
+  padding-bottom: 20px;
 `;
-const MyMenuMiddle = styled.div`
-  height: 120px;
-  border-bottom: 1px solid #dddddd;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 25px auto;
-  text-align: center;
-`;
+
 const Circle = styled.div`
   background-color: rgb(254, 237, 229);
   width: 70px;
@@ -265,23 +256,37 @@ const Circle = styled.div`
   }
 `;
 const MyList = styled.div`
-  height: 70px;
+  height: 50px;
   border-bottom: 1px solid #dddddd;
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
   padding-bottom: 15px;
   position: relative;
-  &::after {
+  // &::after { // 선택요소의 종료부분
+  //   content: "";
+  //   position: absolute;
+  //   top: 50%;
+  //   left: 50%;
+
+  //   width: 1px;
+  //   height: 70%; // 원하는 높이(%)로 조절
+  //   background-color: #dddddd;
+  //   transform: translate(-50%, -50%);
+  // }
+  &::before {
+    // 선택요소의 시작부분
     content: "";
     position: absolute;
-    top: 50%;
-    left: 50%;
-
-    width: 1px;
-    height: 70%; // 원하는 높이(%)로 조절
-    background-color: #dddddd;
-    transform: translate(-50%, -50%);
+    bottom: 0; // 아래쪽에 위치
+    height: 2px; // 두께는 2px
+    background-color: orange; // 주황색 배경
+    width: 50%; // 화면의 중간만큼의 넓이
+    transition: left 0.3s ease; // 왼쪽으로 이동하는 애니메이션
+    left: ${(props) =>
+      props.selectedColor === "faGlobe"
+        ? "0%"
+        : "50%"}; // selectedColor에 따라 위치 변경
   }
 `;
 const Content = styled.div``;

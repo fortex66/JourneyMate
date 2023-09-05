@@ -24,7 +24,7 @@ function MyPage() {
   const [companionData, setCompanionData] = useState(null);
   const [image, setImage] = useState(null);
   const [userData, setUserData] = useState(null); // new state for storing user data
-
+  const [scrapedPosts, setScrapedPosts] = useState([]);
   const getUserProfile = async () => {
     try {
       const resUser = await axios.get(baseURL + `mypage/profile`);
@@ -56,7 +56,7 @@ function MyPage() {
       console.log(error);
     }
   };
-
+  console.log(CommunityData);
   const getCompanion = async () => {
     try {
       const resCompanion = await axios.get(baseURL + `mypage/companion`);
@@ -66,19 +66,33 @@ function MyPage() {
       console.log(error);
     }
   };
+  console.log(companionData);
 
   useEffect(() => {
+    // 페이지가 로드될 때 실행할 코드
     window.scrollTo(0, 0);
+    getUserProfile();
+    getCommunity();
+    getCompanion();
+  }, []); // 빈 배열은 이 useEffect가 컴포넌트가 마운트될 때만 실행되게 함
+  useEffect(() => {
+    const fetchScrapedPosts = async () => {
+      try {
+        const response = await axios.get(`${baseURL}mypage/scrap`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+        });
+        setScrapedPosts(response.data.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchScrapedPosts();
   }, []);
 
-  useEffect(() => {
-    getUserProfile(); // calling the function to get user profile
-    if (selectedColor === "faGlobe") {
-      getCommunity();
-    } else if (selectedColor === "faUserGroup") {
-      getCompanion();
-    }
-  }, [selectedColor]);
+  console.log(scrapedPosts.length);
   return (
     <div className="Wrap">
       <Title>
@@ -87,48 +101,57 @@ function MyPage() {
       </Title>
       <div className="topView">
         <div className="ContentsBox">
-          <MyInfoBox>
-            <div style={{ alignItems: "center" }}>
-              <Circle
-                onClick={() => {
-                  navigate("/Profile");
-                }}
-              >
-                {image ? (
-                  <img
-                    src={`${imgURL}${image && image.replace(/\\/g, "/")}`}
-                    alt="chosen"
-                    style={{ width: "100%", borderRadius: "100%" }}
-                  />
-                ) : (
-                  <FontAwesomeIcon icon={faUser} size="2x" color={"#f97800"} />
-                )}
-              </Circle>
-              내정보
-            </div>
-          </MyInfoBox>
-          <MyMenuMiddle>
-            <div>
-              <Circle onClick={() => setWrite(!write)}>
-                {write && <Modal closeModal={() => setWrite(!write)}></Modal>}
-                <FontAwesomeIcon icon={faPen} size="2x" color={"#f97800"} />
-              </Circle>
-              글쓰기
-            </div>
-            <div>
-              <Circle
+          <Upwrap>
+            {" "}
+            <MyInfoBox>
+              <div style={{ alignItems: "center" }}>
+                <Circle1
+                  onClick={() => {
+                    navigate("/Profile");
+                  }}
+                >
+                  {image ? (
+                    <img
+                      src={`${imgURL}${image && image.replace(/\\/g, "/")}`}
+                      alt="chosen"
+                      style={{ width: "100%", borderRadius: "100%" }}
+                    />
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faUser}
+                      size="2x"
+                      color={"#f97800"}
+                    />
+                  )}
+                </Circle1>
+                <ID>{CommunityData && CommunityData.posts.rows[0].userID}</ID>
+              </div>
+            </MyInfoBox>
+            <Count>
+              {" "}
+              <CommunityW>
+                <CT> 커뮤니티</CT>
+                <CC>{CommunityData && CommunityData.posts.count}</CC>
+              </CommunityW>
+              <CompanionW>
+                <CPT> 동행인</CPT>
+
+                <CPC>{companionData && companionData.posts.count}</CPC>
+              </CompanionW>
+              <ScrapW
                 onClick={() => {
                   navigate("/Scrap");
                 }}
               >
-                <FontAwesomeIcon icon={faScroll} size="2x" color={"#f97800"} />
-              </Circle>
-              스크랩
-            </div>
-          </MyMenuMiddle>
+                <ST> 스크랩</ST>
+
+                <SC> {scrapedPosts.length}</SC>
+              </ScrapW>
+            </Count>
+          </Upwrap>
         </div>
       </div>
-      <MyList>
+      <MyList selectedColor={selectedColor}>
         <div>
           <FontAwesomeIcon
             icon={faGlobe}
@@ -206,6 +229,57 @@ function MyPage() {
     </div>
   );
 }
+const Upwrap = styled.div`
+  display: flex;
+`;
+const Count = styled.div`
+  display: flex;
+  margin-left: 200px;
+  margin-top: 80px;
+  justify-content: space-between;
+`;
+const CommunityW = styled.div`
+  margin-left: -100px;
+  margin-right: 90px; /* 오른쪽 마진 추가 */
+`;
+const CT = styled.text`
+  font-size: 20px;
+  font-weight: bold;
+`;
+const CC = styled.div`
+  display: flex;
+  justify-content: center;
+  font-size: 20px;
+`;
+
+const CompanionW = styled.div`
+  margin-right: 90px; /* 오른쪽 마진 추가 */
+`;
+const CPT = styled.text`
+  font-size: 20px;
+  font-weight: bold;
+`;
+const CPC = styled.div`
+  display: flex;
+  justify-content: center;
+  font-size: 20px;
+`;
+
+const ScrapW = styled.div``;
+const ST = styled.text`
+  font-size: 20px;
+  font-weight: bold;
+`;
+const SC = styled.div`
+  display: flex;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+`;
+const ID = styled.text`
+  font-weight: bold;
+`;
+
 const Title = styled.div`
   font-size: 20px;
   font-weight: bold;
@@ -218,12 +292,14 @@ const Title = styled.div`
 
 const MyInfoBox = styled.div`
   display: flex;
-  justify-content: space-around;
-  border-bottom: 1px solid #dddddd;
-  height: 130px;
-  margin-top: 20px;
+  //justify-content: start;
+  //border-bottom: 1px solid #dddddd;
+  height: 120px;
+  margin-top: 10px;
   align-items: center;
   text-align: center;
+  margin-left: 50px;
+  margin-top: 50px;
 `;
 const MyMenuMiddle = styled.div`
   height: 120px;
@@ -251,6 +327,24 @@ const Circle = styled.div`
     object-fit: cover;
   }
 `;
+
+const Circle1 = styled.div`
+  background-color: rgb(254, 237, 229);
+  width: 90px;
+  height: 90px;
+  border-radius: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  cursor: pointer;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
 const MyList = styled.div`
   height: 70px;
   border-bottom: 1px solid #dddddd;
@@ -259,15 +353,19 @@ const MyList = styled.div`
   justify-content: space-around;
   padding-bottom: 15px;
   position: relative;
-  &::after {
+  &::before {
+    // 선택요소의 시작부분
     content: "";
     position: absolute;
-    top: 55%;
-    left: 50%;
-    width: 1px;
-    height: 70%; // 원하는 높이(%)로 조절
-    background-color: #dddddd;
-    transform: translate(-50%, -50%);
+    bottom: 0; // 아래쪽에 위치
+    height: 2px; // 두께는 2px
+    background-color: orange; // 주황색 배경
+    width: 50%; // 화면의 중간만큼의 넓이
+    transition: left 0.3s ease; // 왼쪽으로 이동하는 애니메이션
+    left: ${(props) =>
+      props.selectedColor === "faGlobe"
+        ? "0%"
+        : "50%"}; // selectedColor에 따라 위치 변경
   }
 `;
 const Content = styled.div``;
