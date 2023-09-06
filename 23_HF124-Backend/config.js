@@ -42,10 +42,20 @@ const upload = multer({
     }),
   });
 
+  const chatting = multer({
+    storage: multerS3({
+      s3: s3,
+      bucket: 'journeymate',
+      contentType: multerS3.AUTO_CONTENT_TYPE,
+      key:function(req, file, cb){
+        cb(null, `chatting/${req.params.chatID}-${req.decode.userID}-${Date.now()}-${file.originalname}`)
+      }
+    })
+  })
 const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USERNAME, process.env.MYSQL_PASSWORD, {
     host: process.env.MYSQL_HOST,
     port: process.env.MYSQL_PORT,
     dialect: 'mysql',
   });
 
-module.exports = {upload,profile, sequelize};
+module.exports = {upload,profile, chatting, sequelize};

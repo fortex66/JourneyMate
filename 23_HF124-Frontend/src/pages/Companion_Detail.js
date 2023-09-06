@@ -1,11 +1,12 @@
 //Companion_Detail.js
-import { useEffect, useState } from "react";
+import { useEffect, useState,useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Detail_Nav from "../components/Detail_Nav";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { SocketContext } from "../App";
 const Companion_Detail = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const Companion_Detail = () => {
   const [newComment, setNewComment] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const {socket, socketId} = useContext(SocketContext);
 
   const baseURL = "http://localhost:3000/";
   const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
@@ -59,9 +61,9 @@ const Companion_Detail = () => {
     const cpostID = window.location.pathname.split("/").pop();
     try {
       await axios
-        .put(baseURL + `companion/chatroom/${cpostID}`)
+        .put(baseURL + `companion/chatroom/${cpostID}`,{socketID: socketId})
         .then((res) => {
-          console.log("성공");
+          console.log(res)
           navigate(`/ChattingRoom/${cpostID}`);
         })
         .catch((err) => {
