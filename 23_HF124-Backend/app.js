@@ -34,7 +34,7 @@ const app = express();
 // const server = https.createServer(options, app);
 
 const server = http.createServer(app);
-
+socketHandlers.init(server);
 const connectDB = require("./database/database");
 connectDB();
 
@@ -70,15 +70,15 @@ server.listen(port, () => {
   console.log("서버가 " + port + "번 포트에서 실행중입니다.");
 });
 
-const io = socketio(server, {
-  cors: {
-    origin: "http://localhost:3001",
-    // methods: ["GET", "POST"], // 초기 연결할때 handshake용
-    credentials: true,
-  },
-});
-io.use(auth);
-socketHandlers(io);
+// const io = socketio(server, {
+//   cors: {
+//     origin: "http://localhost:3001",
+//     // methods: ["GET", "POST"], // 초기 연결할때 handshake용
+//     credentials: true,
+//   },
+// });
+// io.use(auth);
+// socketHandlers(io);
 
 // 이제 'chatRoutes'를 require합니다.
 // const chatRoutes = require("./routes/chatRoutes");
