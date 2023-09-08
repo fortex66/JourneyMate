@@ -15,6 +15,10 @@ const Festival_detail = () => {
   console.log(festivalData);
   const [detailInfo, setDetailInfo] = useState("");
   const [showDetails, setShowDetails] = useState(false);
+    // 페이지가 로드될 때 스크롤을 맨 위로 이동
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
 
   const formatDate = (date) => {
     if (!date || date.length !== 8) return ""; // 데이터의 길이가 8이 아닐 경우 빈 문자열 반환

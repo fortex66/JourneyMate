@@ -14,6 +14,7 @@ import {
   faArrowLeft,
   faPaperPlane,
   faChevronDown,
+  faSquarePlus
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { SocketContext } from "../App";
@@ -21,10 +22,11 @@ import ChattingMessage from "./ChattingMessage";
 const baseURL = "http://localhost:3000/";
 const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 const ChattingRoom = () => {
+  let lastDate = ""
   const { chatID } = useParams(); // postId 추출
-  const socket = useContext(SocketContext);
+  const {socket, socketId} = useContext(SocketContext);
   const chattingmessages = useContext(ChattingMessage); // 이 코드를 추가합니다.
-
+  const [socketID, setSocketID]=useState(socket);
   const messagesEndRef = useRef(null);
   const observer = useRef();
   const scrollRef = useRef(null);
@@ -40,7 +42,10 @@ const ChattingRoom = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [page, setPage] = useState(1);
   const [isVisible, setIsVisible] = useState(false);
+  const [imageData, setImageData] = useState("");
+  const [image, setImage]=useState([]);
   const [buttonPosition, setButtonPosition] = useState("20px");
+  const [file, setFile] = useState("");
 
   const lastPostElementRef = useCallback((node) => {
     if (observer.current) observer.current.disconnect();
@@ -144,9 +149,9 @@ const ChattingRoom = () => {
     if (!socket) {
       return;
     }
-
+    console.log(messageData)
     const handleChatMessage = async (data) => {
-      console.log(data);
+      
       if (data.roomID === Number(chatID)) {
         setMessages((prevMessages) => [
           ...prevMessages,
@@ -155,6 +160,7 @@ const ChattingRoom = () => {
             self: false,
             userID: data.userID,
             profileImage: data.profileImage.profileImage,
+            messageType: data.messageType
           },
         ]);
       }
@@ -164,6 +170,7 @@ const ChattingRoom = () => {
 
     return () => {
       socket.off("chat_message", handleChatMessage);
+
     };
   }, [socket, chatID]);
 
@@ -205,8 +212,61 @@ const ChattingRoom = () => {
 
   const sendMessage = (message) => {
     socket.emit("chat_message", { roomID: chatID, content: message });
+  }
+
+  const onFileInput = (e, i) => {
+    e.preventDefault();
+    const reader = new FileReader();
+    const file = e.target.files[0];
+    reader.readAsDataURL(file);
+
+    reader.onload = () => {
+      setFile(file);
+    };
+    
   };
 
+  const sendImage = async ()=>{
+    const newFileInput = document.createElement("input"); // 새로운 input 요소 생성
+    newFileInput.type = "file"; // input 요소의 유형을 'file'로 설정
+    newFileInput.accept = "image/*"; // 가능한 파일 형식을 이미지 제한
+    newFileInput.click(); // 생성한 input 요소의 'click' 이벤트를 트리거하여 파일 선택 창 열기
+    // 파일 input 요소에서 발생하는 'change' 이벤트 리스너 추가
+    newFileInput.addEventListener("change", (e) => {
+      e.preventDefault();
+      const reader = new FileReader();
+      const file = e.target.files[0];
+      console.log(e.target.files);
+      reader.readAsDataURL(file);
+
+      // 파일 로딩이 완료되면 데이터 설정 및 이미지 업데이트
+      reader.onload = async () => {
+        const newData = [...image];
+        newData.file = file;
+        newData.previewURL = reader.result; // replace image
+        setImageData(newData);
+        const formData = new FormData();
+        formData.append("image",file);
+        formData.append("socketID", socketId);
+        try {
+          // 서버로 게시물ID, file, i 보내기
+          const result=await axios.post(baseURL + `chat/chattingRoom/${chatID}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data", // multipart/form-data로 보낸다고 명시
+            },
+            
+          });
+          console.log(result)
+          setMessages([
+            ...messages,
+            { text: result.data.saveMessage.content, self: true, userID: currentUser, messageType: 1 },
+          ]);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+    });
+  }
   function openModal() {
     setIsModalOpen(true);
   }
@@ -231,7 +291,7 @@ const ChattingRoom = () => {
       // 실시간 메시지 배열에 추가하지 않고 'messages' 배열에 추가
       setMessages([
         ...messages,
-        { text: inputValue, self: true, userID: currentUser },
+        { text: inputValue, self: true, userID: currentUser, messageType: 0 },
       ]);
       sendMessage(inputValue);
       setInputValue(""); // 입력값 초기화
@@ -271,7 +331,29 @@ const ChattingRoom = () => {
     console.log(response.message);
     navigate("/Chatting");
   };
+  function downloadImage(imageUrl, filename) {
+    fetch(imageUrl)
+      .then(response => response.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
 
+        const segments = imageUrl.split('-');
+        const filename = segments[segments.length - 1].split('.')[0];  // 이 부분에서 "window"를 추출
+
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      })
+      .catch(err => {
+        console.error('Image download failed:', err);
+      });
+  }
+  
   return (
     <RoomContainer>
       <TopContainer>
@@ -355,7 +437,8 @@ const ChattingRoom = () => {
       {/* 채팅내역 부분 */}
       <MidContainer ref={scrollRef}>
         {/* 이전의 채팅을 가져오는 부분 */}
-        {messageData &&
+        
+        {messageData&&
           [...messageData.data.chatMessage.rows]
             .reverse()
             .map((prevchat, index) => {
@@ -364,15 +447,26 @@ const ChattingRoom = () => {
                 roomdata.data.chatRoomData.user_chats.find(
                   (user) => user.userID === prevchat.userID
                 );
+              
               const profileImage = matchedUser?.User?.profileImage;
               const isCurrentUser = currentUser === prevchat.userID; // 현재 사용자와 이전의 채팅 userID가 일치하는지 확인
-
+              const currentMessageDate = new Date(prevchat.sendtime).toLocaleDateString();
+              let showDate = false;
+              if (currentMessageDate !== lastDate) {
+                showDate = true;
+                lastDate = currentMessageDate; // 이전 메시지의 날짜 업데이트
+              }
               return (
+                <>
+                
+                {showDate && <DateLabel>{currentMessageDate}</DateLabel>}
+
                 <ChatContainer
                   ref={index === 0 ? lastPostElementRef : null}
                   key={index}
                   self={isCurrentUser}
                 >
+                 
                   {!isCurrentUser && profileImage && (
                     <img
                       src={`${imgURL}${profileImage.replace(/\\/, "/")}`}
@@ -382,9 +476,15 @@ const ChattingRoom = () => {
 
                   <MessageContainer>
                     {!isCurrentUser && <UserID>{prevchat.userID}</UserID>}
-                    <ChatContent self={isCurrentUser}>
+                    {prevchat.messageType === 0 &&<ChatContent self={isCurrentUser}>
                       {prevchat.content}
-                    </ChatContent>
+                    </ChatContent>}
+                    {prevchat.messageType === 1 && (
+                      <ImageContainer>
+                        <img src={`${imgURL}${prevchat.content}`}/>
+                        <button onClick={() => downloadImage(`${imgURL}${prevchat.content}`)}>Download</button> {/* 다운로드 버튼 */}
+                      </ImageContainer>
+                    )}
                     <MessageTime isCurrentUser={isCurrentUser}>
                       {new Intl.DateTimeFormat("ko-KR", {
                         hour: "2-digit",
@@ -393,7 +493,9 @@ const ChattingRoom = () => {
                     </MessageTime>
                   </MessageContainer>
                 </ChatContainer>
+                </>
               );
+              
             })}
 
         {messages.map((message, index) => (
@@ -406,7 +508,19 @@ const ChattingRoom = () => {
             )}
             <MessageContainer>
               {!message.self && <UserID>{message.userID}</UserID>}
-              <ChatMessage self={message.self}>{message.text}</ChatMessage>
+              {message.messageType === 0 && (
+                <ChatMessage self={message.self}>{message.text}</ChatMessage>
+              )}
+              {/* 이미지 메시지 */}
+              {message.messageType === 1 && (
+                <ImageContainer>
+                  <img
+                    src={`${imgURL}${message.text.replace(/\\/g, "/")}`} 
+                    alt="Chat image" 
+                  />
+                  <button onClick={() => downloadImage(message.text)}>Download</button>
+                </ImageContainer>
+              )}
               <MessageTime>
                 {new Intl.DateTimeFormat("ko-KR", {
                   hour: "2-digit",
@@ -422,7 +536,14 @@ const ChattingRoom = () => {
       {/* 채팅입력 부분 */}
 
       <BottomContainer>
+      <ImageSendButtonContainer>
+        <ImageSendButtonIcon onClick={() => sendImage()}>
+          <FontAwesomeIcon icon={faSquarePlus} size="2x" />
+        </ImageSendButtonIcon>
+      </ImageSendButtonContainer>
         <InputContainer>
+          
+            {/* <FontAwesomeIcon icon={faSquarePlus} size="2x" color={"#f97800"} /> */}
           <ChatInput
             type="text"
             placeholder="메시지 입력"
@@ -444,7 +565,19 @@ const ChattingRoom = () => {
     </RoomContainer>
   );
 };
+const UploadInput = styled.input`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: transparent;
+  cursor: pointer;
 
+  &::-webkit-file-upload-button {
+    display: none;
+  }
+`;
 const HiddenDiv = styled.div`
   position: absolute;
   visibility: hidden;
@@ -581,7 +714,39 @@ const MidContainer = styled.div`
     100vh - 70px - 80px
   ); /* 전체 높이에서 헤더와 바텀의 높이를 제외한 값 */
   overflow-x: hidden;
+
 `;
+const DateLabel = styled.div`
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  color: #888;
+  margin: 10px 0;
+  background-color: rgba(255, 255, 255, 0.6);
+  padding: 5px;
+  border-radius: 20px;
+
+  &::before,
+  &::after {
+    content: "----------------------------------------------------------";
+    position: absolute;
+    top: 50%;
+    width: 50%;
+    text-align: center;
+    transform: translateY(-50%);
+  }
+
+  &::before {
+    left: 0;
+  }
+
+  &::after {
+    right: 0;
+  }
+`;
+
 
 const ChatMessage = styled.div`
   display: inline-block;
@@ -607,6 +772,30 @@ const ChatContainer = styled.div`
     height: 40px;
     border-radius: 50%;
     margin: ${(props) => (props.self ? "0 0 5px 15px" : "0 15px 5px 0")};
+  }
+`;
+const ImageContainer = styled.div`
+display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  img {
+    width: 250px;
+    height: 250px;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+  }
+  
+  
+
+  button {
+    margin-top: 5px;
+    padding: 5px 10px;
+    background-color: blue;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
   }
 `;
 
@@ -690,7 +879,32 @@ const SendButton = styled.button`
   cursor: pointer;
   color: #f97800;
 `;
+const ImageSendButtonContainer = styled.div`
+  position: relative;
+  width: 50px; // 이 값을 원하는 크기로 설정
+  height: 50px; // 이 값을 원하는 크기로 설정
+`;
 
+const ImageSendButton = styled.input`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0; // 이렇게 하면 원래 input이 안 보입니다
+  cursor: pointer;
+  z-index: 1; // 이것으로 input이 상위에 옵니다
+  &::-webkit-file-upload-button {
+    display: none;
+  }
+`;
+
+const ImageSendButtonIcon = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0; // 이것으로 input 아래에 위치
+`;
 const Button = styled.div`
 box-sizing: border-box;
 appearance: none;

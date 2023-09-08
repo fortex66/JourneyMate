@@ -44,10 +44,15 @@ export const SocketContext = createContext();
 
 function App() {
   const [socket, setSocket] = useState();
+  const [socketId, setSocketId] = useState(null);
 
   useEffect(() => {
     const newsocket = io(ENDPOINT, { withCredentials: true });
-    newsocket.emit("init");
+    newsocket.on("connect", () => {
+      newsocket.emit("init");
+      setSocketId(newsocket.id); // 이벤트 핸들러 내부에서 socketId 설정
+    });
+    
     setSocket(newsocket);
 
     return () => {
@@ -58,7 +63,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <SocketContext.Provider value={socket}>
+      <SocketContext.Provider value={{socket, socketId}}>
         <div className="App">
           <Routes>
             <Route path="/Login" element={<Login />} />

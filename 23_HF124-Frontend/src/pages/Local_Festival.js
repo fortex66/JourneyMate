@@ -69,6 +69,10 @@ const Local_Festival = () => {
     전라남도: 38,
     제주도: 39,
   };
+    // 페이지가 로드될 때 스크롤을 맨 위로 이동
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
 
   const lastPostElementRef = useCallback(
     (node) => {
