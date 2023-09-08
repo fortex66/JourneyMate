@@ -7,7 +7,6 @@ import {
 } from "react-kakao-maps-sdk";
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -17,7 +16,6 @@ import {
   faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import Cmodal from "../components/Cmodal";
-import Nearby from "../components/Nearby";
 const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 
 const latChangeByLevel = {
@@ -41,8 +39,6 @@ const Home = () => {
   const [latestMarkers, setLatestMarkers] = useState(null);
   const navigate = useNavigate();
   const [write, setWrite] = useState(false);
-  const [showNearbyModal, setShowNearbyModal] = useState(false);
-  const [selectedMarker, setSelectedMarker] = useState(null);
   const [isMarkerHovered, setMarkerHovered] = useState(false);
   const [isMarkerClicked, setMarkerClicked] = useState(false);
   const [location, setLocation] = useState({
@@ -62,9 +58,6 @@ const Home = () => {
     }
     setMarkerHovered(marker);
   };
-  // const handleZoomChange = (newLevel) => {
-  //   setCurrentLevel(newLevel);
-  // };
   const handleMouseOutMarker = () => {
     markerHoverTimeout.current = setTimeout(() => {
       setMarkerHovered(null);
@@ -109,22 +102,6 @@ const Home = () => {
     fetchMarkerData(markerData);
   }, []);
 
-  const handleMarkerClick = (marker) => {
-    if (markerHoverTimeout.current) {
-      clearTimeout(markerHoverTimeout.current);
-    }
-    setMarkerHovered(null);
-    setMarkerClicked(true);
-    setSelectedMarker(marker);
-    setShowNearbyModal(true);
-  };
-
-  const closeNearbyModal = () => {
-    setSelectedMarker(null);
-    setShowNearbyModal(false);
-    setMarkerClicked(false);
-    setMarkerHovered(null);
-  };
   const mylocationClick = () => {
     if (navigator.geolocation) {
       // GeoLocation을 이용해서 접속 위치를 얻어옵니다
