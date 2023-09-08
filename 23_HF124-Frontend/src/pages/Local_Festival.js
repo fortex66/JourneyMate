@@ -974,7 +974,7 @@ const Box = styled.div`
 `;
 /**
  * const Box = styled.div`
-  flex-basis: calc(33.333% - 40px); // 33.333% 너비에서 마진 40px 제외
+  flex-basis: calc(33.333% - 40px); // 33.333% 너비에서 마진 40px 제외!
   margin: 20px; // 원하는 마진
   border-radius: 30px;
 `;
