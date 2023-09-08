@@ -83,6 +83,7 @@ const Navigationbar = () => {
   );
 };
 
+
 const Navigation = styled.div`
   position: relative;
   min-height: 100vh;
@@ -90,15 +91,24 @@ const Navigation = styled.div`
   height: auto;
   overflow-y: auto;
   padding-bottom: 100px;
+
+  @media (min-width: 640px) {
+    padding-bottom: 60px;
+  }
 `;
 
 const Bottomview = styled.div`
   cursor: pointer;
-  width: 640px;
+  width: 100%;
   position: fixed;
   bottom: 0;
-  height: 90px;
+  height: 60px;
   background-color: white;
+
+  @media (min-width: 640px) {
+    width: 640px;
+    height: 90px;
+  }
 `;
 
 const BottomBox = styled.div`
@@ -109,7 +119,7 @@ const BottomBox = styled.div`
 `;
 
 const NavBox = styled.div`
-  width: 50%;
+  flex: 1;
   height: 100%;
   border-top: 1px solid #dddddd;
   border-right: 1px solid #dddddd;
@@ -118,18 +128,11 @@ const NavBox = styled.div`
   align-items: center;
   justify-content: center;
   background-color: white;
+
+  &:last-child {
+    border-right: none;
+  }
 `;
-
-/* 
-    수정 전 코드
-    const Text = styled.span`
-      color: ${(props) => (props.active ? "orange" : "black")};
-    `;
-
-    styled-components에서 Text 컴포넌트에 전달되는 active prop이 HTML 엘리먼트에 전달되면서 문제가 발생하는 것 같다. 
-    styled-components를 사용할 때는 이러한 prop 필터링을 수행해야 한다.
-    이를 수정하려면, styled-components의 shouldForwardProp 기능을 사용하여 active prop이 HTML 엘리먼트로 전달되지 않도록 할 수 있다. 
-*/
 
 const Text = styled.span.withConfig({
   shouldForwardProp: (prop) => prop !== "active",
@@ -137,6 +140,12 @@ const Text = styled.span.withConfig({
   color: ${(props) => (props.active ? "#F97800" : "black")};
   margin-top: 5px;
   font-size: 12px;
+
+  @media (min-width: 640px) {
+    font-size: 14px;
+  }
 `;
+
+
 
 export default Navigationbar;
