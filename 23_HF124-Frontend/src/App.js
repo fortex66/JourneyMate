@@ -32,6 +32,8 @@ import DiscoverId from "./pages/DiscoverId";
 import DiscoverPw from "./pages/DiscoverPw";
 import Local_Festival from "./pages/Local_Festival";
 import Festival_detail from "./pages/Festival_detail";
+import Area_Festival from "./pages/Area_Festival";
+import Area_Search from "./pages/Area_Search";
 import HomeF from "./pages/HomeF";
 // import {socket,SOCKET_EVENT,SocketContext} from "./components/Chatting/Chat";
 import io from "socket.io-client";
@@ -96,6 +98,8 @@ function App() {
             <Route path="/DiscoverPw" element={<DiscoverPw />} />
             <Route path="/Local_Festival" element={<Local_Festival />} />
             <Route path="/Festival_detail" element={<Festival_detail />} />
+            <Route path="/Area_Festival" element={<Area_Festival />} />
+            <Route path="/Area_Search" element={<Area_Search />} />
           </Routes>
         </div>
       </SocketContext.Provider>
