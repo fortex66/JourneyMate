@@ -5,6 +5,8 @@ const {getIo}=require("../socket");
 const {chatting}=require("../config");
 const router = express.Router();
 
+router.get("/download",authMiddleware,chatController.downloadImage);
+
 router.delete("/chatroomquit/:chatID", authMiddleware, chatController.getOut);
 router.get("/", authMiddleware, chatController.getChatRoom);
 router.get("/:chatID", authMiddleware, chatController.chatMessage);

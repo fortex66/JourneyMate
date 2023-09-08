@@ -2,7 +2,8 @@ require("dotenv").config();
 const multer = require('multer');
 const Sequelize=require('sequelize');
 const multerS3 = require('multer-s3');
-const { S3 } = require('@aws-sdk/client-s3');
+const { S3, GetObjectCommand } = require('@aws-sdk/client-s3');
+const {getSignedUrl}=require('@aws-sdk/s3-request-presigner');
 
 const s3 = new S3({
   credentials: {
@@ -52,10 +53,28 @@ const upload = multer({
       }
     })
   })
+  const getPreSignedUrl = async (key) => {
+    console.log(key)
+    try {
+      const command = new GetObjectCommand({
+        Bucket: "journeymate",
+        Key: key,
+        ResponseContentDisposition: "attachment; filename=\"" + key + "\"",
+      });
+  
+      const url = await getSignedUrl(s3, command, { expiresIn: 60 });
+      console.log(url);
+      return url;
+    } catch (err) {
+      console.error("Error creating pre-signed URL:", err);
+      throw err;
+    }
+  };
+  
 const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USERNAME, process.env.MYSQL_PASSWORD, {
     host: process.env.MYSQL_HOST,
     port: process.env.MYSQL_PORT,
     dialect: 'mysql',
   });
 
-module.exports = {upload,profile, chatting, sequelize};
+module.exports = {getPreSignedUrl,upload,profile, chatting, sequelize};

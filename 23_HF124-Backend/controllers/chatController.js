@@ -2,7 +2,7 @@ const users = require("../models/userModel");
 const chat = require("../models/chatModel");
 const post = require("../models/uploadModel");
 const { Op, Sequelize, QueryTypes } = require("sequelize");
-const { sequelize } = require("../config");
+const { getPreSignedUrl } = require("../config");
 
 //채팅방 리스트 불러오기
 const getChatRoom = async (req, res) => {
@@ -248,6 +248,19 @@ const uploadImage= (io) => async(req, res)=>{
   
 }
 
+const downloadImage= async (req,res)=>{
+  console.log('도착')
+  console.log(req.query.key)
+  try {
+    const key = req.query.key;
+
+    const url = await getPreSignedUrl(key);
+    res.status(200).json({ url });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 module.exports = {
   getChatRoomByUserId,
   getChatRoom,
@@ -256,5 +269,6 @@ module.exports = {
   getOut,
   clickChatRoom,
   chatMessage,
-  uploadImage
+  uploadImage,
+  downloadImage
 };

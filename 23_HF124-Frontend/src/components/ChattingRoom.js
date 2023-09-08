@@ -22,11 +22,11 @@ import ChattingMessage from "./ChattingMessage";
 const baseURL = "http://localhost:3000/";
 const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 const ChattingRoom = () => {
-  let lastDate = ""
+  let lastDate=""
   const { chatID } = useParams(); // postId 추출
   const {socket, socketId} = useContext(SocketContext);
   const chattingmessages = useContext(ChattingMessage); // 이 코드를 추가합니다.
-  const [socketID, setSocketID]=useState(socket);
+  // const [socketID, setSocketID]=useState(socket);
   const messagesEndRef = useRef(null);
   const observer = useRef();
   const scrollRef = useRef(null);
@@ -186,7 +186,8 @@ const ChattingRoom = () => {
     };
     fetchChatRoom();
   }, []);
-
+  console.log(messageData);
+  
   // 채팅방 메시지
   useEffect(() => {
     const fetchMessage = async () => {
@@ -331,28 +332,23 @@ const ChattingRoom = () => {
     console.log(response.message);
     navigate("/Chatting");
   };
-  function downloadImage(imageUrl, filename) {
-    fetch(imageUrl)
-      .then(response => response.blob())
-      .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
+  async function downloadImage(imageUrl) {
+    console.log(imageUrl);
+    await axios.get(`${baseURL}chat/download`, { params: { key: imageUrl } })
+        .then((response) => {
+            const url = response.data.url;
+            const link = document.createElement('a');
+            link.href = url;
+            // link.download attribute is not necessary as we set the file name in the backend
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        })
+        .catch(error => {
+            console.error('File download failed:', error);
+        });
+}
 
-        const segments = imageUrl.split('-');
-        const filename = segments[segments.length - 1].split('.')[0];  // 이 부분에서 "window"를 추출
-
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      })
-      .catch(err => {
-        console.error('Image download failed:', err);
-      });
-  }
   
   return (
     <RoomContainer>
@@ -454,7 +450,7 @@ const ChattingRoom = () => {
               let showDate = false;
               if (currentMessageDate !== lastDate) {
                 showDate = true;
-                lastDate = currentMessageDate; // 이전 메시지의 날짜 업데이트
+                lastDate=currentMessageDate; // 이전 메시지의 날짜 업데이트
               }
               return (
                 <>
@@ -482,7 +478,7 @@ const ChattingRoom = () => {
                     {prevchat.messageType === 1 && (
                       <ImageContainer>
                         <img src={`${imgURL}${prevchat.content}`}/>
-                        <button onClick={() => downloadImage(`${imgURL}${prevchat.content}`)}>Download</button> {/* 다운로드 버튼 */}
+                        <button onClick={() => downloadImage(prevchat.content)}>Download</button> {/* 다운로드 버튼 */}
                       </ImageContainer>
                     )}
                     <MessageTime isCurrentUser={isCurrentUser}>
@@ -498,8 +494,18 @@ const ChattingRoom = () => {
               
             })}
 
-        {messages.map((message, index) => (
-          <ChatContainer key={index} self={message.self}>
+        {messages.map((message, index) => {
+          console.log(message);
+          const currentMessageDate = new Date().toLocaleDateString();
+          let showDate = false;
+          if (currentMessageDate !== lastDate) {
+            showDate = true;
+            lastDate=currentMessageDate; // 이전 메시지의 날짜 업데이트
+          }
+          return(
+            <>
+            {showDate && <DateLabel>{currentMessageDate}</DateLabel>}
+            <ChatContainer key={index} self={message.self}>
             {!message.self && message.profileImage && (
               <img
                 src={`${imgURL}${message.profileImage.replace(/\\/g, "/")}`}
@@ -529,7 +535,11 @@ const ChattingRoom = () => {
               </MessageTime>
             </MessageContainer>
           </ChatContainer>
-        ))}
+          </>
+          )
+              
+          
+        })}
         <div ref={messagesEndRef} />
       </MidContainer>
 
