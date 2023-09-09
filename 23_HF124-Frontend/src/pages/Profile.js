@@ -12,7 +12,7 @@ const baseURL = "http://localhost:3000/";
 const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 const Profile = () => {
   const navigate = useNavigate();
-  const socket=useContext(SocketContext);
+  const {socket, socketId}=useContext(SocketContext);
 
   const [userData, setUserData] = useState(null);
   const [image, setImage] = useState(null);
@@ -62,7 +62,7 @@ const Profile = () => {
       const resUser = await axios.get(baseURL + `mypage/profile`);
 
       setUserData(resUser.data);
-
+      
       setImage(resUser.data.profile[0].profileImage);
     } catch (error) {
       console.log(error);

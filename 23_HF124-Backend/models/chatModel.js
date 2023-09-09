@@ -39,7 +39,7 @@ Message.init(
     sendtime: DataTypes.DATE,
     chatID: DataTypes.INTEGER,
     userID: DataTypes.STRING(45),
-    messageType: DataTypes.TINYINT
+    messageType: DataTypes.SMALLINT
   },
   {
     sequelize,

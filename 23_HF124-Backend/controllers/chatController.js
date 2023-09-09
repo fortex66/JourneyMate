@@ -4,6 +4,7 @@ const post = require("../models/uploadModel");
 const { Op, Sequelize, QueryTypes } = require("sequelize");
 const { getPreSignedUrl } = require("../config");
 
+
 //채팅방 리스트 불러오기
 const getChatRoom = async (req, res) => {
   try {
@@ -74,24 +75,30 @@ const chatMessage = async (req, res) => {
   const chatID = req.params.chatID;
   const { page = 1, per_page = 30 } = req.query;
 
-  const enter = await chat.user_chat.findOne({
-    where: { userID: req.decode.userID, chatID: chatID },
-  });
-  
-  const chatMessage = await chat.Message.findAndCountAll({
-    offset: per_page * (page - 1),
-    limit: per_page,
-    order: [["sendtime", "DESC"]],
-    where: { chatID: chatID, sendtime: { [Op.gte]: enter.enterTime } },
-  });
+  try {
+    const enter = await chat.user_chat.findOne({
+      where: { userID: req.decode.userID, chatID: chatID },
+    });
 
-  const result = !chatMessage;
-  
-  res.status(200).json({ chatMessage, result: true, message: "성공" });
+    if (enter) {
+      const chatMessage = await chat.Message.findAndCountAll({
+        offset: per_page * (page - 1),
+        limit: per_page,
+        order: [["sendtime", "DESC"]],
+        where: { chatID: chatID, sendtime: { [Op.gte]: enter.enterTime } },
+      });
+      res.status(200).json({ chatMessage, result: true, message: "성공" });
+    } else {
+      res.status(200).json({ message: "잘못된 접근입니다!!", result: false });
+    }
+  } catch (error) {
+    console.error("채팅 메시지 불러오기 에러:", error);
+    res.status(500).json({ message: "서버 오류", result: false });
+  }
 };
 
 const enterChatRoom = async (req, res) => {
-  const chatID = req.params.chatID;
+  const chatID = req.params.chatID; 
   try {
     const chatRoomData = await chat.GroupChat.findOne({
       attributes: ["admin", "chattime", "chatID"],
@@ -212,6 +219,7 @@ const uploadImage= (io) => async(req, res)=>{
   const userID=req.decode.userID; 
   const roomID=Number(req.params.chatID);
   const socketID= req.body.socketID;
+  console.log(req.file.contentType)
 
 
   const saveMessage = await chat.Message.create({
@@ -219,7 +227,7 @@ const uploadImage= (io) => async(req, res)=>{
     sendtime: new Date(),
     chatID: roomID,
     userID: userID,
-    messageType: 1 //1이면 파일
+    messageType: 1 //1이면 이미지
   });
 
   const profileImage = await users.findOne({
@@ -247,7 +255,87 @@ const uploadImage= (io) => async(req, res)=>{
 
   
 }
+const uploadVideo= (io) => async(req, res)=>{
+  const userID=req.decode.userID; 
+  const roomID=Number(req.params.chatID);
+  const socketID= req.body.socketID;
+  console.log(req.file.contentType)
 
+  
+  const saveMessage = await chat.Message.create({
+    content: req.file.key,
+    sendtime: new Date(),
+    chatID: roomID,
+    userID: userID,
+    messageType: 2 //2이면 동영상
+  });
+
+  const profileImage = await users.findOne({
+    attributes: ["profileImage"],
+    where: { userID: userID },
+  });
+  res.status(200).json({saveMessage});
+  const target=io.sockets.sockets.get(socketID);  
+
+
+  if(target){
+    target.broadcast
+    .to(roomID)
+    .emit("chat_message", {
+      roomID: roomID,
+      userID: userID,
+      message: req.file.key,
+      messageType: 2,
+      profileImage: profileImage,
+    });
+  console.log(io.sockets.adapter.rooms.get(roomID));
+  }else{
+    console.log("socket Id is not found");
+  }
+
+  
+}
+const uploadFile= (io) => async(req, res)=>{
+  const userID=req.decode.userID; 
+  const roomID=Number(req.params.chatID);
+  const socketID= req.body.socketID;
+  console.log(req.file.contentType)
+
+  
+  const saveMessage = await chat.Message.create({
+    content: req.file.key,
+    sendtime: new Date(),
+    chatID: roomID,
+    userID: userID,
+    messageType: 3 //3이면 파일
+  });
+
+  const profileImage = await users.findOne({
+    attributes: ["profileImage"],
+    where: { userID: userID },
+  });
+  res.status(200).json({saveMessage});
+  const target=io.sockets.sockets.get(socketID);  
+
+
+  if(target){
+    target.broadcast
+    .to(roomID)
+    .emit("chat_message", {
+      roomID: roomID,
+      userID: userID,
+      message: req.file.key,
+      messageType: 3,
+      profileImage: profileImage,
+      title: req.file.originalname
+    });
+  console.log(io.sockets.adapter.rooms.get(roomID));
+  }else{
+    console.log("socket Id is not found");
+  }
+
+  
+}
 const downloadImage= async (req,res)=>{
   console.log('도착')
   console.log(req.query.key)
@@ -270,5 +358,7 @@ module.exports = {
   clickChatRoom,
   chatMessage,
   uploadImage,
-  downloadImage
+  downloadImage,
+  uploadFile,
+  uploadVideo
 };

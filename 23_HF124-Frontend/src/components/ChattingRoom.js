@@ -14,15 +14,24 @@ import {
   faArrowLeft,
   faPaperPlane,
   faChevronDown,
-  faSquarePlus
+  faSquarePlus,
+  faFile,
+  faImages,
+  faVideo,
+  faFilePdf,
+  faFileWord
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { SocketContext } from "../App";
 import ChattingMessage from "./ChattingMessage";
+
+
 const baseURL = "http://localhost:3000/";
 const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 const ChattingRoom = () => {
   let lastDate=""
+  const MAX_SIZE = 30 * 1024 * 1024; // 30MB
+
   const { chatID } = useParams(); // postId 추출
   const {socket, socketId} = useContext(SocketContext);
   const chattingmessages = useContext(ChattingMessage); // 이 코드를 추가합니다.
@@ -37,6 +46,7 @@ const ChattingRoom = () => {
   const [roomdata, setRoomdata] = useState("");
   const [messageData, setMessageData] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFileModalOpen, setIsFileModalOpen] = useState(false);
   const [inputValue, setInputValue] = useState(""); // 채팅 입력값 저장
   const [messages, setMessages] = useState([]); // 전송된 채팅 목록 저장
   const [currentUser, setCurrentUser] = useState(null);
@@ -46,7 +56,24 @@ const ChattingRoom = () => {
   const [image, setImage]=useState([]);
   const [buttonPosition, setButtonPosition] = useState("20px");
   const [file, setFile] = useState("");
+  // const { createFFmpeg } = FFmpeg;
 
+  // const ffmpeg = createFFmpeg({ log: true });
+
+  // async function compressVideo(file) {
+  //   await ffmpeg.load();
+  //   ffmpeg.FS('writeFile', 'input.mp4', new Uint8Array(await file.arrayBuffer()));
+  //   await ffmpeg.run('-i', 'input.mp4', '-b:v', '1000k', 'output.mp4');
+  //   const data = ffmpeg.FS('readFile', 'output.mp4');
+  //   return new Blob([data.buffer], { type: 'video/mp4' });
+  // }
+  // async function compressFile(file) {
+  //   await ffmpeg.load();
+  //   ffmpeg.FS('writeFile', 'input.mp4', new Uint8Array(await file.arrayBuffer()));
+  //   await ffmpeg.run('-i', 'input.mp4', '-b:v', '1000k', 'output.mp4');
+  //   const data = ffmpeg.FS('readFile', 'output.mp4');
+  //   return new Blob([data.buffer], { type: 'video/mp4' });
+  // }
   const lastPostElementRef = useCallback((node) => {
     if (observer.current) observer.current.disconnect();
 
@@ -112,6 +139,8 @@ const ChattingRoom = () => {
         const response = await axios.get(
           `${baseURL}chat/${chatID}/?page=${page}`
         );
+        
+        
         setMessageData((prevMessageData) => ({
           ...prevMessageData,
           data: {
@@ -134,6 +163,14 @@ const ChattingRoom = () => {
         }
 
         previousScrollHeightRef.current = currentScrollHeight; // 현재의 scrollHeight 값을 저장
+        // console.log(response);
+        // if(response.result === false){
+        //   alert(response.message);
+        //   navigate(-1);
+        // }else if(response.result === true){
+          
+        // }
+        
       } catch (error) {
         console.log(error);
       }
@@ -149,7 +186,7 @@ const ChattingRoom = () => {
     if (!socket) {
       return;
     }
-    console.log(messageData)
+
     const handleChatMessage = async (data) => {
       
       if (data.roomID === Number(chatID)) {
@@ -186,13 +223,18 @@ const ChattingRoom = () => {
     };
     fetchChatRoom();
   }, []);
-  console.log(messageData);
-  
+
   // 채팅방 메시지
   useEffect(() => {
     const fetchMessage = async () => {
       try {
         const response = await axios.get(baseURL + `chat/${chatID}`);
+        if (response.data.result === false) {
+          alert(response.data.message);
+          // 적절한 처리를 추가 (예: 이전 페이지로 이동)
+          navigate(-1);
+          return;
+        }
         setMessageData(response);
         setTimeout(() => {
           scrollToBottom();
@@ -215,22 +257,100 @@ const ChattingRoom = () => {
     socket.emit("chat_message", { roomID: chatID, content: message });
   }
 
-  const onFileInput = (e, i) => {
-    e.preventDefault();
-    const reader = new FileReader();
-    const file = e.target.files[0];
-    reader.readAsDataURL(file);
-
-    reader.onload = () => {
-      setFile(file);
-    };
-    
-  };
-
   const sendImage = async ()=>{
     const newFileInput = document.createElement("input"); // 새로운 input 요소 생성
     newFileInput.type = "file"; // input 요소의 유형을 'file'로 설정
     newFileInput.accept = "image/*"; // 가능한 파일 형식을 이미지 제한
+    newFileInput.click(); // 생성한 input 요소의 'click' 이벤트를 트리거하여 파일 선택 창 열기
+    // 파일 input 요소에서 발생하는 'change' 이벤트 리스너 추가
+    newFileInput.addEventListener("change", (e) => {
+      e.preventDefault();
+      const reader = new FileReader();
+      const file = e.target.files[0];
+      // if (file.size > MAX_SIZE) {
+      //   // 파일 크기가 MAX_SIZE를 초과하면 압축을 진행
+      //   compressFile(file);
+      // }
+      console.log(e.target.files);
+      reader.readAsDataURL(file);
+
+      // 파일 로딩이 완료되면 데이터 설정 및 이미지 업데이트
+      reader.onload = async () => {
+        const newData = [...image];
+        newData.file = file;
+        newData.previewURL = reader.result; // replace image
+
+        const formData = new FormData();
+        formData.append("image",file);
+        formData.append("socketID", socketId);
+        try {
+          // 서버로 게시물ID, file, i 보내기
+          const result=await axios.post(baseURL + `chat/chattingRoom/${chatID}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data", // multipart/form-data로 보낸다고 명시
+            },
+            
+          });
+          closeFileModal()
+          console.log(result)
+          setMessages([
+            ...messages,
+            { text: result.data.saveMessage.content, self: true, userID: currentUser, messageType: 1 },
+          ]);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+    });
+  }
+
+  const sendVideo=async()=>{
+    const newFileInput = document.createElement("input"); // 새로운 input 요소 생성
+    newFileInput.type = "file"; // input 요소의 유형을 'file'로 설정
+    newFileInput.accept = "video/*"; // 가능한 파일 형식을 이미지 제한
+    newFileInput.click(); // 생성한 input 요소의 'click' 이벤트를 트리거하여 파일 선택 창 열기
+    // 파일 input 요소에서 발생하는 'change' 이벤트 리스너 추가
+    newFileInput.addEventListener("change", (e) => {
+      e.preventDefault();
+      const reader = new FileReader();
+      const file = e.target.files[0];
+      console.log(e.target.files);
+      reader.readAsDataURL(file);
+
+      // 파일 로딩이 완료되면 데이터 설정 및 이미지 업데이트
+      reader.onload = async () => {
+        // const newData = [...image];
+        // newData.file = file;
+        // newData.previewURL = reader.result; // replace image
+        // setImageData(newData);
+        const formData = new FormData();
+        formData.append("video",file);
+        formData.append("socketID", socketId);
+        try {
+          // 서버로 게시물ID, file, i 보내기
+          const result=await axios.post(baseURL + `chat/chattingRoom/video/${chatID}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data", // multipart/form-data로 보낸다고 명시
+            },
+            
+          });
+          closeFileModal()
+          console.log(result)
+          setMessages([
+            ...messages,
+            { text: result.data.saveMessage.content, self: true, userID: currentUser, messageType: 2 },
+          ]);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+    });
+  }
+
+  const sendFile = async () =>{
+    const newFileInput = document.createElement("input"); // 새로운 input 요소 생성
+    newFileInput.type = "file"; // input 요소의 유형을 'file'로 설정
+    newFileInput.accept = ".pdf, .doc, .docx, .ppt, .hwp, .hwpx"; // 가능한 파일 형식을 이미지 제한
     newFileInput.click(); // 생성한 input 요소의 'click' 이벤트를 트리거하여 파일 선택 창 열기
     // 파일 input 요소에서 발생하는 'change' 이벤트 리스너 추가
     newFileInput.addEventListener("change", (e) => {
@@ -247,20 +367,21 @@ const ChattingRoom = () => {
         newData.previewURL = reader.result; // replace image
         setImageData(newData);
         const formData = new FormData();
-        formData.append("image",file);
+        formData.append("files",file);
         formData.append("socketID", socketId);
         try {
           // 서버로 게시물ID, file, i 보내기
-          const result=await axios.post(baseURL + `chat/chattingRoom/${chatID}`, formData, {
+          const result=await axios.post(baseURL + `chat/chattingRoom/file/${chatID}`, formData, {
             headers: {
               "Content-Type": "multipart/form-data", // multipart/form-data로 보낸다고 명시
             },
             
           });
+          closeFileModal()
           console.log(result)
           setMessages([
             ...messages,
-            { text: result.data.saveMessage.content, self: true, userID: currentUser, messageType: 1 },
+            { text: result.data.saveMessage.content, self: true, userID: currentUser, messageType: 3 },
           ]);
         } catch (error) {
           console.log(error);
@@ -268,6 +389,7 @@ const ChattingRoom = () => {
       };
     });
   }
+
   function openModal() {
     setIsModalOpen(true);
   }
@@ -276,10 +398,19 @@ const ChattingRoom = () => {
     setIsModalOpen(false);
   }
 
+  function openFileModal() {
+    setIsFileModalOpen(true);
+  }
+
+  function closeFileModal() {
+    setIsFileModalOpen(false);
+  }
+
   const handleOutsideClick = (e) => {
     if (e.target === e.currentTarget) {
       // Check if the target is the ModalBackground
       closeModal();
+      closeFileModal();
     }
   };
 
@@ -332,13 +463,14 @@ const ChattingRoom = () => {
     console.log(response.message);
     navigate("/Chatting");
   };
-  async function downloadImage(imageUrl) {
+  async function download(imageUrl) {
     console.log(imageUrl);
     await axios.get(`${baseURL}chat/download`, { params: { key: imageUrl } })
         .then((response) => {
             const url = response.data.url;
             const link = document.createElement('a');
             link.href = url;
+            link.target = '_blank';
             // link.download attribute is not necessary as we set the file name in the backend
             document.body.appendChild(link);
             link.click();
@@ -443,7 +575,7 @@ const ChattingRoom = () => {
                 roomdata.data.chatRoomData.user_chats.find(
                   (user) => user.userID === prevchat.userID
                 );
-              
+              console.log(prevchat)
               const profileImage = matchedUser?.User?.profileImage;
               const isCurrentUser = currentUser === prevchat.userID; // 현재 사용자와 이전의 채팅 userID가 일치하는지 확인
               const currentMessageDate = new Date(prevchat.sendtime).toLocaleDateString();
@@ -478,8 +610,31 @@ const ChattingRoom = () => {
                     {prevchat.messageType === 1 && (
                       <ImageContainer>
                         <img src={`${imgURL}${prevchat.content}`}/>
-                        <button onClick={() => downloadImage(prevchat.content)}>Download</button> {/* 다운로드 버튼 */}
+                        <button onClick={() => download(prevchat.content)}>Download</button> {/* 다운로드 버튼 */}
                       </ImageContainer>
+                    )}
+                    {prevchat.messageType === 2 && (
+                      <VideoContainer>
+                        <video controls>
+                          <source src={`${imgURL}${prevchat.content.replace(/\\/g, "/")}`} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
+                        <button onClick={() => download(prevchat.content)}>Download</button>
+                      </VideoContainer>
+                    )}
+                    {prevchat.messageType===3 && (
+                      <DocumentContainer>
+                        <div 
+                          className="icon" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            download(prevchat.content);
+                          }}
+                        >
+                          {prevchat.content.endsWith('.pdf') && <FontAwesomeIcon icon={faFilePdf} />}
+                          {prevchat.content.endsWith('.doc') || prevchat.content.endsWith('.docx') && <FontAwesomeIcon icon={faFileWord} />}
+                        </div>
+                      </DocumentContainer>
                     )}
                     <MessageTime isCurrentUser={isCurrentUser}>
                       {new Intl.DateTimeFormat("ko-KR", {
@@ -524,8 +679,31 @@ const ChattingRoom = () => {
                     src={`${imgURL}${message.text.replace(/\\/g, "/")}`} 
                     alt="Chat image" 
                   />
-                  <button onClick={() => downloadImage(message.text)}>Download</button>
+                  <button onClick={() => download(message.text)}>Download</button>
                 </ImageContainer>
+              )}
+              {message.messageType === 2 && (
+                <VideoContainer>
+                  <video controls>
+                    <source src={`${imgURL}${message.text.replace(/\\/g, "/")}`} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                  <button onClick={() => download(message.text)}>Download</button>
+                </VideoContainer>
+              )}
+              {message.messageType===3 && (
+                <DocumentContainer>
+                  <div 
+                    className="icon" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      download(message.text);
+                    }}
+                  >
+                    {message.text.endsWith('.pdf') && <FontAwesomeIcon icon={faFilePdf} />}
+                    {message.text.endsWith('.doc') || message.text.endsWith('.docx') && <FontAwesomeIcon icon={faFileWord} />}
+                  </div>
+                  </DocumentContainer>
               )}
               <MessageTime>
                 {new Intl.DateTimeFormat("ko-KR", {
@@ -547,9 +725,30 @@ const ChattingRoom = () => {
 
       <BottomContainer>
       <ImageSendButtonContainer>
-        <ImageSendButtonIcon onClick={() => sendImage()}>
-          <FontAwesomeIcon icon={faSquarePlus} size="2x" />
+        <ImageSendButtonIcon onClick={openFileModal}>
+          <FontAwesomeIcon icon={faSquarePlus} size="2x" color="#f97800"/>
         </ImageSendButtonIcon>
+        {isFileModalOpen && (
+          <ModalBackground onClick={handleOutsideClick}>
+            <IconBox onClick = {(e)=> e.stopPropagation()}>
+            <IconContainer>
+              <Icon 
+                icon={faImages} 
+                onClick={() => sendImage()} 
+              />
+              <Icon 
+                icon={faVideo} 
+                onClick={() => sendVideo()} 
+              />
+              <Icon 
+                icon={faFile} 
+                onClick={() => sendFile()} 
+              />
+            </IconContainer>
+            </IconBox>
+          </ModalBackground>
+          
+        )}
       </ImageSendButtonContainer>
         <InputContainer>
           
@@ -575,6 +774,43 @@ const ChattingRoom = () => {
     </RoomContainer>
   );
 };
+
+const DocumentContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  .icon {
+    margin-bottom: 10px;
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer; // 아이콘에 마우스를 올리면 포인터가 나타나게 함
+  }
+
+  button {
+    display: none; // 버튼을 숨김
+  }
+`;
+
+const IconBox =styled.div`
+  width: 300px;
+  height: 50px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+`
+const IconContainer = styled.div`
+display: flex;
+justify-content: space-around;
+padding: 10px 0;
+`;
+
+const Icon = styled(FontAwesomeIcon)`
+font-size: 2em;
+cursor: pointer;
+`;
 const UploadInput = styled.input`
   position: absolute;
   top: 0;
@@ -808,6 +1044,28 @@ display: flex;
     cursor: pointer;
   }
 `;
+const VideoContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  video {
+    width: 250px;
+    height: 250px;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+  }
+
+  button {
+    margin-top: 5px;
+    padding: 5px 10px;
+    background-color: blue;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+`;
 
 const ScrollToBottomButton = styled.button`
   height: 50px;
@@ -892,7 +1150,7 @@ const SendButton = styled.button`
 const ImageSendButtonContainer = styled.div`
   position: relative;
   width: 50px; // 이 값을 원하는 크기로 설정
-  height: 50px; // 이 값을 원하는 크기로 설정
+  height: 6 0px; // 이 값을 원하는 크기로 설정
 `;
 
 const ImageSendButton = styled.input`
@@ -911,10 +1169,12 @@ const ImageSendButton = styled.input`
 
 const ImageSendButtonIcon = styled.div`
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 50%; // 중앙으로 이동
+  left: 50%; // 중앙으로 이동
+  transform: translate(-50%, -50%); // 자신의 크기의 절반만큼 오프셋을 줘서 중앙으로 정렬
   z-index: 0; // 이것으로 input 아래에 위치
 `;
+
 const Button = styled.div`
 box-sizing: border-box;
 appearance: none;

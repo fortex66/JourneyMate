@@ -19,14 +19,26 @@ body {
 @media (min-width: 650px) {
   .App {
     width: 640px;
+    box-sizing: border-box; /* Padding과 border가 width와 height에 포함되도록 함 */
   }
 }
 
 @media (max-width: 650px) {
   .App {
-    width: 90vw;
+    width: 100vw;
+    box-sizing: border-box; /* Padding과 border가 width와 height에 포함되도록 함 */
   }
 }
+
+@media (max-width: 390px) {
+  body {
+    display: block; /* flex를 block으로 변경하여 justify-content와 align-items를 무시 */
+  }
+  .App {
+    width: 100%; /* 100vw 대신 100%를 사용하여 뷰포트 너비에 맞춤 */
+  }
+}
+
 
 #root {
   background-color: white;
