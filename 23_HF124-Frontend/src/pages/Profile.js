@@ -61,7 +61,7 @@ const Profile = () => {
       const resUser = await axios.get(baseURL + `mypage/profile`);
 
       setUserData(resUser.data);
-
+      
       setImage(resUser.data.profile[0].profileImage);
     } catch (error) {
       console.log(error);

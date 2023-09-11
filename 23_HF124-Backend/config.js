@@ -56,6 +56,7 @@ const upload = multer({
   const getPreSignedUrl = async (key) => {
     console.log(key)
     try {
+      const filename = encodeURIComponent(key);
       const command = new GetObjectCommand({
         Bucket: "journeymate",
         Key: key,

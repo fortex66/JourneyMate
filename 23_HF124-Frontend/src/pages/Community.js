@@ -6,15 +6,13 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { faComment as faCommentSolid } from "@fortawesome/free-solid-svg-icons";
-import {
-  faSquarePlus,
-  faChevronUp,
-  faUsersViewfinder,
-  faUsers,
-} from "@fortawesome/free-solid-svg-icons";
-
+import { faPen,faChevronUp, faAngleLeft,faAngleRight, faUsers,} from "@fortawesome/free-solid-svg-icons";
+import Slick  from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import Cmodal from "../components/Cmodal";
 import Pmodal from "../components/Pmodal";
+
 
 const baseURL = "http://localhost:3000/";
 const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
@@ -33,6 +31,7 @@ const Community = () => {
   const [image, setImage] = useState(null);
   const observer = useRef();
 
+
   const location = useLocation();
   const searchTriggered = location.state?.searchTriggered || false;
   const locationTriggered = location.state?.locationTriggered || false;
@@ -40,6 +39,8 @@ const Community = () => {
   const tagList = location.state ? location.state.tagList : [];
   const selectedLocation = location.state ? location.state.location : "";
   const title = location.state ? location.state.title : "";
+
+  console.log(data)
 
   useEffect(() => {
     const updateButtonPosition = () => {
@@ -103,6 +104,7 @@ const Community = () => {
   const goUserDetail = (userId) => {
     navigate(`/UserDetail/${userId}`);
   };
+
   useEffect(() => {
     if (searchTriggered + locationTriggered + tagTriggered != 0) return; // 검색이 실행되면 아무 것도 하지 않습니다.
     const fetchMoreData = async () => {
@@ -223,32 +225,113 @@ const Community = () => {
 
   if (!data || !data.posts || !data.posts.rows) return null;
 
+  // 
+  function PostItem({ post, goDetail, goUserDetail, imgURL, lastPostElementRef }) {
+    const slickRef = useRef();
+  
+    const previous = () => {
+      slickRef.current.slickPrev();
+    };
+  
+    const next = () => {
+      slickRef.current.slickNext();
+    };
+  
+    const settings = {
+      dots: true,
+      dotsClass: "slick-dots slick-thumb",
+      arrows: false,
+      infinite: true,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+    };
+  
+    return (
+      <CommunityItem
+        ref={lastPostElementRef}
+        onClick={() => goDetail(post.tpostID)}
+      >
+        <div>
+          <DetailInfo>
+            <ProfileImage onClick={(e) => {
+              e.stopPropagation(); // 부모로의 클릭 이벤트 전파를 중단합니다.
+              goUserDetail(post.userID);
+            }}
+            >
+              {post.User.profileImage === null ? (
+                <img alt="chosen" style={{ width: "100%", borderRadius: "100%" }} />
+              ) : (
+                <img src={`${imgURL}${post.User.profileImage.replace(/\\/g, "/")}`}
+                  style={{ width: "100%", borderRadius: "100%" }} />
+              )}
+            </ProfileImage>
+            <Id>{post.userID}</Id>
+          </DetailInfo>
+          <Picture>
+            <Slick ref={slickRef} {...settings}>
+              {post.post_images.map((image, index) => (
+                <div key={index}>
+                  <img src={`${imgURL}${image.imageURL.replace(/\\/g, "/")}`} alt={`Slide ${index}`} />
+                </div>
+              ))}
+            </Slick>
+            {post.post_images.length > 1 && (
+              <>
+                <button 
+                  style={{  position: 'absolute',  top: 'calc(50% - 50px)',  left: 0,  padding: 0, width: 30,  height: 30,  borderRadius: '50%', border: 'none',  background: 'none', cursor: 'pointer' 
+                  }} 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    previous();
+                  }}
+                >
+                  <FontAwesomeIcon icon={faAngleLeft} color= {'#fff' } size="2x"/>
+                </button>
+                <button 
+                  style={{  position: 'absolute', top: 'calc(50% - 50px)', right: 0, padding: 0, width: 30, height: 30,  borderRadius: '50%', border: 'none', background: 'none', cursor: 'pointer' 
+                  }} 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    next();
+                  }}
+                >
+                  <FontAwesomeIcon icon={faAngleRight} color= {'#fff' } size="2x"/>
+                </button>
+              </>
+            )}
+          </Picture>
+          <Title>
+            <Title1> {post.title}</Title1>
+            <Titlebar>
+              <Heart>
+                <FontAwesomeIcon icon={faHeartSolid} color="red" />
+                {post.likeCount}
+                <FontAwesomeIcon icon={faCommentSolid} color="F97800" />
+                {post.commentCount}
+              </Heart>
+            </Titlebar>
+          </Title>
+        </div>
+      </CommunityItem>
+    );
+  }
+
+
   return (
     <Container>
       <Header>
-        <SearchInput
-          type="text"
-          onClick={handleSearchClick}
-          placeholder="검색"
-        />
+        <SearchInput type="text" onClick={handleSearchClick} placeholder="검색"/>
         <IconContainer onClick={() => setWrite(!write)}>
           {write && <Cmodal closeModal={() => setWrite(!write)}></Cmodal>}
-          <FontAwesomeIcon icon={faSquarePlus} size="3x" color={"#f97800"} />
+          <FontAwesomeIcon icon={faPen} size="2x" color={"#f97800"} />
         </IconContainer>
         <IconContainer>
-          {" "}
-          <FontAwesomeIcon
-            onClick={() => navigate("/Companion")}
-            icon={faUsers}
-            size="2x"
-            color={"#f97800"}
-          />
+          <FontAwesomeIcon onClick={() => navigate("/Companion")} icon={faUsers} size="2x" color={"#f97800"}/>
         </IconContainer>
       </Header>
       <Content>
         <Sort>
-          <button
-            onClick={() => {
+          <button onClick={() => {
               if (sort === "latest") return;
               setSort("latest");
               setPage(1);
@@ -257,8 +340,7 @@ const Community = () => {
           >
             최신순
           </button>
-          <button
-            onClick={() => {
+          <button onClick={() => {
               if (sort === "popular") return;
               setSort("popular");
               setPage(1);
@@ -267,8 +349,7 @@ const Community = () => {
           >
             인기순
           </button>
-          <button
-            onClick={() => {
+          <button onClick={() => {
               if (sort === "comments") return;
               setSort("comments");
               setPage(1);
@@ -279,69 +360,18 @@ const Community = () => {
           </button>
         </Sort>
         <CommunityList>
-          {data &&
-            data.posts.rows.map((post, index) => (
-              <CommunityItem
-                ref={
-                  index === data.posts.rows.length - 1
-                    ? lastPostElementRef
-                    : null
-                }
-                key={index}
-                onClick={() => goDetail(post.tpostID)}
-              >
-                <div>
-                  <Picture>
-                    <div>
-                      <img
-                        src={`${imgURL}${
-                          post.post_images[0]
-                            ? post.post_images[0].imageURL.replace(/\\/g, "/")
-                            : ""
-                        }`}
-                      />
-                    </div>
-                  </Picture>
-                  <Title>
-                    <Title1> {post.title}</Title1>
-                    <Titlebar>
-                      <DetailInfo>
-                        <ProfileImage
-                          onClick={(e) => {
-                            e.stopPropagation(); // 부모로의 클릭 이벤트 전파를 중단합니다.
-                            goUserDetail(post.userID);
-                          }}
-                        >
-                          {" "}
-                          {post.User.profileImage === null ? (
-                            <img
-                              alt="chosen"
-                              style={{ width: "100%", borderRadius: "100%" }}
-                            />
-                          ) : (
-                            <img
-                              src={`${imgURL}${post.User.profileImage.replace(
-                                /\\/g,
-                                "/"
-                              )}`}
-                              style={{ width: "100%", borderRadius: "100%" }}
-                            />
-                          )}{" "}
-                        </ProfileImage>
-                        <Id>{post.userID}</Id>
-                      </DetailInfo>
-                      <Heart>
-                        <FontAwesomeIcon icon={faHeartSolid} color="red" />
-                        {post.likeCount}
-                        <FontAwesomeIcon icon={faCommentSolid} color="F97800" />
-                        {post.commentCount}
-                      </Heart>
-                    </Titlebar>
-                  </Title>
-                </div>
-              </CommunityItem>
-            ))}
+          {data && data.posts.rows.map((post, index) => (
+            <PostItem 
+              key={index} 
+              post={post} 
+              goDetail={goDetail} 
+              goUserDetail={goUserDetail}
+              imgURL={imgURL} 
+              lastPostElementRef={index === data.posts.rows.length - 1 ? lastPostElementRef : null} 
+            />
+          ))}
         </CommunityList>
+
       </Content>
 
       <ScrollToTopButton
@@ -355,7 +385,7 @@ const Community = () => {
   );
 };
 
-// Your styled components remain unchanged...!!
+// Your styled components remain unchanged...
 export default Community;
 
 const ProfileImage = styled.div`
@@ -384,6 +414,7 @@ const Id = styled.div`
 
 const DetailInfo = styled.div`
   display: flex;
+  padding: 10px 0px 5px 10px;
 `;
 const Container = styled.div`
   position: relative;
@@ -403,6 +434,17 @@ const Header = styled.div`
   height: 90px;
   background-color: #fff;
   border-bottom: 1px solid;
+  z-index: 1000;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    height: 70px; // 모바일 화면에서 높이 조정
+    
+  }
+
+  @media (min-width: 601px) and (max-width: 1200px) {
+    height: 80px; // 태블릿 화면에서 높이 조정
+  }
 `;
 
 const SearchInput = styled.input`
@@ -415,6 +457,15 @@ const SearchInput = styled.input`
     outline: none;
   }
   margin-top: 10px;
+
+  @media (max-width: 480px) {
+   
+    margin-left: 8px;
+    margin-right: 5px;
+    
+  }
+
+  
 `;
 
 const IconContainer = styled.div`
@@ -423,7 +474,26 @@ const IconContainer = styled.div`
   margin-top: 10px;
   margin-right: 10px;
   cursor: pointer;
+  
+  svg {
+    font-size: 32px; // 기본 아이콘 크기 설정
+  }
+
+  @media (max-width: 480px) {
+    margin-top: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+
+    svg {
+      font-size: 20px; // 모바일 화면에서 아이콘 크기 조정
+    }
+  }
+
+
+  
 `;
+
+
 const Sort = styled.div`
   display: flex;
   justify-content: space-between;
@@ -445,28 +515,46 @@ const Sort = styled.div`
     text-decoration: none;
     letter-spacing: 2px;
     font-weight: bold;
+
+    @media (max-width: 400px) {
+      font-size: 11px;
+      margin: 8px;
+      padding: 0.5em 1.5em;
+    }
   }
+
+  @media (max-width: 440px) {
+    margin: 5px 0px 5px 0px;
+  }
+
+
 `;
 
 const Content = styled.div`
   margin-right: 20px;
   margin-left: 20px;
   margin-top: 100px;
+
+  @media (max-width: 440px) {
+    margin-right: 20px;
+    margin-left: 20px;
+    margin-top: 70px;
+    padding-top: 10px;
+  }
 `;
 
 const CommunityList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+
 `;
 
 const CommunityItem = styled.div`
   cursor: pointer;
   break-inside: avoid-column;
-  background-color: rgb(240, 240, 240);
-  margin-bottom: 20px;
-  padding: 20px;
-  width: calc(45% - 20px);
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dadde0;
+
+  
 `;
 
 const Title = styled.div`
@@ -483,6 +571,7 @@ const Titlebar = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 12px;
+  padding-bottom : 10px;
 `;
 
 const Heart = styled.div`
@@ -497,17 +586,68 @@ const Comment = styled.div`
 `;
 
 const Picture = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
+  position: relative;
+  padding-bottom: 20px;
+  overflow: hidden;
+  text-align: center;
+  .slick-slide {
+      display: inline-block;
+  }
+  .slick-dots.slick-thumb {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      padding: 0;
+      color: #fff;
+      margin: 0;
+      list-style: none;
+      transform: translate(-50%);
+      li {
+        margin: 0;
+      }
+
+      li button {
+        width: 2px; // 원하는 크기로 조정
+        height: 2px; // 원하는 크기로 조정
+        background-color: white; // 원하는 배경 색상 지정
+        border-radius: 50%; // 버튼을 원형으로 만들기
+      }
+
+      li.slick-active button {
+        background-color: black; // 현재 선택된 dot의 배경 색상 지정
+      }
+
+      li button:before {
+        content: ""; // 기존 content 제거
+      }
+  } 
   img {
-    width: 250px;
-    height: 250px;
-    object-fit: cover;
+    display: block;
+    width: 100%; 
+    height: 600px; 
+    border-radius: 15px;
+    margin: 0 auto; 
+    object-fit: cover; 
+
+    @media (max-width: 600px) {
+      width: 100%; 
+      height: 360px; // 모바일 화면에서의 세로 크기
+    }
+
+    @media (min-width: 601px) and (max-width: 1200px) {
+      width: 100%; 
+      height: 460px; // 태블릿 화면에서의 세로 크기
+    }
+    
+    @media (min-width: 1201px) {
+      width: 100%; 
+      height: 580px; // 데스크톱 화면에서의 세로 크기
+    }
   }
 `;
+
+
+
 
 const ScrollToTopButton = styled.button`
   border-radius: 50%;
