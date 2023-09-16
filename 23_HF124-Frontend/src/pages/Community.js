@@ -22,6 +22,7 @@ const Community = () => {
 
   const [data, setData] = useState({ posts: { rows: [] } });
   const [page, setPage] = useState(1);
+  const [totalpage, setTotalpage] = useState();
   const [sort, setSort] = useState("latest");
   const [write, setWrite] = useState(false);
   const [change, setChange] = useState(false);
@@ -41,7 +42,8 @@ const Community = () => {
   const title = location.state ? location.state.title : "";
 
   console.log(data)
-
+  console.log(page)
+  console.log(data.total_pages)
   useEffect(() => {
     const updateButtonPosition = () => {
       const windowWidth = window.innerWidth;
@@ -89,11 +91,14 @@ const Community = () => {
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
-        setPage((prevPage) => prevPage + 1);
+        if(page<totalpage){
+          setPage((prevPage) => prevPage + 1);
+        }
+        
       }
     });
     if (node) observer.current.observe(node);
-  }, []);
+  }, [page, totalpage]);
 
   const handleSearchClick = () => {
     navigate("/Search");
@@ -109,6 +114,9 @@ const Community = () => {
     if (searchTriggered + locationTriggered + tagTriggered != 0) return; // 검색이 실행되면 아무 것도 하지 않습니다.
     const fetchMoreData = async () => {
       try {
+        if(page >= data.total_pages) { // 마지막 페이지 확인
+                return;
+            }
         const response = await axios.get(
           `${baseURL}community/?page=${page}&sort=${sort}`
         );
@@ -118,7 +126,9 @@ const Community = () => {
             ...prevData.posts,
             rows: [...prevData.posts.rows, ...response.data.posts.rows],
           },
+          total_pages: response.data.total_pages
         }));
+        setTotalpage(response.data.total_pages);
       } catch (error) {
         console.log(error);
       }
@@ -155,10 +165,12 @@ const Community = () => {
                   ...prevData.posts,
                   rows: [...prevData.posts.rows, ...response.data.posts.rows],
                 },
+                total_pages: response.data.total_pages
               }));
             } else {
               // 페이지가 1이면 새로운 데이터로 설정
               setData(response.data);
+              setTotalpage(response.data.total_pages)
             }
           }
         } else if (locationTriggered) {
@@ -178,10 +190,14 @@ const Community = () => {
                   ...prevData.posts,
                   rows: [...prevData.posts.rows, ...response.data.posts.rows],
                 },
+                total_pages: response.data.total_pages
               }));
+              
+              setTotalpage(response.data.total_pages);
             } else {
               // 페이지가 1이면 새로운 데이터로 설정
               setData(response.data);
+              setTotalpage(response.data.total_pages);
             }
           }
         } else if (tagTriggered) {
@@ -201,10 +217,14 @@ const Community = () => {
                   ...prevData.posts,
                   rows: [...prevData.posts.rows, ...response.data.posts.rows],
                 },
+                total_pages: response.data.total_pages
               }));
+              
+              setTotalpage(response.data.total_pages);
             } else {
               // 페이지가 1이면 새로운 데이터로 설정
               setData(response.data);
+              setTotalpage(response.data.total_pages);
             }
           }
         }

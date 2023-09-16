@@ -37,6 +37,7 @@ router.get("/mapimage", authMiddleware, mapController.mapGetlist);
 //커뮤니티 게시글 불러오기
 router.get("/", authMiddleware, postController.getlist);
 router.get("/search", authMiddleware, postController.getSearchlist);
+router.get("/tagsearch", authMiddleware, postController.getTagSearchList);
 router.get("/nearby", authMiddleware, postController.getNearbylist);
 router.get("/cnearby", authMiddleware, postController.getCNearbylist);
 router.get("/topkeyword", authMiddleware, postController.getTopSearches);

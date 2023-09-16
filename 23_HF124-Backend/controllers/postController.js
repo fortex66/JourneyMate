@@ -7,6 +7,7 @@ const SearchHistories = require("../models/uploadModel");
 const { Op } = require("sequelize");
 const { Sequelize } = require("sequelize");
 
+
 const sequelize = new Sequelize(
   process.env.MYSQL_DATABASE,
   process.env.MYSQL_USERNAME,
@@ -145,41 +146,41 @@ const searchCount = async (req, res) => {
     res.status(500).json({ message: "테이블에 추가 실패" });
   }
 };
-
-//검색을 받고 검색 조건에 해당하는 게시글을 반환하는 API
-const getSearchlist = async (req, res) => {
-  try {
+const getTagSearchList=async(req, res)=>{
+  try{
     const {
       page = 1,
       per_page = 10,
       sort = "latest",
-      tags,
-      location,
-      title,
+      tags
     } = req.query;
-    console.log(req.query);
 
     let order;
-    switch (sort) {
-      case "dueDate":
-        order = [["finishDate", "DESC"]];
+    switch(sort){
+      case "popular":
+        order=[["likeCount","DESC"]];
+        break;
+      case "comments":
+        order=[["commentCount","DESC"]];
         break;
       case "latest":
       default:
-        order = [["postDate", "DESC"]];
+        order=[["postDate","DESC"]];
     }
-    // title 검색 조건
-    const titleCondition = title
-      ? { title: { [Op.like]: `%${title}%` } } // 수정된 부분
-      : {};
-    // location 검색 조건
-    const locationCondition = location
-      ? { location: { [Op.like]: `%${location}%` } }
-      : {};
-
-    // 먼저 location과 title을 기반으로 게시물 찾기
+    const tag = await Tag.Tag.findOne({where: {content: tags}});
+    if(!tag){
+      res.status(202).json({message: "해당 태그를 가지는 게시물이 없습니다."});
+    }
+    
+    console.log("tag : ",tag)
+    const tagId=tag.dataValues.tagID
+    console.log("tagID : ", tagId)
+    const taggings=await Tag.TTagging.findAll({where: {tagID: tagId}});
+    console.log("taggings : ",taggings)
+    const postIds = taggings.map(t => t.tpostID);
+    console.log("postID : ", postIds)
     let posts = await tPost.tPost.findAndCountAll({
-      where: { ...locationCondition, ...titleCondition },
+      where: { tpostID: postIds },
       include: [
         {
           model: tPost.tPostImage,
@@ -203,18 +204,98 @@ const getSearchlist = async (req, res) => {
       offset: per_page * (page - 1),
       limit: per_page,
     });
+    const total_pages = Math.ceil(posts.count / per_page);
+
+    res.status(200).json({ posts, total_pages }); // 수정된 부분
+    console.log(posts);
+  }catch(err){
+    console.error(err)
+    res.status(404).json({message: "검색 실패!"});
+  }
+}
+//검색을 받고 검색 조건에 해당하는 게시글을 반환하는 API => 원래 메서드 일부 오류가 있어서 고침
+const getSearchlist = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      per_page = 10,
+      sort = "latest",
+      tags,
+      location,
+      title
+    } = req.query;
+    console.log(req.query);
+
+    let order;
+    switch(sort){
+      case "popular":
+        order=[["likeCount","DESC"]];
+        break;
+      case "comments":
+        order=[["commentCount","DESC"]];
+        break;
+      case "latest":
+      default:
+        order=[["postDate","DESC"]];
+    }
+    // title 검색 조건
+    const titleCondition = title
+      ? { title: { [Op.like]: `%${title}%` } } // 수정된 부분
+      : {};
+
+    // location 검색 조건
+    const locationCondition = location
+      ? { location: { [Op.like]: `%${location}%` } }
+      : {};
+
+      let tagList = tags ? tags.split(",") : null;
+
+      const tagCondition = tagList
+      ? {
+          [Op.or]: tagList.map((tagContent) => ({ content: { [Op.like]: `%${tagContent}%` } })),
+        }
+      : {};
+    // 먼저 location을 기반으로 게시물 찾기
+    let posts = await tPost.tPost.findAndCountAll({
+      where: {...locationCondition, ...titleCondition},
+      include: [
+        {
+          model: tPost.tPostImage,
+          as: "post_images",
+        },
+        {
+          model: userProfile.User,
+          attributes: ["profileImage"],
+        },
+        {
+          model: Tag.Tag,
+          as: "tags",
+          through: {
+            model: Tag.TTagging,
+            attributes: [],
+          },
+          required: tagList !== null,
+          where: tagCondition,
+        },
+      ],
+      order: order,
+      group: ['tpostID'],
+      offset: per_page * (page - 1),
+      limit: per_page,
+    });
 
     // tag를 배열로 변환
-    let tagList = tags ? tags.split(",") : null;
+    
+    console.log(posts)
 
     // tag가 제공된 경우, tag를 기반으로 게시물을 필터링
-    if (tagList) {
-      posts.rows = posts.rows.filter((post) =>
-        post.tags.some((tag) => tagList.includes(tag.content))
-      );
-    }
+    // if (tagList) {
+    //   posts.rows = posts.rows.filter((post) =>
+    //     post.tags.some((tag) => tagList.includes(tag.content))
+    //   );
+    // }
 
-    const total_pages = Math.ceil(posts.count / per_page);
+    const total_pages = Math.ceil(posts.count.length / per_page);
 
     res.status(200).json({ posts, total_pages }); // 수정된 부분
     console.log(posts);
@@ -223,6 +304,8 @@ const getSearchlist = async (req, res) => {
     res.status(500).json({ message: "게시글 조회에 실패하였습니다" });
   }
 };
+
+
 
 //24시간 동안 가장 많이 검색된 키워드 위치 Top10 출력
 const getTopSearches = async (req, res) => {
@@ -274,6 +357,7 @@ const getpost = async (req, res) => {
 const getclist = async (req, res) => {
   try {
     const { page = 1, per_page = 10, sort = "latest" } = req.query;
+    const userID=req.decode.userID;
 
     let order;
     switch (sort) {
@@ -294,12 +378,19 @@ const getclist = async (req, res) => {
         {
           model: userProfile.User,
           as: "users",
-          attributes: ["profileImage"],
+          attributes: ["profileImage","gender","birth"],
         },
       ],
     });
     const total_pages = Math.ceil(posts.count / per_page);
-
+    console.log(posts.rows[0].users)
+    await posts.rows.map((post)=>{
+      const getYear=post.users.dataValues.birth.getFullYear();
+      var date = new Date();
+      var year = date.getFullYear();
+      post.users.dataValues.birth = year - getYear;
+      
+    })
     res.status(200).json({ posts, total_pages });
   } catch (err) {
     console.error(err);
@@ -328,8 +419,7 @@ const getcpost = async (req, res) => {
         },
       ],
     });
-    console.log(post.dataValues.users.dataValues.birth);
-    console.log(post);
+    
     const getYear = post.dataValues.users.dataValues.birth.getFullYear();
 
     var date = new Date();
@@ -437,6 +527,34 @@ const getCSearchlist = async (req, res) => {
   }
 };
 
+const getRecommendList = async (req, res)=>{
+  try {
+    const userID=req.decode.userID;
+    const { page = 1, per_page = 10 } = req.query;
+    // const userTag=await 
+    const posts = await tPost.tPost.findAndCountAll({
+      offset: per_page * (page - 1),
+      limit: per_page,
+      order: order,
+      include: [
+        {
+          model: tPost.tPostImage,
+          as: "post_images",
+        },
+        {
+          model: userProfile.User,
+          attributes: ["profileImage"],
+        },
+      ],
+    });
+    const total_pages = Math.ceil(posts.count / per_page);
+    res.status(200).json({ posts, total_pages });
+    console.log(posts);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "게시글 조회에 실패하였습니다" });
+  }
+}
 module.exports = {
   getlist,
   getpost,
@@ -448,4 +566,6 @@ module.exports = {
   getCNearbylist,
   getTopSearches,
   searchCount,
+  getTagSearchList,
+  getRecommendList
 };

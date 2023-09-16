@@ -1,7 +1,7 @@
 //commentController.js
 const tComment = require("../models/commentModel");
 const cComment = require("../models/ccommentModel");
-
+const userProfile = require("../models/signupModel");
 const { Sequelize } = require("sequelize");
 const sequelize = new Sequelize(
   process.env.MYSQL_DATABASE,
@@ -20,8 +20,14 @@ async function getComments(req, res) {
   try {
     const comments = await tComment.tComment.findAll({
       where: { tpostID: tpostId },
+      include:[{
+        model: userProfile.User,
+        attributes: ["profileImage"],
+      }]
     });
     await updateCommentCounts(tpostId);
+    console.log(comments)
+
     res.status(200).json(comments);
   } catch (error) {
     console.log(error);
@@ -119,6 +125,10 @@ async function companionGetComments(req, res) {
   try {
     const comments = await cComment.cComment.findAll({
       where: { cpostID: cpostID },
+      include:[{
+        model: userProfile.User,
+        attributes: ["profileImage"],
+      }]
     });
     res.status(200).json(comments);
   } catch (error) {
