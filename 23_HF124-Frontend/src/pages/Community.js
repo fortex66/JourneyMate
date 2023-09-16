@@ -44,6 +44,7 @@ const Community = () => {
   console.log(data)
   console.log(page)
   console.log(data.total_pages)
+  console.log(location)
   useEffect(() => {
     const updateButtonPosition = () => {
       const windowWidth = window.innerWidth;
@@ -103,9 +104,15 @@ const Community = () => {
   const handleSearchClick = () => {
     navigate("/Search");
   };
-  const goDetail = (postId) => {
-    navigate(`/Community_Detail/${postId}`);
+
+  const goDetail = (tpostID, detailData) => {
+    navigate(`/Community_Detail/${tpostID}`, { state: detailData }); // detailData에 user프로필 사진과 userID를 넣어서 넘김
   };
+
+  // const goDetail = (postId) => {
+  //   navigate(`/Community_Detail/${postId}`); // detailData에 user프로필 사진과 userID를 넣어서 넘김
+  // };
+
   const goUserDetail = (userId) => {
     navigate(`/UserDetail/${userId}`);
   };
@@ -326,6 +333,7 @@ const Community = () => {
               <Heart>
                 <FontAwesomeIcon icon={faHeartSolid} color="red" />
                 {post.likeCount}
+                &nbsp;&nbsp;
                 <FontAwesomeIcon icon={faCommentSolid} color="F97800" />
                 {post.commentCount}
               </Heart>
@@ -384,7 +392,7 @@ const Community = () => {
             <PostItem 
               key={index} 
               post={post} 
-              goDetail={goDetail} 
+              goDetail={() => goDetail(post.tpostID, { userProfile: post.User.profileImage , userID: post.userID })} 
               goUserDetail={goUserDetail}
               imgURL={imgURL} 
               lastPostElementRef={index === data.posts.rows.length - 1 ? lastPostElementRef : null} 
@@ -430,6 +438,7 @@ const Id = styled.div`
   margin-top: 1px;
   font-size: 15px;
   margin-left: 10px;
+  font-weight: 700;
 `;
 
 const DetailInfo = styled.div`
@@ -601,9 +610,7 @@ const Heart = styled.div`
   gap: 3px; // 아이콘 사이의 간격 조정
   margin-top: 5px;
 `;
-const Comment = styled.div`
-  font-size: 15px;
-`;
+
 
 const Picture = styled.div`
   position: relative;

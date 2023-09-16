@@ -10,8 +10,7 @@ import {
   faBars,
   faComments,
 } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
-import Pmodal from "../components/Pmodal";
+
 
 const Navigationbar = () => {
   const navigate = useNavigate();
@@ -22,6 +21,7 @@ const Navigationbar = () => {
     setIsModalOpen((prevWrite) => !prevWrite);
     console.log("Toggling modal:", !isModalOpen); // 이 로그를 추가합니다.
   };
+  
   useEffect(() => {
     setActiveTab(location.pathname.split("/")[1]);
   }, [location.pathname]); //location.pathname이 바뀔 때 마다 setActiveTab(location.pathname.split("/")[1]) 실행
@@ -46,9 +46,9 @@ const Navigationbar = () => {
             <FontAwesomeIcon
               icon={faUserGroup}
               size="2x"
-              color={activeTab === "Community" ? "#F97800" : "black"}
+              color={(activeTab === "Community" || activeTab ==="Companion") ? "#F97800" : "black"}
             />
-            <Text active={activeTab === "Community"}>커뮤니티·동행인</Text>
+            <Text active={activeTab === "Community" || activeTab ==="Companion"}>커뮤니티·동행인</Text>
           </NavBox>
 
           <NavBox onClick={() => handleTabClick("Home")}>
@@ -170,14 +170,17 @@ const Text = styled.span.withConfig({
 })`
   color: ${(props) => (props.active ? "#F97800" : "black")};
   margin-top: 5px;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 700;
 
   @media (max-width: 600px) {
     font-size: 10px; /* 모바일 화면에 대해 폰트 크기를 조정합니다. */
+    font-weight: 700;
   }
 
   @media (min-width: 601px) and (max-width: 1200px) {
-    font-size: 11px; /* 태블릿 화면에 대해 폰트 크기를 조정합니다. */
+    font-size: 13px; /* 태블릿 화면에 대해 폰트 크기를 조정합니다. */
+    font-weight: 700;
   }
 `;
 

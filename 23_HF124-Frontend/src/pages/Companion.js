@@ -3,16 +3,12 @@ import styled from "styled-components";
 import Navigationbar from "../components/Navigationbar";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import {
-  faComment as faCommentSolid,
-  faUsersViewfinder,
-  faWindowRestore,
-} from "@fortawesome/free-solid-svg-icons";
+import {faWindowRestore, faCalendar,faLocationDot} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSquarePlus } from "@fortawesome/free-solid-svg-icons";
+import { faPen } from "@fortawesome/free-solid-svg-icons";
 import { faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import Cmodal from "../components/Cmodal";
-import Pmodal from "../components/Pmodal";
+
 
 const baseURL = "http://localhost:3000/";
 const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
@@ -36,6 +32,7 @@ const Companion = () => {
   const startDate = location.state ? location.state.startDate : null;
   const endDate = location.state ? location.state.endDate : null;
   const title = location.state ? location.state.title : null;
+
   useEffect(() => {
     const updateButtonPosition = () => {
       const windowWidth = window.innerWidth;
@@ -185,29 +182,18 @@ const Companion = () => {
   return (
     <Container>
       <Header>
-        <SearchInput
-          type="text"
-          onClick={handleSearchClick}
-          placeholder="검색"
-        />
+        <SearchInput type="text" onClick={handleSearchClick} placeholder="검색"/>
         <IconContainer onClick={() => setWrite(!write)}>
           {write && <Cmodal closeModal={() => setWrite(!write)}></Cmodal>}
-          <FontAwesomeIcon icon={faSquarePlus} size="3x" color={"#f97800"} />
+          <FontAwesomeIcon icon={faPen} size="2x" color={"#f97800"} />
         </IconContainer>
         <IconContainer>
-          {" "}
-          <FontAwesomeIcon
-            onClick={() => navigate("/Community")}
-            icon={faWindowRestore}
-            size="2x"
-            color={"#f97800"}
-          />
+          <FontAwesomeIcon onClick={() => navigate("/Community")} icon={faWindowRestore} size="2x" color={"#f97800"} />
         </IconContainer>
       </Header>
       <Content>
         <Sort>
-          <button
-            onClick={() => {
+          <button onClick={() => {
               if (sort === "latest") return;
               setSort("latest");
               setPage(1);
@@ -216,8 +202,7 @@ const Companion = () => {
           >
             최신순
           </button>
-          <button
-            onClick={() => {
+          <button onClick={() => {
               if (sort === "dueDate") return;
               setSort("dueDate");
               setPage(1);
@@ -228,60 +213,44 @@ const Companion = () => {
           </button>
         </Sort>
         <Companion_List>
-          {data &&
-            data.posts.rows.map((post, index) => (
-              <CompanionItem
-                ref={
-                  index === data.posts.rows.length - 1
-                    ? lastPostElementRef
-                    : null
-                }
-                key={index}
-                onClick={() => goDetail(data.posts.rows[index].cpostID)}
-              >
+          {data && data.posts.rows.map((post, index) => (
+              <CompanionItem ref={ index === data.posts.rows.length - 1 ? lastPostElementRef : null }
+                key={index} onClick={() => goDetail(data.posts.rows[index].cpostID)}>
                 <div>
+                  <ProfileContainer>
+                    <Profile>
+                      <ProfileImage
+                        onClick={(e) => {  e.stopPropagation();  goUserDetail(post.userID); }} >
+                        {post.users.profileImage === null ? (
+                          <img alt="chosen" style={{ width: "100%", borderRadius: "100%" }} />
+                        ) : (
+                          <img src={`${imgURL}${post.users.profileImage.replace( /\\/g, "/")}`} style={{ width: "100%", borderRadius: "100%" }} />
+                        )}
+                      </ProfileImage>
+                      <ProfileData>
+                        <Id>{post.userID}</Id>
+                        <UserInfo>{post.users.birth}세 &nbsp;&nbsp;{post.users.gender}</UserInfo>
+                      </ProfileData>
+                    </Profile>
+                   
+                    <Personnel>{post.personnel}명 모집</Personnel>
+                  </ProfileContainer>
                   <Picture>
-                    <div>
-                      <img
-                        src={`${imgURL}${
-                          post.post_images[0]
-                            ? post.post_images[0].imageURL.replace(/\\/g, "/")
-                            : ""
-                        }`}
-                      />
-                    </div>
+                    <img src={`${imgURL}${ post.post_images[0] ? post.post_images[0].imageURL.replace(/\\/g, "/") : "" }`} />
+                    <Location>
+                      <FontAwesomeIcon icon={faLocationDot} color="#f97800" style={{ marginRight: "8px" }}/>
+                      {post.location}
+                    </Location>
                   </Picture>
+                  <TripDate>
+                    <FontAwesomeIcon icon={faCalendar} style={{ marginRight: "8px" }} />
+                    {post.startDate}&nbsp;&nbsp;~&nbsp;&nbsp;{post.finishDate}
+                  </TripDate>
+
                   <Title>
                     <Title1> {post.title}</Title1>
                     <Titlebar>
-                      <DetailInfo>
-                        <ProfileImage
-                          onClick={(e) => {
-                            e.stopPropagation(); // 부모로의 클릭 이벤트 전파를 중단합니다.
-                            goUserDetail(post.userID);
-                          }}
-                        >
-                          {" "}
-                          {post.users.profileImage === null ? (
-                            <img
-                              alt="chosen"
-                              style={{ width: "100%", borderRadius: "100%" }}
-                            />
-                          ) : (
-                            <img
-                              src={`${imgURL}${post.users.profileImage.replace(
-                                /\\/g,
-                                "/"
-                              )}`}
-                              style={{ width: "100%", borderRadius: "100%" }}
-                            />
-                          )}{" "}
-                        </ProfileImage>
-                        <Id>{post.userID}</Id>
-                      </DetailInfo>
-                      <Heart>
-                        <FontAwesomeIcon icon={faCommentSolid} color="F97800" />
-                      </Heart>
+                        {post.content}
                     </Titlebar>
                   </Title>
                 </div>
@@ -290,52 +259,80 @@ const Companion = () => {
         </Companion_List>
       </Content>
 
-      <ScrollToTopButton
-        onClick={scrollToTop}
-        style={{ display: isVisible ? "block" : "none", right: buttonPosition }}
-      >
+      <ScrollToTopButton onClick={scrollToTop} style={{ display: isVisible ? "block" : "none", right: buttonPosition }}>
         <FontAwesomeIcon icon={faChevronUp} size="3x" color="#f97800" />
       </ScrollToTopButton>
-
       <Navigationbar />
     </Container>
   );
 };
-const ProfileImage = styled.div`
-  background-color: rgb(254, 237, 229);
-  width: 30px;
-  height: 30px;
-  border-radius: 80%;
-  display: flex;
-  align-items: center;
 
-  margin-bottom: 10px;
-  cursor: pointer;
-  overflow: hidden;
-  img {
+const Header = styled.div`
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 640px;
+  position: fixed;
+  top: 0;
+  height: 90px;
+  background-color: #fff;
+  border-bottom: 1px solid;
+  z-index: 1000;
+
+  @media (max-width: 640px) {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: 70px; // 모바일 화면에서 높이 조정
+    
+  }
+
+  @media (min-width: 601px) and (max-width: 1200px) {
+    height: 80px; // 태블릿 화면에서 높이 조정
   }
 `;
-const Id = styled.div`
-  margin-top: 1px;
-  font-size: 15px;
-  margin-left: 10px;
+
+const SearchInput = styled.input`
+  width: 70%;
+  height: 40px;
+  border-radius: 15px;
+  border: 1px solid #dadde0;
+  padding: 0 10px;
+  &:focus {
+    outline: none;
+  }
+  margin-top: 10px;
+
+  @media (max-width: 480px) {
+   
+    margin-left: 8px;
+    margin-right: 5px;
+    
+  }
+
 `;
-const DetailInfo = styled.div`
+
+const IconContainer = styled.div`
   display: flex;
+  align-items: center;
+  margin-top: 10px;
+  margin-right: 10px;
+  cursor: pointer;
+  
+  svg {
+    font-size: 32px; // 기본 아이콘 크기 설정
+  }
+
+  @media (max-width: 480px) {
+    margin-top: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+
+    svg {
+      font-size: 20px; // 모바일 화면에서 아이콘 크기 조정
+    }
+  }
+  
 `;
-const Title1 = styled.div`
-  margin-bottom: 10px;
-`;
-const ScrollToTopButton = styled.button`
-  border-radius: 50%;
-  border: none;
-  background-color: #fff;
-  position: fixed;
-  bottom: 120px;
-`;
+
 const Sort = styled.div`
   display: flex;
   justify-content: space-between;
@@ -357,102 +354,227 @@ const Sort = styled.div`
     text-decoration: none;
     letter-spacing: 2px;
     font-weight: bold;
+
+    @media (max-width: 400px) {
+      font-size: 11px;
+      margin: 8px;
+      padding: 0.5em 1.5em;
+    }
   }
+
+  @media (max-width: 440px) {
+    margin: 5px 0px 5px 0px;
+  }
+
+
 `;
 
-const SearchInput = styled.input`
-  width: 70%;
-  height: 40px;
-  border-radius: 15px;
-  border: 1px solid #dadde0;
-  padding: 0 10px;
-  &:focus {
-    outline: none;
-  }
-  margin-top: 10px;
+const ProfileContainer = styled.div`
+  display: flex;
+  width: 100%;
 `;
 
-const IconContainer = styled.div`
+const Profile = styled.div`
   display: flex;
   align-items: center;
-  margin-top: 10px;
-  margin-right: 10px;
+  width: 70%;
+`
+const ProfileImage = styled.div`
+  background-color: rgb(254, 237, 229);
+  width: 30px;
+  height: 30px;
+  border-radius: 80%;
+  display: flex;
+
+  margin-bottom: 10px;
   cursor: pointer;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
+
+const ProfileData = styled.div`
+  display: flex;
+  flex-direction: column;
+  font-size:12px;
+  margin-top: 1px;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  font-weight: 700;
+`
+const Id = styled.div`
+
+`;
+
+const UserInfo = styled.div`
+  color: rgb(0, 206, 124);
+`
+
+const Personnel = styled.div`
+ margin-left: 5px;
+ font-size: 15px;
+ width: 30%;
+ color: rgb(0, 143, 246);
+ font-weight: 700;
+`
+
+const Title1 = styled.div`
+  overflow: hidden;
+  margin-bottom: 10px;
+  text-overflow: ellipsis;
+  overflow-wrap: break-word;
+`;
+
+const TripDate = styled.div`
+  display : flex;
+  margin-bottom: 10px;
+  align-items: center;
+  font-weight: 700;
+  font-size: 14px;
+`
+
+
+const ScrollToTopButton = styled.button`
+  border-radius: 50%;
+  border: none;
+  background-color: #fff;
+  position: fixed;
+  bottom: 120px;
+`;
+
+
+
 const Container = styled.div`
   position: relative;
   width: 100%;
 `;
-const Header = styled.div`
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  width: 640px;
-  position: fixed;
-  top: 0;
-  height: 90px;
-  background-color: #fff;
-  border-bottom: 1px solid;
-`;
 
-const CompanionBox = styled.div`
-  margin-right: 20px;
-  margin-left: 20px;
-`;
 
 const Content = styled.div`
   margin-right: 20px;
   margin-left: 20px;
   margin-top: 100px;
+
+  @media (max-width: 440px) {
+    margin-right: 20px;
+    margin-left: 20px;
+    margin-top: 70px;
+    padding-top: 10px;
+  }
 `;
 const Companion_List = styled.div`
-  display: flex; /* Flexbox 사용 */
-  flex-wrap: wrap; /* 창 크기에 따라 자동으로 다음 행으로 넘어가게 설정 */
-  justify-content: space-between; /* 각 아이템 사이에 공간 배분 */
+  flex-wrap: wrap; 
+  justify-content: space-between; 
+
+  @media (max-width: 500px) {
+
+  }
+
+  @media (min-width: 501px) and (max-width: 1200px) {
+    display: flex; 
+  }
+  
+  @media (min-width: 1201px) {
+    display: flex; 
+  }
 `;
 
 const CompanionItem = styled.div`
   cursor: pointer;
   break-inside: avoid-column;
-  background-color: rgb(240, 240, 240);
+  background: rgb(255, 255, 255);
+  border-radius: 14px;
+  box-shadow: rgba(25, 25, 25, 0.2) 0px 6px 10px;
   margin-bottom: 20px;
   padding: 20px;
-  width: calc(
-    45% - 20px
-  ); /* 두 개의 컴포넌트가 한 행에 들어갈 수 있도록 너비 설정. 간격을 고려하여 -20px 함 */
+  &:hover img {
+    transform: scale(1.05); /* 마우스 호버 시 이미지를 약간 확대 */
+  }
+
+  @media (max-width: 500px) {
+
+  }
+
+  @media (min-width: 501px) and (max-width: 1200px) {
+    width: calc(
+      45% - 20px
+    ); 
+  }
+  
+  @media (min-width: 1201px) {
+    width: calc(
+      45% - 20px
+    ); 
+  }
 `;
 
 const Title = styled.div`
   font-size: 20px;
   font-weight: bold;
   overflow: hidden;
-  text-overflow: ellipsis;
+  
   white-space: nowrap;
   display: block;
   align-items: center;
+
 `;
 
 const Picture = styled.div`
+  position: relative; /* 여기를 relative로 변경 */
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-bottom: 10px;
   margin-bottom: 10px;
+
+
   img {
-    // img 태그에 대한 스타일을 정의
-    width: 250px; // 너비를 250px로 설정
-    height: 250px; // 높이를 250px로 설정
-    object-fit: cover; // 이미지의 비율을 유지하면서, 요소에 꽉 차게 표시
+    display: block;
+    width: 100%; 
+    height: 250px;
+    border-radius: 14px;
+    margin: 0 auto; 
+    object-fit: cover; 
+    transition: transform 0.3s;
+    z-index: 0;
+
+    @media (max-width: 600px) {
+      width: 100%; 
+      height: 250px; // 모바일 화면에서의 세로 크기
+    }
+
+    @media (min-width: 601px) and (max-width: 1200px) {
+      width: 100%; 
+      height: 250px; // 태블릿 화면에서의 세로 크기
+    }
+    
+    @media (min-width: 1201px) {
+      width: 100%; 
+      height: 250px; // 데스크톱 화면에서의 세로 크기
+    }
   }
 `;
+
+const Location = styled.div`
+  position: absolute; /* Location을 absolute로 설정하여 Picture 내에서 자유롭게 위치를 조정할 수 있게 합니다. */
+  top: 10px; /* top과 left 값을 조절하여 원하는 위치에 배치하세요. */
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.5); /* 배경색을 추가하여 텍스트가 더 잘 보이게 합니다. */
+  color: white; /* 텍스트 색상을 변경하세요. */
+  padding: 5px; /* 패딩을 추가하여 텍스트 주위에 공간을 만듭니다. */
+  border-radius: 5px; /* 경계 반경을 추가하여 모서리를 둥글게 합니다. */
+  font-size: 13px;
+`;
+
+
 const Titlebar = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 12px;
 `;
 
-const Heart = styled.div`
-  font-size: 15px;
-`;
+
 
 export default Companion;
