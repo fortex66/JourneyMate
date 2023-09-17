@@ -9,6 +9,7 @@ import { faCommentMedical } from "@fortawesome/free-solid-svg-icons";
 import { SocketContext } from "../App"; // SocketContext 추가
 import axios from "axios";
 const baseURL = "http://localhost:3000";
+const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 
 function Chatting() {
   const [name, setName] = useState("");
@@ -52,19 +53,23 @@ function Chatting() {
           {chattingdata &&
             chattingdata.map((list, index) => (
               <RoomItem key={index} onClick={() => goChattingRoom(list.chatID)}>
-                <TitleContainer>
-                  <Title>{list.group_chatting.companion_posts.title}</Title>
-                  <Person>{list.group_chatting.userCount}</Person>
-                </TitleContainer>
+                
+                  <RoomImg>
+                    <img src={`${imgURL}${list.group_chatting.companion_posts.post_images[0].imageURL.replace(/\\/g, "/")}`}
+                      style={{ width: "100%", borderRadius: "100%" }} />
+                  </RoomImg>
+                  <RoomInfo>
+                    <TitleContainer>
+                      <Title>{list.group_chatting.companion_posts.title}</Title>
+                      <Person>{list.group_chatting.userCount}</Person>
+                    </TitleContainer>
+                    <LastChatting>
+                      {list.group_chatting.lastchat}
+                    </LastChatting>
+                </RoomInfo>
+                
 
-                <DateContainer>
-                  <StartDate>
-                    {list.group_chatting.companion_posts.startDate}
-                  </StartDate>
-                  <FinishDate>
-                    ~{list.group_chatting.companion_posts.finishDate}
-                  </FinishDate>
-                </DateContainer>
+                
               </RoomItem>
             ))}
         </RoomList>
@@ -103,8 +108,7 @@ const RoomList = styled.div`
 `;
 
 const RoomItem = styled.div`
-  display: flex;
-  justify-content: space-between; // 항목들이 컨테이너의 양쪽 끝에 위치하도록 설정
+  display:flex;
   border-bottom: 1px solid #dddddd;
   height: 70px;
   padding: 5px 5px 0px 5px;
@@ -115,8 +119,31 @@ const RoomItem = styled.div`
   }
 `;
 
+const RoomInfo = styled.div`
+
+`
+
+const RoomImg = styled.div`
+background-color: rgb(254, 237, 229);
+width: 50px;
+height: 50px;
+border-radius: 80%;
+display: flex;
+align-items: center;
+
+margin-bottom: 10px;
+cursor: pointer;
+overflow: hidden;
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+`
+
 const TitleContainer = styled.div`
   display: flex;
+  margin-left: 20px;
 `;
 
 const Title = styled.div`
@@ -130,13 +157,8 @@ const Person = styled.div`
   color: #8f9098;
 `;
 
-const DateContainer = styled.div`
-  display: flex;
-  color: #8f9098;
-`;
-
-const StartDate = styled.div``;
-
-const FinishDate = styled.div``;
+const LastChatting = styled.div`
+  margin-left: 20px;
+`
 
 export default Chatting;
