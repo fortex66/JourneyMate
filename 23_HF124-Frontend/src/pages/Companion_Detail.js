@@ -5,7 +5,7 @@ import styled from "styled-components";
 import Detail_Nav from "../components/Detail_Nav";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faLocationDot,faUser,faCalendar } from "@fortawesome/free-solid-svg-icons";
 import { SocketContext } from "../App";
 const Companion_Detail = () => {
   const { postId } = useParams();
@@ -40,12 +40,12 @@ const Companion_Detail = () => {
       try {
         const responsePost = await axios.get(baseURL + `companion/${postId}`); // postId를 API 호출에 사용하여 게시글 데이터 가져오기
         setData(responsePost.data);
-        //console.log(responsePost);
+        console.log(responsePost);
         const responseComments = await axios.get(
           baseURL + `companion/comments/${postId}`
         ); // postId를 API 호출에 사용하여 댓글 데이터 가져오기
         setComments(responseComments.data);
-        console.log(responsePost);
+        console.log(responseComments);
       } catch (error) {
         console.log(error);
       }
@@ -55,6 +55,10 @@ const Companion_Detail = () => {
 
   const handleNewCommentChange = (event) => {
     setNewComment(event.target.value);
+  };
+
+  const goUserDetail = (userId) => {
+    navigate(`/UserDetail/${userId}`);
   };
 
   const enterChatRoom = async () => {
@@ -170,27 +174,18 @@ const Companion_Detail = () => {
     return (
       <Page>
         <Top>
-          <StyledButton onClick={() => navigate(-1)}>{"<"}</StyledButton>
+          <StyledButton className="back_btn"onClick={() => navigate(-1)}>{"<"}</StyledButton>
 
           {currentUser && data?.post.userID === currentUser && (
             <>
-              <FontAwesomeIcon
-                icon={faBars}
-                size="2x"
-                color={"#f97800"}
-                onClick={openModal}
-              />
-
+              <FontAwesomeIcon icon={faBars} size="2x" color={"#f97800"} onClick={openModal} style={{ cursor: "pointer" , marginRight: "25px" }}/>
               {isModalOpen && (
                 <ModalBackground onClick={handleOutsideClick}>
                   <ModalBox onClick={(e) => e.stopPropagation()}>
                     <ModalButton onClick={EditCompanion}>수정</ModalButton>
-                    <ModalButton
-                      onClick={() => {
-                        deleteCompanion(data.post.tpostID);
+                    <ModalButton onClick={() => { deleteCompanion(data.post.tpostID);
                         closeModal(); // Optional: Close modal after delete action
-                      }}
-                    >
+                      }} >
                       삭제
                     </ModalButton>
                   </ModalBox>
@@ -199,63 +194,61 @@ const Companion_Detail = () => {
             </>
           )}
         </Top>
-
         <ImageContainer>
-          <img
-            src={`${imgURL}${
-              data && data.post.post_images[0].imageURL.replace(/\\/g, "/")
-            }`}
-            style={{ maxWidth: "600px", height: "auto" }}
-          />
+          <img src={`${imgURL}${ data && data.post.post_images[0].imageURL.replace(/\\/g, "/") }`}/>
         </ImageContainer>
         <Title>{data && data.post.title}</Title>
+        <ProfileContainer>
+          <Profile>
+              <ProfileImage
+                onClick={(e) => {  e.stopPropagation();  goUserDetail(data.post.userID); }} >
+                {data.post.users.profileImage === null ? (
+                  <img alt="chosen" style={{ width: "100%", borderRadius: "100%" }} />
+                ) : (
+                  <img src={`${imgURL}${data.post.users.profileImage.replace( /\\/g, "/")}`} style={{ width: "100%", borderRadius: "100%" }} />
+                )}
+              </ProfileImage>
+              <ProfileData>
+                <Id>{data && data.post.userID} </Id>
+                <UserInfo>{data && data.age}세 &nbsp;&nbsp; {data && data.post.users.gender}</UserInfo>
+              </ProfileData>
+          </Profile>
+          <JoinButton onClick={() => enterChatRoom()}>채팅방 입장</JoinButton>
+        </ProfileContainer>
+
         <Info>
           <FirstInfo>
-            <LocationInfo>지역 : {data && data.post.location}</LocationInfo>
-            <PeopleInfo>모집인원 : {data && data.post.personnel}명</PeopleInfo>
-            <GenderInfo>성별 : {data && data.post.pgender}</GenderInfo>
+            <FontAwesomeIcon icon={faLocationDot} color="#f97800" size="2x" style={{ margin : "10px" }}/>
+            <LocationInfo>
+              {data && data.post.location}
+            </LocationInfo>
           </FirstInfo>
 
           <SecondInfo>
-            <AgeInfo>나이 : {data && data.post.age}</AgeInfo>
-            <PeriodInfo>
-              여행기간 : {data && data.post.startDate} ~{" "}
-              {data && data.post.finishDate}
-            </PeriodInfo>
+            <FontAwesomeIcon icon={faUser} color="#f97800" size="2x" style={{  margin : "10px"  }}/>
+            <PeopleInfo>
+              {data && data.post.personnel}명
+            </PeopleInfo>
           </SecondInfo>
-        </Info>
-        <Title>프로필 정보</Title>
-        <HostContainer>
-          <HostInfo>
-            <Host1>
-              <HostImage>
-                {" "}
-                {data.post.users.profileImage === null ? (
-                  <img
-                    alt="chosen"
-                    style={{ width: "100%", borderRadius: "100%" }}
-                  />
-                ) : (
-                  <img
-                    src={`${imgURL}${data.post.users.profileImage.replace(
-                      /\\/g,
-                      "/"
-                    )}`}
-                    style={{ width: "100%", borderRadius: "100%" }}
-                  />
-                )}{" "}
-              </HostImage>
-              <HostName>{data && data.post.userID} </HostName>
-            </Host1>
-            <Host2>
-              {" "}
-              <HostAge>{data && data.age}</HostAge>
-              <HostGender>{data && data.post.users.gender}</HostGender>
-            </Host2>
-          </HostInfo>
 
-          <JoinButton onClick={() => enterChatRoom()}>채팅방 입장</JoinButton>
-        </HostContainer>
+          <ThirdInfo>
+            <FontAwesomeIcon icon={faCalendar} size="2x" style={{ margin : "10px"  }} />
+            <PeriodInfo>
+              <div className="date-wrapper">
+                <span>{data && data.post.startDate}</span>
+                <span>{data && data.post.finishDate}</span>
+              </div>
+            </PeriodInfo>
+          </ThirdInfo>
+        </Info>
+        <FourthInfo>
+          <AgeInfo>
+              모집 나이 &nbsp;:&nbsp; {data && data.post.age}
+            </AgeInfo>
+            <GenderInfo>
+              모집 성별 &nbsp;:&nbsp; {data && data.post.pgender}
+            </GenderInfo>
+          </FourthInfo>
 
         <Main>
           <Content>{formatText(data && data.post.content)}</Content>
@@ -313,67 +306,95 @@ const Companion_Detail = () => {
   }
 };
 
-const HostImage = styled.div`
-  background-color: rgb(254, 237, 229);
-  width: 30px;
-  height: 30px;
-  border-radius: 80%;
-  display: flex;
-  align-items: center;
-  margin-right: 5px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  overflow: hidden;
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+const Page = styled.div`
+  margin-top: 100px;
+
+  @media (max-width: 440px) {
+    margin-top: 70px;
+    padding-top: 10px;
   }
 `;
 
-const Host1 = styled.div`
+const Top = styled.div`
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 640px;
+  position: fixed;
+  top: 0;
+  height: 90px;
+  background-color: #fff;
+  border-bottom: 1px solid #000;
+  z-index: 1000;
+  button {
+    margin-left: 20px;
+    
+  }
+
+  @media (max-width: 640px) {
+    width: 100%;
+    height: 70px; // 모바일 화면에서 높이 조정
+    
+  }
+
+  @media (min-width: 601px) and (max-width: 1200px) {
+    height: 80px; // 태블릿 화면에서 높이 조정
+  }
 `;
 
-const Host2 = styled.div`
-  display: flex;
-`;
-const StyledButtonInput = styled.div`
-box-sizing: border-box;
-appearance: none;
-background-color: transparent;
-border: 2px solid #f97800;
-border-radius: 0.6em;
-color: #f97800;
-cursor: pointer;
-align-self: center;
-font-size: 16px;
-font-family: "Nanum Gothic", sans-serif;
-line-height: 1;
-padding: 0.5em 0.5em;
-text-decoration: none;
-letter-spacing: 2px;
-font-weight: 700;
-margin-bottom: 10px;
-margin-left:10px;
-
-&:hover,
-&:focus {
-  color: #fff;
-  outline: 0;
-}
-transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
-&:hover {
-  box-shadow: 0 0 40px 40px #f97800 inset;
-}
-
-&:focus:not(:hover) {
+const StyledButton = styled.button`
+  box-sizing: border-box;
+  appearance: none;
+  background-color: transparent;
+  border: 2px solid #f97800;
+  border-radius: 0.6em;
   color: #f97800;
-  box-shadow: none;
-}
-}
+  cursor: pointer;
+  align-self: center;
+  font-family: "Nanum Gothic", sans-serif;
+  line-height: 1;
+  text-decoration: none;
+  letter-spacing: 2px;
+  font-weight: 700;
+
+
+  &:hover,
+  &:focus {
+    color: #fff;
+    outline: 0;
+  }
+  transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+  &:hover {
+    box-shadow: 0 0 40px 40px #f97800 inset;
+  }
+
+  &:focus:not(:hover) {
+    color: #f97800;
+    box-shadow: none;
+  }
+
+  button.back_btn {
+  padding: 0.6em 1em;
+  }
+
+
+  @media (max-width: 600px) {
+    font-size: 13px;
+    padding: 0.4em 1.0em;
+  }
+
+  @media (min-width: 601px) and (max-width: 1200px) {
+    font-size: 16px;
+    padding: 0.6em 1.5em;
+  }
+
+  @media (min-width: 1201px) {
+    font-size: 16px;
+    padding: 0.6em 1.5em;
+  }
 
 `;
+
 const ModalButton = styled.div`
 box-sizing: border-box;
 appearance: none;
@@ -433,135 +454,214 @@ const ModalBox = styled.div`
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   z-index: 2000; // ModalBox가 ModalBackground 위에 위치하도록 설정
 `;
-const CommentDate = styled.div`
-  font-size: 0.8em;
-  color: gray;
-`;
-const Page = styled.div`
+
+
+const Title = styled.div`
   margin-top: 20px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 28px;
 `;
 
-const Top = styled.div`
-  margin-left: 20px;
-  margin-right: 20px;
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px solid #dadada;
-  button {
-    margin-right: 5px;
+const ImageContainer = styled.div`
+  margin: 15px 20px 15px 20px;
+  text-align: center;
+
+  img {
+    display: block;
+    width: 100%; 
+    margin-bottom: 20px; 
+    object-fit: cover; 
+    border-radius: 15px;
+
+    @media (max-width: 600px) {
+      width: 100%; 
+      height: 360px; // 모바일 화면에서의 세로 크기
+      object-fit: cover; 
+    }
+
+    @media (min-width: 601px) and (max-width: 1200px) {
+      width: 100%; 
+      height: 460px; // 태블릿 화면에서의 세로 크기
+      object-fit: cover; 
+    }
+    
+    @media (min-width: 1201px) {
+      width: 100%; 
+      height: 580px; // 데스크톱 화면에서의 세로 크기
+      object-fit: cover; 
+    }
   }
 `;
 
-const Title = styled.div`
-  text-align: center;
-  font-weight: bold;
-  font-size: 20px;
+const ProfileContainer = styled.div`
+  display: flex;
+  padding:10px 20px 10px 30px;
+  border-bottom: 2px solid #dadada;
+  justify-content: space-between;
 `;
-const CommentContent = styled.div`
-  white-space: pre-wrap; // 띄어쓰기와 줄바꿈을 유지하면서 필요한 경우에만 줄바꿈
+
+const Profile = styled.div`
+  display: flex;
+  align-items: center;
+  width: 70%;
 `;
+
+const ProfileImage = styled.div`
+  background-color: rgb(254, 237, 229);
+  width: 30px;
+  height: 30px;
+  border-radius: 80%;
+  display: flex;
+
+  margin-bottom: 10px;
+  cursor: pointer;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+
+const ProfileData = styled.div`
+  display: flex;
+  flex-direction: column;
+  font-size:13px;
+  margin-top: 1px;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  font-weight: 700;
+`
+const Id = styled.div`
+
+`;
+
+const UserInfo = styled.div`
+  color: rgb(0, 206, 124);
+  `;
+
+
+const JoinButton = styled.div`
+  box-sizing: border-box;
+
+  appearance: none;
+  background-color: transparent;
+  border: 2px solid #f97800;
+  border-radius: 0.6em;
+  color: #f97800;
+  cursor: pointer;
+  align-self: center;
+  font-size: 16px;
+  line-height: 1;
+
+  text-decoration: none;
+  letter-spacing: 2px;
+  font-weight: 700;
+
+
+  &:hover,
+  &:focus {
+  color: #fff;
+  outline: 0;
+  }
+
+  transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+  &:hover {
+  box-shadow: 0 0 40px 40px #f97800 inset;
+  }
+
+  &:focus:not(:hover) {
+  color: #f97800;
+  box-shadow: none;
+  }
+
+
+  @media (max-width: 600px) {
+    font-size: 13px;
+    padding: 0.3em 0.3em;
+  }
+
+  @media (min-width: 601px) and (max-width: 1200px) {
+    font-size: 16px;
+    padding: 0.5em 0.5em;
+  }
+
+  @media (min-width: 1201px) {
+    font-size: 16px;
+    padding: 0.5em 0.5em;
+  }
+
+
+}`;
+
+
 const Info = styled.div`
-  border: 1px solid #f97800;
-  border-radius: 15px;
-  padding: 10px;
+  padding: 10px 30px 10px 30px;
   margin: 20px;
+  display:flex;
+  justify-content: space-between;
+  text-align: center;
+  border-bottom: 1px solid #dadada;
+
+  @media (max-width: 600px) {
+    padding: 10px;
+  }
+
 `;
 
 const FirstInfo = styled.div`
-  display: flex;
+font-size:15px;
+font-weight:700;
 `;
+
 const LocationInfo = styled.div`
-  margin-right: 50px;
-`;
-
-const PeopleInfo = styled.div`
-  margin-right: 100px;
-`;
-
-const GenderInfo = styled.div``;
-
-const SecondInfo = styled.div`
-  display: flex;
-  margin-top: 15px;
-`;
-
-const AgeInfo = styled.div`
-  margin-right: 100px;
-`;
-
-const PeriodInfo = styled.div``;
-
-const ImageContainer = styled.div`
-  text-align: center;
-  img {
-    margin-top: 20px;
-    margin-bottom: 10px;
-    border-radius: 10px;
+  @media (max-width: 400px) {
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   }
 `;
 
-const HostContainer = styled.div`
-  border: 1px solid #f97800;
-  border-radius: 15px;
-
-  padding: 10px;
-  margin: 20px;
-  display: flex;
-  justify-content: space-between;
+const SecondInfo = styled.div`
+font-size:15px;
+font-weight:700;
 `;
 
-const HostInfo = styled.div`
-  margin-top: 10px;
+const PeopleInfo = styled.div`
+
 `;
 
-const HostName = styled.div`
-  margin-right: 10px;
+const ThirdInfo = styled.div`
+font-size:15px;
+font-weight:700;
 `;
 
-const HostAge = styled.div`
-  margin-right: 10px;
-  margin-left: 10px;
+const PeriodInfo = styled.div`
+  .date-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;
 
-const HostGender = styled.div`
-  margin-right: 10px;
-  margin-left: 10px;
+
+const FourthInfo = styled.div`
+padding: 0px 0px 10px 10px;
+margin: 20px;
+color: gray;
+font-size : 14px;
+font-weight:700;
 `;
 
-const JoinButton = styled.div`box-sizing: border-box;
-margin-top: 5px;
-appearance: none;
-background-color: transparent;
-border: 2px solid #f97800;
-border-radius: 0.6em;
-color: #f97800;
-cursor: pointer;
-align-self: center;
-font-size: 16px;
-font-family: "Nanum Gothic", sans-serif;
-line-height: 1;
-padding: 0.5em 0.5em;
-text-decoration: none;
-letter-spacing: 2px;
-font-weight: 700;
-margin-bottom: 10px;
-margin-left:10px;
 
-&:hover,
-&:focus {
-  color: #fff;
-  outline: 0;
-}
-transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
-&:hover {
-  box-shadow: 0 0 40px 40px #f97800 inset;
-}
+const AgeInfo = styled.div`
+`;
 
-&:focus:not(:hover) {
-  color: #f97800;
-  box-shadow: none;
-}
-}`;
+const GenderInfo = styled.div`
+
+`;
 
 const TagContainer = styled.div`
   margin-left: 30px;
@@ -570,27 +670,36 @@ const TagContainer = styled.div`
 const TagList = styled.div`
   display: flex;
 `;
+
 const TagItem = styled.div`
   background-color: #dddddd;
   border-radius: 10px;
-  font-size: 11px;
+  font-size: 13px;
+  font-weight:700;
   padding: 5px;
   margin-left: 5px;
+  cursor:pointer;
 `;
 
+
+
+
 const Main = styled.div`
-  border: 1px solid #dadada;
-  border-radius: 10px;
   margin: 20px;
+  padding: 10px;
 `;
 
 const Content = styled.div`
   padding-bottom: 10px;
+  font-size : 18px;
+  font-weight : 800;
+  line-height : 25px;
 `;
 
 const CommentSection = styled.div`
   border-top: 2px solid rgb(234, 235, 239);
-  margin: 10px;
+  margin: 20px 0;
+  padding-left:10px;
 `;
 
 const CommentInput = styled.div`
@@ -599,97 +708,82 @@ const CommentInput = styled.div`
 
   textarea {
     width: 90%;
-    height: 30px;
     resize: none;
-    border-radius: 10px;
+    border:none;
+    border-bottom : 1px solid rgb(234, 235, 239);
+    margin-left: 5px;
+    padding-top:15px;
   }
 `;
-const Button = styled.div`
+
+const StyledButtonInput = styled.div`
 box-sizing: border-box;
 appearance: none;
-background-color: transparent;
-border: 2px solid #dadada;
-border-radius: 0.6em;
-color: #dadada;
+border: 1px solid #000;
+border-radius: 10px;
+color: gray;
 cursor: pointer;
 align-self: center;
-font-size: 10px;
+font-size: 14px;
 font-family: "Nanum Gothic", sans-serif;
 line-height: 1;
 padding: 0.5em 0.5em;
 text-decoration: none;
 letter-spacing: 2px;
 font-weight: 700;
-margin-bottom: 10px;
-margin-left:50px;
-
-
-&:hover,
-&:focus {
-  color: #fff;
-  outline: 0;
-}
-transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
-&:hover {
-  box-shadow: 0 0 40px 40px #f97800 inset;
-}
-
-&:focus:not(:hover) {
-  color: #f97800;
-  box-shadow: none;
-}
-}
+margin-left:10px;
+margin-right:10px;
 
 `;
 
 const CommentList = styled.div`
-  margin-left: 5px;
+  margin-left: 10px;
 `;
 
 const Comment = styled.div`
   margin-top: 10px;
   margin-bottom: 10px;
   border-bottom: 1px solid #dadada;
-  display: flex;
-  justify-content: space-between; // 삭제 버튼을 오른쪽 끝으로 밀어내기 위해 추가
+  margin-right: 10px;
+
 `;
 
-const StyledButton = styled.button`
-box-sizing: border-box;
+const CommentContent = styled.div`
+  white-space: pre-wrap; // 띄어쓰기와 줄바꿈을 유지하면서 필요한 경우에만 줄바꿈
+`;
+
+const CommentContainer = styled. div`
+  display:flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom:5px;
+`
+
+const CommentContents = styled.div`
+  font-size:15px;
+  font-weight:700;
+`
+
+const Button = styled.div`
+margin-right:6px;
 appearance: none;
-background-color: transparent;
-border: 2px solid #f97800;
-border-radius: 0.6em;
-color: #f97800;
+border: none;
+color: red;
 cursor: pointer;
 align-self: center;
-font-size: 16px;
-font-family: "Nanum Gothic", sans-serif;
-line-height: 1;
-padding: 0.6em 1.5em;
+font-size: 13px;
+padding: 0.5em 0.5em;
 text-decoration: none;
 letter-spacing: 2px;
 font-weight: 700;
-margin-bottom: 10px;
 
-&:hover,
-&:focus {
-  color: #fff;
-  outline: 0;
-}
-transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
-&:hover {
-  box-shadow: 0 0 40px 40px #f97800 inset;
-}
-
-&:focus:not(:hover) {
-  color: #f97800;
-  box-shadow: none;
-}
-}
-button.back_btn {
-padding: 0.6em 1em;
-}
 `;
+
+const CommentDate = styled.div`
+  font-size: 0.8em;
+  color: gray;
+  margin-bottom:5px;
+`;
+
 
 export default Companion_Detail;

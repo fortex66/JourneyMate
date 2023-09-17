@@ -1,7 +1,7 @@
 //commentController.js
 const tComment = require("../models/commentModel");
 const cComment = require("../models/ccommentModel");
-
+const userProfile = require("../models/signupModel");
 const { Sequelize } = require("sequelize");
 const sequelize = new Sequelize(
   process.env.MYSQL_DATABASE,
@@ -20,8 +20,14 @@ async function getComments(req, res) {
   try {
     const comments = await tComment.tComment.findAll({
       where: { tpostID: tpostId },
+      include:[{
+        model: userProfile.User,
+        attributes: ["profileImage"],
+      }]
     });
     await updateCommentCounts(tpostId);
+    console.log(comments)
+
     res.status(200).json(comments);
   } catch (error) {
     console.log(error);
@@ -44,8 +50,18 @@ async function addComment(req, res) {
     });
 
     await updateCommentCounts(tpostId);
+    const commentID=comment.getDataValue("tcommentId");
+    const comments=await tComment.tComment.findOne({
+      where:{tcommentId: commentID},
+      include:[
+        {
+          model: userProfile.User,
+          attributes:["profileImage"]
+        }
+      ]
+    })
 
-    res.status(200).json(comment);
+    res.status(200).json(comments);
   } catch (error) {
     console.log(error);
     res
@@ -119,6 +135,10 @@ async function companionGetComments(req, res) {
   try {
     const comments = await cComment.cComment.findAll({
       where: { cpostID: cpostID },
+      include:[{
+        model: userProfile.User,
+        attributes: ["profileImage"],
+      }]
     });
     res.status(200).json(comments);
   } catch (error) {
@@ -140,7 +160,18 @@ async function companionAddComment(req, res) {
       cpostID: cpostId,
       commentDate: new Date(),
     });
-    res.status(200).json(comment);
+    const commentId=await comment.getDataValue("ccommentID");
+
+    const comments = await cComment.cComment.findOne({
+      where:{ccommentID: commentId},
+      include:[
+        {
+          model: userProfile.User,
+          attributes:["profileImage"]
+        }
+      ]
+    })
+    res.status(200).json(comments);
   } catch (error) {
     console.log(error);
     res

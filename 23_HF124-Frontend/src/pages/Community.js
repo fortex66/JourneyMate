@@ -22,6 +22,7 @@ const Community = () => {
 
   const [data, setData] = useState({ posts: { rows: [] } });
   const [page, setPage] = useState(1);
+  const [totalpage, setTotalpage] = useState();
   const [sort, setSort] = useState("latest");
   const [write, setWrite] = useState(false);
   const [change, setChange] = useState(false);
@@ -41,7 +42,9 @@ const Community = () => {
   const title = location.state ? location.state.title : "";
 
   console.log(data)
-
+  console.log(page)
+  console.log(data.total_pages)
+  console.log(location)
   useEffect(() => {
     const updateButtonPosition = () => {
       const windowWidth = window.innerWidth;
@@ -89,18 +92,23 @@ const Community = () => {
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
-        setPage((prevPage) => prevPage + 1);
+        if(page<totalpage){
+          setPage((prevPage) => prevPage + 1);
+        }
+        
       }
     });
     if (node) observer.current.observe(node);
-  }, []);
+  }, [page, totalpage]);
 
   const handleSearchClick = () => {
     navigate("/Search");
   };
+
   const goDetail = (postId) => {
-    navigate(`/Community_Detail/${postId}`);
+    navigate(`/Community_Detail/${postId}`); // detailData에 user프로필 사진과 userID를 넣어서 넘김
   };
+
   const goUserDetail = (userId) => {
     navigate(`/UserDetail/${userId}`);
   };
@@ -109,6 +117,9 @@ const Community = () => {
     if (searchTriggered + locationTriggered + tagTriggered != 0) return; // 검색이 실행되면 아무 것도 하지 않습니다.
     const fetchMoreData = async () => {
       try {
+        if(page >= data.total_pages) { // 마지막 페이지 확인
+                return;
+            }
         const response = await axios.get(
           `${baseURL}community/?page=${page}&sort=${sort}`
         );
@@ -118,7 +129,9 @@ const Community = () => {
             ...prevData.posts,
             rows: [...prevData.posts.rows, ...response.data.posts.rows],
           },
+          total_pages: response.data.total_pages
         }));
+        setTotalpage(response.data.total_pages);
       } catch (error) {
         console.log(error);
       }
@@ -155,10 +168,12 @@ const Community = () => {
                   ...prevData.posts,
                   rows: [...prevData.posts.rows, ...response.data.posts.rows],
                 },
+                total_pages: response.data.total_pages
               }));
             } else {
               // 페이지가 1이면 새로운 데이터로 설정
               setData(response.data);
+              setTotalpage(response.data.total_pages)
             }
           }
         } else if (locationTriggered) {
@@ -178,10 +193,14 @@ const Community = () => {
                   ...prevData.posts,
                   rows: [...prevData.posts.rows, ...response.data.posts.rows],
                 },
+                total_pages: response.data.total_pages
               }));
+              
+              setTotalpage(response.data.total_pages);
             } else {
               // 페이지가 1이면 새로운 데이터로 설정
               setData(response.data);
+              setTotalpage(response.data.total_pages);
             }
           }
         } else if (tagTriggered) {
@@ -201,10 +220,14 @@ const Community = () => {
                   ...prevData.posts,
                   rows: [...prevData.posts.rows, ...response.data.posts.rows],
                 },
+                total_pages: response.data.total_pages
               }));
+              
+              setTotalpage(response.data.total_pages);
             } else {
               // 페이지가 1이면 새로운 데이터로 설정
               setData(response.data);
+              setTotalpage(response.data.total_pages);
             }
           }
         }
@@ -306,6 +329,7 @@ const Community = () => {
               <Heart>
                 <FontAwesomeIcon icon={faHeartSolid} color="red" />
                 {post.likeCount}
+                &nbsp;&nbsp;
                 <FontAwesomeIcon icon={faCommentSolid} color="F97800" />
                 {post.commentCount}
               </Heart>
@@ -410,6 +434,7 @@ const Id = styled.div`
   margin-top: 1px;
   font-size: 15px;
   margin-left: 10px;
+  font-weight: 700;
 `;
 
 const DetailInfo = styled.div`
@@ -581,9 +606,7 @@ const Heart = styled.div`
   gap: 3px; // 아이콘 사이의 간격 조정
   margin-top: 5px;
 `;
-const Comment = styled.div`
-  font-size: 15px;
-`;
+
 
 const Picture = styled.div`
   position: relative;

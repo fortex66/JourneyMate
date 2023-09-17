@@ -1,6 +1,6 @@
 //commentModel.js
 require('dotenv').config();
-
+const {User}=require("./signupModel");
 const { Sequelize, DataTypes } = require('sequelize');
 
 const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USERNAME, process.env.MYSQL_PASSWORD, {
@@ -42,5 +42,7 @@ const cComment = sequelize.define('ccomments', {
     sequelize, 
     modelName: 'ccomments'
   });
+  User.hasMany(cComment, { foreignKey: "userID" });
+  cComment.belongsTo(User, { foreignKey: "userID" });
 
   module.exports = {cComment};
