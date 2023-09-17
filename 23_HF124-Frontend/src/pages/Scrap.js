@@ -8,7 +8,7 @@ import { faScroll } from "@fortawesome/free-solid-svg-icons";
 const baseURL = "http://localhost:3000/";
 const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 const Scrap = () => {
-  const [scrapedPosts, setScrapedPosts] = useState([]); // "수정!!!!!!"
+  const [scrapedPosts, setScrapedPosts] = useState([]); // "수정!!Son"
   const navigate = useNavigate();
 
   const goDetail = (postId) => {
