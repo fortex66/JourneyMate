@@ -69,7 +69,6 @@ const Community_Search = () => {
   };
 
 
-
   return (
     <div>
       <Navigation>

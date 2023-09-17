@@ -53,6 +53,7 @@ function Chatting() {
           {chattingdata &&
             chattingdata.map((list, index) => (
               <RoomItem key={index} onClick={() => goChattingRoom(list.chatID)}>
+                
                   <RoomImg>
                     <img src={`${imgURL}${list.group_chatting.companion_posts.post_images[0].imageURL.replace(/\\/g, "/")}`}
                       style={{ width: "100%", borderRadius: "100%" }} />
@@ -65,7 +66,10 @@ function Chatting() {
                     <LastChatting>
                       {list.group_chatting.lastchat}
                     </LastChatting>
-                  </RoomInfo>
+                </RoomInfo>
+                
+
+                
               </RoomItem>
             ))}
         </RoomList>
