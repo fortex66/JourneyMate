@@ -485,7 +485,7 @@ const ChattingRoom = () => {
     <RoomContainer>
       <TopContainer>
         <Header>
-          <button className="back_btn" onClick={() => navigate(-1)}>
+          <button className="back_btn" onClick={() => navigate("/Chatting")}>
             <FontAwesomeIcon icon={faArrowLeft} size="2x" />
           </button>
           <TitleContainer>

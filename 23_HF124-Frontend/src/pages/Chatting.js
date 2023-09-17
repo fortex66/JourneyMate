@@ -16,7 +16,7 @@ function Chatting() {
   const [add, setAdd] = useState(false);
   const [newRoom, setNewRoom] = useState("");
   const [chattingdata, setChattingData] = useState("");
-  const {socket, socketID}=useContext();// 채팅방 목록에서 소켓사용
+  const {socket, socketID}=useContext(SocketContext);// 채팅방 목록에서 소켓사용
   const navigate = useNavigate();
 
   // SocketContext를 통해 App.js에서 생성된 소켓 가져오기
