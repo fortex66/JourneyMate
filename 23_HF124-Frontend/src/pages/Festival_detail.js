@@ -15,10 +15,10 @@ const Festival_detail = () => {
   console.log(festivalData);
   const [detailInfo, setDetailInfo] = useState("");
   const [showDetails, setShowDetails] = useState(false);
-    // 페이지가 로드될 때 스크롤을 맨 위로 이동
-    useEffect(() => {
-      window.scrollTo(0, 0);
-    }, []);
+  // 페이지가 로드될 때 스크롤을 맨 위로 이동
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const formatDate = (date) => {
     if (!date || date.length !== 8) return ""; // 데이터의 길이가 8이 아닐 경우 빈 문자열 반환
@@ -27,7 +27,7 @@ const Festival_detail = () => {
     const month = date.substring(4, 6);
     const day = date.substring(6, 8);
 
-    return `${year}년 ${month}월 ${day}일`;
+    return `${year}-${month}-${day}`;
   };
 
   const getContent = async () => {
@@ -51,6 +51,16 @@ const Festival_detail = () => {
     getContent();
   }, []);
 
+  const Companion_Write = () => {
+    navigate("/Companion_Write");
+  };
+
+  const Companion = () => {
+    navigate("/Companion", {
+      state: { title: festivalData.title, searchTriggered: true },
+    });
+  };
+
   const getIntroText = () => {
     const introItem = data?.find((item) => item.infoname === "행사소개");
     return introItem?.infotext || "";
@@ -61,11 +71,11 @@ const Festival_detail = () => {
         <StyledButton onClick={() => navigate(-1)}>{"<"}</StyledButton>
         <Text>{festivalData.title}</Text>
       </Top>
-
       <ImgWrapper>
         <Img src={festivalData.firstimage} />
       </ImgWrapper>
-
+      <StyledButton onClick={Companion}>동행인 찾기</StyledButton>{" "}
+      <StyledButton onClick={Companion_Write}> 동행인 모집 </StyledButton>
       <Content>
         <ContentTitle>
           <BackgroundBar showDetails={showDetails} />
@@ -81,25 +91,37 @@ const Festival_detail = () => {
           <DetailBox dangerouslySetInnerHTML={{ __html: detailInfo }} />
         ) : (
           <BasicBox>
-            <Location1>
-              <FontAwesomeIcon icon={faLocationDot} color={"#f97800"} />
-              <Location>위치: {festivalData.addr1}</Location>
-            </Location1>
             <Location2>
-              <FontAwesomeIcon icon={faLocationDot} color={"#f97800"} />
-              <Locationdetail>상세위치: {festivalData.addr2}</Locationdetail>
+              <FontAwesomeIcon
+                icon={faLocationDot}
+                color={"#f97800"}
+                size="2x"
+                style={{ margin: "10px" }}
+              />
+              <Locationdetail>{festivalData.addr2}</Locationdetail>
             </Location2>
+
             <Day1>
               {" "}
-              <FontAwesomeIcon icon={faCalendarDays} color={"#f97800"} />
+              <FontAwesomeIcon
+                icon={faCalendarDays}
+                color={"#f97800"}
+                size="2x"
+                style={{ margin: "10px" }}
+              />
               <Day>
-                행사일: {formatDate(festivalData.eventstartdate)} ~{" "}
+                {formatDate(festivalData.eventstartdate)} <br />
                 {formatDate(festivalData.eventenddate)}
               </Day>
             </Day1>
             <Tel1>
-              <FontAwesomeIcon icon={faPhone} color={"#f97800"} />
-              <Tel>전화번호: {festivalData.tel}</Tel>
+              <FontAwesomeIcon
+                icon={faPhone}
+                color={"#f97800"}
+                size="2x"
+                style={{ margin: "10px" }}
+              />
+              <Tel>{festivalData.tel}</Tel>
             </Tel1>
           </BasicBox>
         )}
@@ -110,6 +132,7 @@ const Festival_detail = () => {
           dangerouslySetInnerHTML={{ __html: getIntroText() }}
         ></I_Content>
       </Introduce>
+      <br />
     </div>
   );
 };
@@ -138,7 +161,8 @@ const Introduce = styled.div`
   margin-top: 20px;
 `;
 const Tel1 = styled.div`
-  display: flex;
+  font-size: 15px;
+  font-weight: 700;
 `;
 
 const Tel = styled.div`
@@ -147,7 +171,8 @@ const Tel = styled.div`
   margin-top: -7px;
 `;
 const Day1 = styled.div`
-  display: flex;
+  font-size: 15px;
+  font-weight: 700;
 `;
 
 const Day = styled.div`
@@ -157,13 +182,15 @@ const Day = styled.div`
   margin-bottom: 10px;
 `;
 const Location2 = styled.div`
-  display: flex;
+  font-size: 15px;
+  font-weight: 700;
 `;
 const Locationdetail = styled.div`
-  font-size: 15px;
-  margin-left: 5px;
-  margin-top: -7px;
-  margin-bottom: 10px;
+  @media (max-width: 400px) {
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
 `;
 const Location1 = styled.div`
   display: flex;
@@ -177,13 +204,16 @@ const Location = styled.div`
 `;
 // 테두리를 위한 스타일을 추가
 const BasicBox = styled.div`
-  border: 1px solid #dadada;
-  padding: 10px;
-  border-radius: 5px;
-  margin: 10px 0;
-  width: 500px;
-  margin-left: 60px;
-  margin-top: 20px;
+  padding: 10px 30px 10px 30px;
+  margin: 20px;
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+  border-bottom: 1px solid #dadada;
+
+  @media (max-width: 600px) {
+    padding: 10px;
+  }
 `;
 
 const DetailBox = styled.div`
