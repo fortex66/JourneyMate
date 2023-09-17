@@ -124,7 +124,7 @@ const Community_Detail = () => {
       })
       .then(function (response) {
         console.log(response);
-        // 서버에서 성공적으로 삭제되면 클라이언트에서도 삭제됩니다.
+        // 서버에서 성공적으로 삭제되면 클라이언트에서도 삭제
         const newComments = comments.filter(
           (comment) => comment.tcommentId !== tcommentId
         );
