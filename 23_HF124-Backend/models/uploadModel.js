@@ -66,6 +66,41 @@ const tPost = sequelize.define(
     modelName: "travel_posts",
   }
 );
+const tLocation = sequelize.define(
+  "travel_post_location",
+  {
+    // Assuming postId and userId are the foreign keys from post and user table.
+    LocationID: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    tpostID: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    location: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    x: {
+      type: DataTypes.DOUBLE,
+      allowNull: true,
+    },
+    y: {
+      type: DataTypes.DOUBLE,
+      allowNull: true,
+    },
+    
+  },
+  {
+    // 다른 옵션들 기입
+    timestamps: false,
+    sequelize,
+    modelName: "travel_post_location",
+  }
+);
 
 const scraps = sequelize.define(
   "scraps",
@@ -442,6 +477,9 @@ cPost.hasMany(cPostImage, { foreignKey: "cpostID" });
 users.User.hasMany(tPost, { foreignKey: "userID" });
 tPost.belongsTo(users.User, { foreignKey: "userID" });
 
+tPost.hasMany(tLocation, { foreignKey: "tpostID", onDelete: "CASCADE" });
+tLocation.belongsTo(tPost, { foreignKey: "tpostID" });
+
 module.exports = {
   tPost,
   tPostImage,
@@ -452,4 +490,5 @@ module.exports = {
   CTagging,
   SearchHistories,
   scraps,
+  tLocation
 };

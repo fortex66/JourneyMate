@@ -15,10 +15,12 @@ const Festival_detail = () => {
   console.log(festivalData);
   const [detailInfo, setDetailInfo] = useState("");
   const [showDetails, setShowDetails] = useState(false);
+  const [searchTriggered, setSearchTriggered]=useState(true);
   // 페이지가 로드될 때 스크롤을 맨 위로 이동
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+  
 
   const formatDate = (date) => {
     if (!date || date.length !== 8) return ""; // 데이터의 길이가 8이 아닐 경우 빈 문자열 반환
@@ -57,7 +59,17 @@ const Festival_detail = () => {
 
   const Companion = () => {
     navigate("/Companion", {
-      state: { title: festivalData.title, searchTriggered: true },
+      state: { 
+        posts: null,
+        location: null,
+        searchTriggered,
+        tagList: [],
+        gender: null,
+        age: null,
+        title: festivalData.title,
+        startDate: null,
+        endDate: null,
+       },
     });
   };
 

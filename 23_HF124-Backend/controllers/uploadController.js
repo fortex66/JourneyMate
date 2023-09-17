@@ -9,17 +9,6 @@ const axios = require("axios"); // HTTP 통신을 위한 라이브러리
 const { Tag, TTagging, CTagging } = require("../models/uploadModel");
 const { Sequelize, DataTypes, Model } = require("sequelize");
 
-// const sequelize = new Sequelize(
-//   process.env.MYSQL_DATABASE,
-//   process.env.MYSQL_USERNAME,
-//   process.env.MYSQL_PASSWORD,
-//   {
-//     host: process.env.MYSQL_HOST,
-//     port: process.env.MYSQL_PORT,
-//     dialect: "mysql",
-//   }
-// );
-
 async function uploadpost(req, res) {
   if (!req.files) {
     return res.status(400).send({ message: "No files uploaded" });
@@ -35,10 +24,10 @@ async function uploadpost(req, res) {
     const posting = await tUpload.tPost.create({
       userID: user.userID,
       postDate: new Date(),
-      location: jsonData.location,
+      location: req.body.location[0],
       title: jsonData.title,
-      x: jsonData.x,
-      y: jsonData.y,
+      x: req.body.x[0],
+      y: req.body.y[0],
       address_name: jsonData.address_name,
     });
 
@@ -55,6 +44,15 @@ async function uploadpost(req, res) {
     });
 
     await Promise.all(imageSavePromises);
+
+    await req.body.location.map((location, index)=>{
+      return tUpload.tLocation.create({
+        tpostID: tpostID,
+        location: location[index],
+        x: req.body.x[index],
+        y: req.body.y[index]
+      })
+    })
 
     // 태그 저장 로직 추가
     for (const tagName of tags) {
