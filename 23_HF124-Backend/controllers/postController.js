@@ -137,9 +137,10 @@ const getCNearbylist = async (req, res) => {
 const searchCount = async (req, res) => {
   try {
     const { location } = req.query;
+    console.log(typeof(location))
     console.log("서버로부터 날아온 값 : ", location);
     // Search History 테이블에 새로운 레코드 추가
-    if (location) {
+    if (location !== "empty") {
       const newSearchHistory = await SearchHistories.SearchHistories.create({
         location,
         searchDate: new Date(),
