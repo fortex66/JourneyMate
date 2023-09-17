@@ -68,7 +68,7 @@ const Community_Search = () => {
     try {
       const response = await axios.get(`${baseURL}community/searchcount`, {
         params: {
-          location: selectedLocation.address_name,
+          location: locationRef.current.value,
         },
       });
       console.log(response);
@@ -84,13 +84,13 @@ const Community_Search = () => {
     }
   };
 
-  const handleLocationSelect = (location) => {
-    locationRef.current.value = location.place_name;
-    setSelectedLocation({
-      address_name: location.place_name,
-    });
-    setLocationList([]);
-  };
+  // const handleLocationSelect = (location) => {
+  //   locationRef.current.value = location.place_name;
+  //   setSelectedLocation({
+  //     address_name: location.place_name,
+  //   });
+  //   setLocationList([]);
+  // };
 
   return (
     <div>
@@ -117,13 +117,13 @@ const Community_Search = () => {
           name="location"
           placeholder="위치 입력"
           ref={locationRef}
-          onChange={searchLocation}
+          // onChange={searchLocation}
         />
-        {locationList.map((location, i) => (
+        {/* {locationList.map((location, i) => (
           <li key={i} onClick={() => handleLocationSelect(location)}>
             {location.place_name}
           </li>
-        ))}
+        ))} */}
         {tagList.map((tagItem, index) => {
           return (
             <TagItem key={index}>
@@ -150,7 +150,7 @@ const Community_Search = () => {
                 state: {
                   posts,
                   title,
-                  location: selectedLocation,
+                  location: locationRef.current.value,
                   searchTriggered,
                   tagList,
                 },

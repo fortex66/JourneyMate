@@ -154,7 +154,7 @@ const Community = () => {
                 page,
                 tags: tagList.join(","),
                 location: selectedLocation
-                  ? selectedLocation.address_name
+                  ? selectedLocation
                   : null,
                 title: title,
                 sort,
