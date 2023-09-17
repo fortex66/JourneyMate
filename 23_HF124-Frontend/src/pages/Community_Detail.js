@@ -123,7 +123,7 @@ const Community_Detail = () => {
         },
       })
       .then(function (response) {
-        console.log(response);
+        console.log(response); // 콘솔 출력
         // 서버에서 성공적으로 삭제되면 클라이언트에서도 삭제
         const newComments = comments.filter(
           (comment) => comment.tcommentId !== tcommentId
