@@ -53,19 +53,23 @@ function Chatting() {
           {chattingdata &&
             chattingdata.map((list, index) => (
               <RoomItem key={index} onClick={() => goChattingRoom(list.chatID)}>
-                <TitleContainer>
-                  <Title>{list.group_chatting.companion_posts.title}</Title>
-                  <Person>{list.group_chatting.userCount}</Person>
-                </TitleContainer>
+                
+                  <RoomImg>
+                    <img src={`${imgURL}${list.group_chatting.companion_posts.post_images[0].imageURL.replace(/\\/g, "/")}`}
+                      style={{ width: "100%", borderRadius: "100%" }} />
+                  </RoomImg>
+                  <RoomInfo>
+                    <TitleContainer>
+                      <Title>{list.group_chatting.companion_posts.title}</Title>
+                      <Person>{list.group_chatting.userCount}</Person>
+                    </TitleContainer>
+                    <LastChatting>
+                      {list.group_chatting.lastchat}
+                    </LastChatting>
+                </RoomInfo>
+                
 
-                <DateContainer>
-                  <StartDate>
-                    {list.group_chatting.companion_posts.startDate}
-                  </StartDate>
-                  <FinishDate>
-                    ~{list.group_chatting.companion_posts.finishDate}
-                  </FinishDate>
-                </DateContainer>
+                
               </RoomItem>
             ))}
         </RoomList>
