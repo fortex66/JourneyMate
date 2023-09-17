@@ -31,7 +31,6 @@ function Chatting() {
 
   console.log(chattingdata);
 
-
   const goChattingRoom = (chatID) => {
     navigate(`/ChattingRoom/${chatID}`);
   };
@@ -55,9 +54,7 @@ function Chatting() {
               <RoomItem key={index} onClick={() => goChattingRoom(list.chatID)}>
                 <TitleContainer>
                   <Title>{list.group_chatting.companion_posts.title}</Title>
-                  <Person>
-                    {list.group_chatting.userCount}
-                  </Person>
+                  <Person>{list.group_chatting.userCount}</Person>
                 </TitleContainer>
 
                 <DateContainer>
