@@ -16,6 +16,7 @@ function Chatting() {
   const [add, setAdd] = useState(false);
   const [newRoom, setNewRoom] = useState("");
   const [chattingdata, setChattingData] = useState("");
+  const {socket, socketID}=useContext();// 채팅방 목록에서 소켓사용
   const navigate = useNavigate();
 
   // SocketContext를 통해 App.js에서 생성된 소켓 가져오기
@@ -30,33 +31,6 @@ function Chatting() {
 
   console.log(chattingdata);
 
-  // useEffect(() => {
-  //   socket.on("roomList", (rooms) => {
-  //     setRooms(rooms.map(room => room.name));
-  //   });
-
-  //   socket.emit("getRooms");
-
-  //   socket.emit("good");
-
-  //   socket.on("roomCreated", (room) => {
-  //     setRooms((prevRooms) => [room.name, ...prevRooms]);
-  //   });
-
-  // }, []); // socket이 변경될 때마다 useEffect 내부의 코드를 다시 실행
-
-  // const handleRoomClick = (room) => {
-  //   setName(room);
-  // };
-
-  // const createRoom = () => {
-  //   if (newRoom) {
-  //     socket.emit("createRoom", newRoom);
-  //     setNewRoom("");
-  //   }
-  // };
-
-  // socket.emit("good");
 
   const goChattingRoom = (chatID) => {
     navigate(`/ChattingRoom/${chatID}`);
