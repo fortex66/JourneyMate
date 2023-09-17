@@ -16,7 +16,7 @@ function Chatting() {
   const [add, setAdd] = useState(false);
   const [newRoom, setNewRoom] = useState("");
   const [chattingdata, setChattingData] = useState("");
-  const {socket, socketID}=useContext();// 채팅방 목록에서 소켓사용
+  const { socket, socketID } = useContext(SocketContext); // 채팅방 목록에서 소켓사용
   const navigate = useNavigate();
 
   // SocketContext를 통해 App.js에서 생성된 소켓 가져오기
@@ -30,7 +30,6 @@ function Chatting() {
   }, []);
 
   console.log(chattingdata);
-
 
   const goChattingRoom = (chatID) => {
     navigate(`/ChattingRoom/${chatID}`);
@@ -55,9 +54,7 @@ function Chatting() {
               <RoomItem key={index} onClick={() => goChattingRoom(list.chatID)}>
                 <TitleContainer>
                   <Title>{list.group_chatting.companion_posts.title}</Title>
-                  <Person>
-                    {list.group_chatting.userCount}
-                  </Person>
+                  <Person>{list.group_chatting.userCount}</Person>
                 </TitleContainer>
 
                 <DateContainer>
