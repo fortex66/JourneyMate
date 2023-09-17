@@ -105,13 +105,9 @@ const Community = () => {
     navigate("/Search");
   };
 
-  const goDetail = (tpostID, detailData) => {
-    navigate(`/Community_Detail/${tpostID}`, { state: detailData }); // detailData에 user프로필 사진과 userID를 넣어서 넘김
+  const goDetail = (postId) => {
+    navigate(`/Community_Detail/${postId}`); // detailData에 user프로필 사진과 userID를 넣어서 넘김
   };
-
-  // const goDetail = (postId) => {
-  //   navigate(`/Community_Detail/${postId}`); // detailData에 user프로필 사진과 userID를 넣어서 넘김
-  // };
 
   const goUserDetail = (userId) => {
     navigate(`/UserDetail/${userId}`);
@@ -392,7 +388,7 @@ const Community = () => {
             <PostItem 
               key={index} 
               post={post} 
-              goDetail={() => goDetail(post.tpostID, { userProfile: post.User.profileImage , userID: post.userID })} 
+              goDetail={goDetail} 
               goUserDetail={goUserDetail}
               imgURL={imgURL} 
               lastPostElementRef={index === data.posts.rows.length - 1 ? lastPostElementRef : null} 

@@ -480,7 +480,6 @@ const ChattingRoom = () => {
             console.error('File download failed:', error);
         });
 }
-
   
   return (
     <RoomContainer>
@@ -894,6 +893,16 @@ const Header = styled.div`
     background-color: white;
 
     margin: 20px;
+  }
+
+  @media (max-width: 640px) {
+    width: 100%;
+    height: 70px; // 모바일 화면에서 높이 조정
+    font-size:13px;
+  }
+
+  @media (min-width: 601px) and (max-width: 1200px) {
+    height: 80px; // 태블릿 화면에서 높이 조정
   }
 `;
 

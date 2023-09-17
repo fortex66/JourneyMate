@@ -14,7 +14,7 @@ const getChatRoom = async (req, res) => {
       include: [
         {
           model: chat.GroupChat,
-          attributes: ["cpostID", "userCount"],
+          attributes: ["cpostID", "chattime","lastchat"],
           required: true,
           include: [
             {
@@ -28,6 +28,13 @@ const getChatRoom = async (req, res) => {
                 "location",
               ],
               as: "companion_posts",
+              include:[
+                {
+                  model: post.cPostImage,
+                  required: true,
+                  attributes:["imageURL"]
+                }
+              ]
             },
           ],
         },
@@ -70,6 +77,7 @@ const getChatRoom = async (req, res) => {
     console.error(err);
   }
 };
+
 //채팅방 메시지 불러오기 api
 const chatMessage = async (req, res) => {
   const chatID = req.params.chatID;

@@ -345,6 +345,10 @@ const getpost = async (req, res) => {
           model: Tag.Tag,
           as: "tags",
         },
+        {
+          model: Users,
+          attributes:["profileImage"]
+        }
       ],
     });
     res.status(200).json({ post });

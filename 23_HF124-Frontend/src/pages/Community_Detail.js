@@ -8,9 +8,6 @@ import { faBars,faLocationDot } from "@fortawesome/free-solid-svg-icons";
 
 const Community_Detail = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  console.log(location)
-  const {userProfile,userID} = location.state || {};
   const { postId } = useParams(); // postId 추출
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
@@ -27,6 +24,7 @@ const Community_Detail = () => {
       addComment();
     }
   };
+  console.log(data)
   const baseURL = "http://localhost:3000/";
   const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
   function openModal() {
@@ -176,15 +174,15 @@ const Community_Detail = () => {
         <Title> {data && data.post.title} </Title>
         <DetailInfo>
           <Profile>
-            <ProfileImage onClick={(e) => { e.stopPropagation(); goUserDetail(userID); }}  >
-                {userProfile === null ? (
+            <ProfileImage onClick={(e) => { e.stopPropagation(); goUserDetail(data && data?.post.userID); }}  >
+                {data && data?.post.User.profileImage === null ? (
                   <img alt="chosen" style={{ width: "100%", borderRadius: "100%" }} />
                 ) : (
-                  <img src={`${imgURL}${userProfile.replace(/\\/g, "/")}`}
+                  <img src={`${imgURL}${data?.post.User.profileImage.replace(/\\/g, "/")}`}
                     style={{ width: "100%", borderRadius: "100%" }} />
                 )}
             </ProfileImage>
-            <Id>{userID}</Id>
+            <Id>{data && data?.post.userID}</Id>
           </Profile>
           <PostDate>
           {new Intl.DateTimeFormat("ko-KR", {
@@ -253,7 +251,7 @@ const Community_Detail = () => {
             <Comment key={index}>
               <CommentContent>
               <Profile>
-                <ProfileImage onClick={(e) => { e.stopPropagation(); goUserDetail(userID); }}  >
+                <ProfileImage onClick={(e) => { e.stopPropagation(); goUserDetail(data && data?.post.userID); }}  >
                     {comment.User.profileImage === null ? (
                       <img alt="chosen" style={{ width: "100%", borderRadius: "100%" }} />
                     ) : (

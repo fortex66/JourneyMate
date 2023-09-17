@@ -69,10 +69,10 @@ const Local_Festival = () => {
     전라남도: 38,
     제주도: 39,
   };
-    // 페이지가 로드될 때 스크롤을 맨 위로 이동
-    useEffect(() => {
-      window.scrollTo(0, 0);
-    }, []);
+  // 페이지가 로드될 때 스크롤을 맨 위로 이동
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const lastPostElementRef = useCallback(
     (node) => {
@@ -96,20 +96,15 @@ const Local_Festival = () => {
       const realkeyword = encodeURIComponent(searchKeyword);
       let url = "";
 
-      if (selectedRegion && searchKeyword) {
-        url = `https://apis.data.go.kr/B551011/KorService1/searchKeyword1?numOfRows=20&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&keyword=${realkeyword}&areaCode=${selectedRegion}&contentTypeId=15&serviceKey=${OPEN_KEY}`;
-      } else if (selectedRegion) {
-        url = `https://apis.data.go.kr/B551011/KorService1/areaBasedList1?numOfRows=20&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&contentTypeId=15&areaCode=${selectedRegion}&serviceKey=${OPEN_KEY}`;
-      } else if (searchKeyword) {
-        url = `https://apis.data.go.kr/B551011/KorService1/searchKeyword1?numOfRows=20&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&keyword=${realkeyword}&contentTypeId=15&serviceKey=${OPEN_KEY}`;
-      } else {
+
         const today = new Date();
         const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, "0");
         const day = String(today.getDate()).padStart(2, "0");
         const maxDate = `${year}${month}${day}`;
+
         url = `https://apis.data.go.kr/B551011/KorService1/searchFestival1?numOfRows=20&pageNo=${pageNo}&MobileOS=ETC&MobileApp=Journeymate&_type=json&arrange=R&eventStartDate=${maxDate}&serviceKey=${OPEN_KEY}`;
-      }
+
       const response = await fetch(url);
       if (!response.ok)
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -237,6 +232,7 @@ const Local_Festival = () => {
           />
         </RealSearch>
       </RealHead>
+      <MainContainer>
       <Area>
         <StyledIcon icon={faChevronLeft} onClick={scrollLeft} />
         <Area1 ref={areaRef}>
@@ -430,7 +426,8 @@ const Local_Festival = () => {
         </Area1>
         <StyledIcon icon={faChevronRight} onClick={scrollRight} />
       </Area>
-      <div>
+
+
         <NewContent>
           {data &&
             data.slice(0, 10).map((info, index) => {
@@ -467,6 +464,8 @@ const Local_Festival = () => {
               }
             })}
         </NewContent>
+
+        
         <GatherButton>
           <NearButton onClick={handleNearClick}>내주변</NearButton>
           <NearButton onClick={handleRecentClick}>최신순</NearButton>
@@ -478,7 +477,7 @@ const Local_Festival = () => {
                 const address = info.addr1.split(" ").slice(0, 2).join(" ");
                 if (data.length === index + 11) {
                   return (
-                    <Box ref={lastPostElementRef} key={index}>
+                    <ContentBox ref={lastPostElementRef} key={index}>
                       <Img
                         onClick={() => goDetail(info)}
                         src={info.firstimage}
@@ -500,11 +499,11 @@ const Local_Festival = () => {
                             : ""}
                         </EventDate>
                       </Info>
-                    </Box>
+                    </ContentBox>
                   );
                 } else {
                   return (
-                    <Box key={index}>
+                    <ContentBox key={index}>
                       <Back>
                         {" "}
                         <Img
@@ -529,7 +528,7 @@ const Local_Festival = () => {
                           </EventDate>
                         </Info>
                       </Back>
-                    </Box>
+                    </ContentBox>
                   );
                 }
               })}
@@ -541,7 +540,7 @@ const Local_Festival = () => {
                 const address = info.addr1.split(" ").slice(0, 2).join(" ");
                 if (data.length === index + 1) {
                   return (
-                    <Box ref={lastPostElementRef} key={index}>
+                    <ContentBox ref={lastPostElementRef} key={index}>
                       <Img
                         onClick={() => goDetail(info)}
                         src={info.firstimage}
@@ -563,11 +562,11 @@ const Local_Festival = () => {
                             : ""}
                         </EventDate>
                       </Info>
-                    </Box>
+                    </ContentBox>
                   );
                 } else {
                   return (
-                    <Box key={index}>
+                    <ContentBox key={index}>
                       <Back>
                         {" "}
                         <Img
@@ -592,23 +591,67 @@ const Local_Festival = () => {
                           </EventDate>
                         </Info>
                       </Back>
-                    </Box>
+                    </ContentBox>
                   );
                 }
               })}
           </NearContent>
         )}
-      </div>
-      <Navigationbar />
+      </MainContainer>
+     
+     <Navigationbar/>
     </Container>
+    
   );
+
 };
-//#f97800
+
+const Container = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+
+const RealHead = styled.div`
+  display: flex;
+  justify-content: space-between; // 수평 간격 동일하게
+  align-items: center;
+  width: 640px;
+  position: fixed;
+  top: 0;
+  height: 90px;
+  background-color: #fff;
+  z-index: 1000;
+
+  @media (max-width: 440px) {
+    width: 100%;
+    height: 70px; // 모바일 화면에서 높이 조정
+    
+  }
+
+  @media (min-width: 601px) and (max-width: 1200px) {
+    height: 80px; // 태블릿 화면에서 높이 조정
+    width: 100%;
+  }
+`;
+
+const MainContainer = styled.div`
+margin-right: 20px;
+margin-left: 20px;
+margin-top: 100px;
+
+@media (max-width: 440px) {
+  margin-right: 20px;
+  margin-left: 20px;
+  margin-top: 70px;
+  padding-top: 10px;
+}
+`
 const GatherButton = styled.div`
   display: flex;
-
   justify-content: center;
 `;
+
 const NearButton = styled.button`
 align-self: center;  // 수직 중앙 정렬
 appearance: none;
@@ -828,12 +871,22 @@ const NewAddress = styled.div`
   font-weight: ;
 `;
 const NewBack = styled.div`
-  //display: flex;
-  //border: 2px solid #dadada;
-  //background-color: rgb(254, 237, 229);
-  //border-radius: 10px; // 둥근 모서리를 위한 코드 추가
-  width: 300px;
-  margin-left: 100px;
+
+
+  @media (max-width: 600px) {
+    width: 300px;
+    margin-right:10px;
+  }
+  
+  @media (min-width: 601px) and (max-width: 1200px) {
+    width: 300px;
+    margin-left: 100px;
+  }
+  
+  @media (min-width: 1201px) {
+    width: 300px;
+    margin-left: 100px;
+  }
 `;
 
 const NewImg = styled.img`
@@ -897,23 +950,25 @@ const RealTitle = styled.div`
   margin-left: -20px;
   margin-top: -5px;
   cursor: pointer;
+  @media (max-width: 480px) {
+    font-size: 25px;
+  }
 `;
-const RealHead = styled.div`
-  display: flex;
-  align-items: center; // 수직 중앙 정렬
-  justify-content: space-between; // 수평 간격 동일하게
-`;
+
+
+
 const RealSearch = styled.div`
   align-self: center; // 수직 중앙 정렬
   margin-right: 50px;
   cursor: pointer;
+  @media (max-width: 480px) {
+    margin-right: 8px;
+  }
 `;
 
 const RealButton = styled.div`  
-align-self: center;  // 수직 중앙 정렬
 appearance: none;
 background-color: transparent;
-//border: 2px solid #f97800;
 border-radius: 0.6em;
 color: #f97800;
 cursor: pointer;
@@ -921,7 +976,6 @@ align-self: center;
 font-size: 20px;
 font-family: "Nanum Gothic", sans-serif;
 line-height: 1;
-margin: 20px;
 padding: 0.6em 1.5em;
 text-decoration: none;
 letter-spacing: 2px;
@@ -942,15 +996,33 @@ transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
   box-shadow: none;
 }
 }
+
+@media (max-width: 480px) {
+}
 `;
 const Img = styled.img`
-  width: 200px;
-  height: 300px;
+
   object-fit: cover;
   cursor: pointer;
   margin-left: 30px;
   margin-bottom: 10px;
   border-radius: 10px;
+
+  @media (max-width: 600px) {
+    width: 100px;
+    height: 200px; // 모바일 화면에서의 세로 크기
+    margin-left: -30px;
+  }
+
+  @media (min-width: 601px) and (max-width: 1200px) {
+    width: 200px;
+    height: 300px;
+  }
+
+  @media (min-width: 1201px) {
+    width: 200px;
+    height: 300px;
+  }
 `;
 const Back = styled.div`
   display: flex;
@@ -962,8 +1034,6 @@ const Back = styled.div`
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: px;
-  margin-left: 25px;
 `;
 
 const NearContent = styled.div`
@@ -973,9 +1043,47 @@ const NearContent = styled.div`
   margin-left: 25px;
 `;
 const Box = styled.div`
+
+  @media (max-width: 600px) {
+    margin-top: 20px;
+    width: 100%;
+    margin-right: 10px;
+  }
+
+  @media (min-width: 601px) and (max-width: 1200px) {
+    margin-top: 20px;
+    width: 100%;
+    margin-left: 30px;
+  }
+
+  @media (min-width: 1201px) {
+    margin-top: 20px;
+    width: 100%;
+    margin-left: 30px;
+  }
+
+`;
+
+const ContentBox = styled.div`
+@media (max-width: 600px) {
   margin-top: 20px;
   width: 100%;
-`;
+  margin-left: 20px;
+}
+
+@media (min-width: 601px) and (max-width: 1200px) {
+  margin-top: 20px;
+  width: 100%;
+  margin-left: 0px;
+}
+
+@media (min-width: 1201px) {
+  margin-top: 20px;
+  width: 100%;
+  margin-left: 0px;
+}
+
+`
 /**
  * const Box = styled.div`
   flex-basis: calc(33.333% - 40px); // 33.333% 너비에서 마진 40px 제외!
@@ -984,86 +1092,7 @@ const Box = styled.div`
 `;
 
  */
-const Local = styled.div`
-  display: flex; // 오타 수정
-  justify-content: center;
-  align-items: center; // 추가
-`;
 
-const Keyword = styled.div`
-  display: flex; // 오타 수정
-  justify-content: center;
-  align-items: center; // 추가
-`;
-
-const ModalContent = styled.div`
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  display: flex;
-  flex-wrap: wrap; // 각 지역의 버튼이 뜰 때 한 줄에 3개씩 뜨도록 설정
-  justify-content: center; // 가운데 정렬
-  gap: 10px; // 버튼 간의 간격
-`;
-const Button1 = styled.button`
-appearance: none;
-background-color: transparent;
-border: 2px solid #f97800;
-border-radius: 0.6em;
-color: #f97800;
-cursor: pointer;
-align-self: center;
-font-size: 16px;
-font-family: "Nanum Gothic", sans-serif;
-line-height: 1;
-padding: 0.8em 1em;
-text-decoration: none;
-letter-spacing: 2px;
-font-weight: 700;
-margin-top: 10px;
-margin-left:5px;
-width:5px;
-&:hover,
-&:focus {
-  color: #fff;
-  outline: 0;
-}
-transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
-&:hover {
-  box-shadow: 0 0 40px 40px #f97800 inset;
-}
-
-
-}
-`;
-const Modal = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-
-  .modal {
-    display: flex;
-    flex-wrap: wrap; // Wrap items
-    justify-content: space-around; // Distribute items
-    background-color: white; // Set the background to white
-    padding: 20px; // Add some padding
-    border-radius: 10px; // Optional, if you want to round corners
-  }
-
-  .modal > button {
-    flex-basis: calc(
-      33.333% - 10px
-    ); // Take up 1/3 of container width, accounting for 10px gap
-    margin: 5px; // Add margin for visual separation
-  }
-`;
 const Title = styled.div`
   font-size: 20px;
   font-weight: bold;
@@ -1071,7 +1100,20 @@ const Title = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 200px;
+  
+
+  @media (max-width: 600px) {
+    width: 200px;
+  }
+
+  @media (min-width: 601px) and (max-width: 1200px) {
+    width: 300px;
+  }
+
+  @media (min-width: 1201px) {
+    width: 300px;
+  }
+
 `;
 const Address = styled.div`
   font-weight: bold;
@@ -1080,91 +1122,24 @@ const Address = styled.div`
 const Info = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: 20px;
+  
+
+  @media (max-width: 600px) {
+    margin-left: 20px;
+  }
+
+  @media (min-width: 601px) and (max-width: 1200px) {
+    margin-left: 40px;
+  }
+
+  @media (min-width: 1201px) {
+    margin-left: 40px;
+  }
 `;
 const EventDate = styled.div`
   margin-bottom: 8px;
 `;
-const Button = styled.button`
-appearance: none;
-background-color: transparent;
-border: 2px solid #f97800;
-border-radius: 0.6em;
-color: #f97800;
-cursor: pointer;
-align-self: center;
-font-size: 16px;
-font-family: "Nanum Gothic", sans-serif;
-line-height: 1;
-padding: 0.8em 1em;
-text-decoration: none;
-letter-spacing: 2px;
-font-weight: 700;
-margin-top: 10px;
-margin-left:5px;
 
-&:hover,
-&:focus {
-  color: #fff;
-  outline: 0;
-}
-transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
-&:hover {
-  box-shadow: 0 0 40px 40px #f97800 inset;
-}
 
-&:focus:not(:hover) {
-  color: #f97800;
-  box-shadow: none;
-}
-}
-`;
-
-const Container = styled.div`
-  position: relative;
-  width: 100%;
-`;
-
-const Header = styled.div`
-  justify-content: space-evenly;
-  align-items: center;
-  width: 640px;
-
-  position: fixed;
-  top: 0;
-  height: 90px;
-  background-color: #fff;
-  border-bottom: 1px solid;
-  padding-bottom: 30px; // 또는 원하는 크기로 설정
-  z-index: 1; // Bring the header to the front
-`;
-
-const SearchInput = styled.input`
-  width: 70%;
-  height: 40px;
-  border-radius: 15px;
-  border: 1px solid #dadde0;
-  //padding: 0 10px;
-  margin-left: 15px;
-  &:focus {
-    outline: none;
-  }
-  margin-top: 10px;
-  pointer-events: auto;
-`;
-const SearchInput1 = styled.input`
-  width: 60%;
-  height: 40px;
-  border-radius: 15px;
-  border: 1px solid #dadde0;
-  //padding: 0 10px;
-  &:focus {
-    outline: none;
-  }
-  margin-top: 10px;
-  pointer-events: auto;
-  margin-left: 18px;
-  width: 445px;
-`;
 
 export default Local_Festival;

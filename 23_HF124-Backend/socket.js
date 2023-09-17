@@ -44,7 +44,19 @@ module.exports = {
           userID: userID,
           messageType: 0 // 0이면 텍스트
         });
-  
+        const chatTime=await saveMessage.getDataValue("sendtime");
+
+        await chat.GroupChat.update(
+          { 
+            chattime: chatTime, 
+            lastchat: data.content 
+          },
+          { 
+            where: { chatID: data.roomID } 
+          }
+        );
+        
+
         const profileImage = await user.findOne({
           attributes: ["profileImage"],
           where: { userID: userID },
@@ -74,4 +86,3 @@ module.exports = {
   },
   
 }
-

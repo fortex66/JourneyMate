@@ -50,8 +50,18 @@ async function addComment(req, res) {
     });
 
     await updateCommentCounts(tpostId);
+    const commentID=comment.getDataValue("tcommentId");
+    const comments=await tComment.tComment.findOne({
+      where:{tcommentId: commentID},
+      include:[
+        {
+          model: userProfile.User,
+          attributes:["profileImage"]
+        }
+      ]
+    })
 
-    res.status(200).json(comment);
+    res.status(200).json(comments);
   } catch (error) {
     console.log(error);
     res
@@ -150,7 +160,18 @@ async function companionAddComment(req, res) {
       cpostID: cpostId,
       commentDate: new Date(),
     });
-    res.status(200).json(comment);
+    const commentId=await comment.getDataValue("ccommentID");
+
+    const comments = await cComment.cComment.findOne({
+      where:{ccommentID: commentId},
+      include:[
+        {
+          model: userProfile.User,
+          attributes:["profileImage"]
+        }
+      ]
+    })
+    res.status(200).json(comments);
   } catch (error) {
     console.log(error);
     res
