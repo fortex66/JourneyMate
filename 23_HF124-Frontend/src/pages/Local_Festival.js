@@ -218,7 +218,7 @@ const Local_Festival = () => {
     return (
         <Container>
             <RealHead>
-                <RealButton onClick={() => navigate(-1)}> {"<"}</RealButton>
+              
                 <RealTitle onClick={() => navigate("/Home")}>
                     Journeymate{" "}
                     <FontAwesomeIcon
@@ -238,7 +238,7 @@ const Local_Festival = () => {
             </RealHead>
             <MainContainer>
                 <Area>
-                    <StyledIcon icon={faChevronLeft} onClick={scrollLeft} />
+                    <StyledIcon icon={faChevronLeft} onClick={scrollLeft} style={{ marginRight: "10px" }}/>
                     <Area1 ref={areaRef}>
                         <Seoul onClick={() => goArea("서울")}>
                             {" "}
@@ -695,10 +695,12 @@ const Container = styled.div`
     width: 100%;
 `;
 
+
+
 const RealHead = styled.div`
     display: flex;
-    justify-content: space-between; // 수평 간격 동일하게
     align-items: center;
+    justify-content: flex-end	;
     width: 640px;
     position: fixed;
     top: 0;
@@ -708,14 +710,37 @@ const RealHead = styled.div`
 
     @media (max-width: 440px) {
         width: 100%;
-        height: 70px; // 모바일 화면에서 높이 조정
+        height: 70px;
     }
 
     @media (min-width: 601px) and (max-width: 1200px) {
-        height: 80px; // 태블릿 화면에서 높이 조정
-        width: 100%;
+        height: 80px;
     }
 `;
+
+const RealTitle = styled.div`
+    color: #f97800;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+
+    @media (max-width: 480px) {
+        font-size: 25px;
+    }
+`;
+
+const RealSearch = styled.div`
+    cursor: pointer;
+    margin-right: 20px;
+    
+    @media (max-width: 480px) {
+        margin-right: 8px;
+    }
+`;
+
 
 const MainContainer = styled.div`
     margin-right: 20px;
@@ -746,7 +771,7 @@ align-self: center;
 font-size: 20px;
 font-family: "Nanum Gothic", sans-serif;
 line-height: 1;
-margin: 20px;
+margin: 20px 50px 20px 50px;
 padding: 0.6em 1em;//세로 가로 
 text-decoration: none;
 letter-spacing: 2px;
@@ -1022,62 +1047,9 @@ const NewContent = styled.div`
   }
 `;
 
-const RealTitle = styled.div`
-    color: #f97800;
-    font-size: 30px;
-    font-weight: bold; //글짜 굵게
-    align-self: center; // 수직 중앙 정렬
-    margin-left: -20px;
-    margin-top: -5px;
-    cursor: pointer;
-    @media (max-width: 480px) {
-        font-size: 25px;
-    }
-`;
 
-const RealSearch = styled.div`
-    align-self: center; // 수직 중앙 정렬
-    margin-right: 50px;
-    cursor: pointer;
-    @media (max-width: 480px) {
-        margin-right: 8px;
-    }
-`;
 
-const RealButton = styled.div`  
-appearance: none;
-background-color: transparent;
-border-radius: 0.6em;
-color: #f97800;
-cursor: pointer;
-align-self: center;
-font-size: 20px;
-font-family: "Nanum Gothic", sans-serif;
-line-height: 1;
-padding: 0.6em 1.5em;
-text-decoration: none;
-letter-spacing: 2px;
-font-weight: 700;
-width:10px;
-&:hover,
-&:focus {
-  color: #fff;
-  outline: 0;
-}
-transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
-&:hover {
-  box-shadow: 0 0 40px 40px #f97800 inset;
-}
 
-&:focus:not(:hover) {
-  color: #f97800;
-  box-shadow: none;
-}
-}
-
-@media (max-width: 480px) {
-}
-`;
 const Img = styled.img`
     object-fit: cover;
     cursor: pointer;
@@ -1129,13 +1101,13 @@ const Box = styled.div`
     @media (min-width: 601px) and (max-width: 1200px) {
         margin-top: 20px;
         width: 100%;
-        margin-left: 30px;
+        
     }
 
     @media (min-width: 1201px) {
         margin-top: 20px;
         width: 100%;
-        margin-left: 30px;
+      
     }
 `;
 

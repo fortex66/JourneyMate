@@ -38,6 +38,11 @@ const Companion_Detail = () => {
     }
   };
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+
+  useEffect(() => {
     const jwtToken = localStorage.getItem("jwtToken");
 
     setCurrentUser(jwtToken);
@@ -177,7 +182,7 @@ const Companion_Detail = () => {
           <StyledButton className="back_btn" onClick={() => navigate(-1)}>
             {"<"}
           </StyledButton>
-
+          
           {currentUser && data?.post.userID === currentUser && (
             <>
               <FontAwesomeIcon
@@ -205,6 +210,7 @@ const Companion_Detail = () => {
             </>
           )}
         </Top>
+        <Title>{data && data.post.title}</Title>
         <ImageContainer>
           <img
             src={`${imgURL}${
@@ -212,7 +218,7 @@ const Companion_Detail = () => {
             }`}
           />
         </ImageContainer>
-        <Title>{data && data.post.title}</Title>
+        
         <ProfileContainer>
           <Profile>
             <ProfileImage

@@ -1,25 +1,8 @@
-import React, {
-  useState,
-  useEffect,
-  useContext,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useState, useEffect,useContext, useRef, useCallback,} from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faBars,
-  faUser,
-  faArrowLeft,
-  faPaperPlane,
-  faChevronDown,
-  faSquarePlus,
-  faFile,
-  faImages,
-  faVideo,
-  faFilePdf,
-  faFileWord
+import { faBars, faUser, faArrowLeft, faPaperPlane, faChevronDown, faSquarePlus, faFile, faImages, faVideo, faFilePdf, faFileWord
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { SocketContext } from "../App";
@@ -662,7 +645,8 @@ const ChattingRoom = () => {
             <>
             {showDate && <DateLabel>{currentMessageDate}</DateLabel>}
             {message.roomID === Number(chatID) && (
-              <ChatContainer key={index} self={message.self}>
+              {message.roomID === Number(chatID) && (
+            <ChatContainer key={index} self={message.self}>
               {!message.self && message.profileImage && (
                 <img
                   src={`${imgURL}${message.profileImage.replace(/\\/g, "/")}`}
@@ -717,6 +701,7 @@ const ChattingRoom = () => {
             </ChatContainer>
             )}
             
+          )}
           </>
           )
               
@@ -806,9 +791,12 @@ const IconBox =styled.div`
   position: relative;
 `
 const IconContainer = styled.div`
+position: relative;
 display: flex;
 justify-content: space-around;
 padding: 10px 0;
+z-index: 1001;
+transform: translateZ(0); // 별도의 스택링 컨텍스트를 생성합니다.
 `;
 
 const Icon = styled(FontAwesomeIcon)`
@@ -861,7 +849,9 @@ const ModalImage = styled.div`
   }
 `;
 
-const RoomContainer = styled.div``;
+const RoomContainer = styled.div`
+
+`;
 
 const TopContainer = styled.div`
   position: relative;
@@ -875,7 +865,7 @@ const Header = styled.div`
   top: 0;
   width: 640px;
   height: 70px;
-  z-index: 100; // Optional: ensure the header is always on top
+  z-index: 0; // Optional: ensure the header is always on top
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1090,6 +1080,7 @@ const ScrollToBottomButton = styled.button`
   position: fixed;
   bottom: 120px;
   cursor: pointer; // 커서 모양 변경
+  z-index: 0;
   transition: background-color 0.3s; // 배경색 변경 애니메이션 효과
   &:hover {
     background-color: rgba(0, 0, 0, 0.05); // 약한 회색 배경색
