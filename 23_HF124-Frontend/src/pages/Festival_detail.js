@@ -186,8 +186,13 @@ const Festival_detail = () => {
                             style={{ margin: "10px" }}
                         />
                         <Day>
-                            {formatDate(festivalData.eventstartdate)} <br />
-                            {formatDate(festivalData.eventenddate)}
+                            {formatDate(festivalData.eventstartdate)
+                                ? formatDate(festivalData.eventstartdate)
+                                : "2023-09-23"}{" "}
+                            <br />
+                            {formatDate(festivalData.eventenddate)
+                                ? formatDate(festivalData.eventenddate)
+                                : "2023-09-26"}
                         </Day>
                     </Day1>
 
