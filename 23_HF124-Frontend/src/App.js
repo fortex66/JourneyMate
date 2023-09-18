@@ -39,22 +39,40 @@ import HomeF from "./pages/HomeF";
 import io from "socket.io-client";
 
 const ENDPOINT = "http://localhost:3000";
+const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 
 export const SocketContext = createContext();
 
 function App() {
   const [socket, setSocket] = useState();
   const [socketId, setSocketId] = useState(null);
+  const [messages, setMessages] = useState([]); // 전송된 채팅 목록 저장
 
   useEffect(() => {
+    if (!("Notification" in window)) {
+      console.error("This browser does not support notifications.");
+    } else {
+      // 알림 권한 상태 확인
+      if (Notification.permission === "granted") {
+        // 권한이 이미 부여된 경우
+        new Notification("Hello World!");
+      } else if (Notification.permission !== "denied") {
+        // 권한이 아직 부여되지 않은 경우
+        Notification.requestPermission().then((permission) => {
+          // 사용자가 권한을 부여한 경우
+          if (permission === "granted") {
+            new Notification("Hello World!");
+          }
+        });
+      }
+    }
     const newsocket = io(ENDPOINT, { withCredentials: true });
     newsocket.on("connect", () => {
       newsocket.emit("init");
       setSocketId(newsocket.id); // 이벤트 핸들러 내부에서 socketId 설정
     });
-    
-    setSocket(newsocket);
 
+    setSocket(newsocket)
     
 
     return () => {
@@ -62,10 +80,44 @@ function App() {
       newsocket.off("chat_message");
     };
   }, []);
-
+  useEffect(() => {
+    if (!socket) {
+      return;
+    }
+    Notification.requestPermission().then((permission)=>{
+      if(permission === 'granted'){
+        const handleChatMessage = async (data) => {
+          new Notification(`${data.title.title}`, {
+            body: data.message,
+            icon: imgURL+data.profileImage.profileImage // 알림에 표시될 아이콘 (필요한 경우)
+          });
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              roomID: data.roomID,
+              title: data.title,
+              text: data.message,
+              self: false,
+              userID: data.userID,
+              profileImage: data.profileImage.profileImage,
+              messageType: data.messageType
+            },
+          ]);
+          
+      };
+      
+      socket.on("chat_message", handleChatMessage);
+    
+      return () => {
+        socket.off("chat_message", handleChatMessage);
+      };
+      }
+    })
+    
+  }, [socket]);
   return (
     <BrowserRouter>
-      <SocketContext.Provider value={{socket, socketId}}>
+      <SocketContext.Provider value={{socket, socketId, messages,setMessages}}>
         <div className="App">
           <Routes>
             <Route path="/Login" element={<Login />} />
