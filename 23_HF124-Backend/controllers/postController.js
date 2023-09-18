@@ -52,6 +52,7 @@ const getlist = async (req, res) => {
         },
         {
           model: tPost.tLocation,
+          as: "travel_post_location",
           attributes:["location","x","y"]
         }
       ],
@@ -351,10 +352,10 @@ const getpost = async (req, res) => {
           model: Tag.Tag,
           as: "tags",
         },
-        {
-          model: tPost.tLocation,
-          attributes:["location","x","y"]
-        },
+        // {
+        //   model: tPost.tLocation,
+        //   attributes:["location","x","y"]
+        // },
         {
           model: Users,
           attributes:["profileImage"]

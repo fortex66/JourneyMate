@@ -18,7 +18,6 @@ function Cmodal(props) {
           <CompanionBtn onClick={() => navigate("/Companion_Write")}>
             동행인 글쓰기
           </CompanionBtn>
-          <CloseBtn onClick={closeModal}>✖</CloseBtn>
           {props.children}
         </Body>
       </Frame>
@@ -35,22 +34,38 @@ const Frame = styled.div`
   background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
+  padding-bottom: 100px;
   z-index: 5001;
-  align-items: flex-start; // 위쪽 정렬
-  padding-top: 200px; // This will move the content 50 pixels down from the top
 `;
 
 const Body = styled.div`
-  width: 200px;
+  width: 600px;
+  height: 150px; /* 높이를 원하는 대로 조정하세요 */
   padding: 10px;
   background-color: white;
-  border-radius: 10px;
+  border-radius: 20px 20px 0 0; /* 상단에 둥근 모서리를 만들기 위해 반지름을 설정 */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   z-index: 5002;
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+
+  animation: slide-up 0.3s ease-out; /* 애니메이션을 적용 */
+  
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
 `;
 
-const CummunityBtn = styled.button`box-sizing: border-box;
+const CummunityBtn = styled.button`
+box-sizing: border-box;
 appearance: none;
 background-color: transparent;
 border: 2px solid #f97800;
@@ -65,9 +80,11 @@ padding: 0.6em 1.5em;
 text-decoration: none;
 letter-spacing: 2px;
 font-weight: 700;
-margin-bottom: 10px;
+margin-bottom: 15px;
 margin-top:5px;
-margin-left:14px;
+
+
+width:500px;
 
 &:hover,
 &:focus {
@@ -89,7 +106,8 @@ padding: 0.6em 1em;
 }
 `;
 
-const CompanionBtn = styled.button`box-sizing: border-box;
+const CompanionBtn = styled.button`
+box-sizing: border-box;
 appearance: none;
 background-color: transparent;
 border: 2px solid #f97800;
@@ -105,7 +123,8 @@ text-decoration: none;
 letter-spacing: 2px;
 font-weight: 700;
 margin-bottom: 10px;
-margin-left:14px;
+
+width:500px;
 
 &:hover,
 &:focus {

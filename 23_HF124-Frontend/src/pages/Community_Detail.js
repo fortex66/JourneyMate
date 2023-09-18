@@ -44,6 +44,10 @@ const Community_Detail = () => {
       closeModal();
     }
   };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   // console.log(typeof(data.post.postDate))
   useEffect(() => {
     const jwtToken = localStorage.getItem("jwtToken");
