@@ -1,5 +1,6 @@
 const chatController = require("./controllers/chatController");
 const chat = require("./models/chatModel");
+const {cPost}=require("./models/uploadModel");
 const user = require("./models/userModel");
 const {chatting}=require("./config");
 const auth = require("./middleware/authMiddlewareForSocket");
@@ -61,12 +62,17 @@ module.exports = {
           attributes: ["profileImage"],
           where: { userID: userID },
         });
+        const title = await cPost.findOne({
+          where: {cpostID: data.roomID},
+          attributes: ["title"]
+        });
         socket.broadcast
           .to(roomID)
           .emit("chat_message", {
             roomID: roomID,
             userID: userID,
             message: text,
+            title: title,
             messageType: 0,
             profileImage: profileImage,
           });
