@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Navigationbar from "../components/Navigationbar";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import {faWindowRestore, faCalendar,faLocationDot} from "@fortawesome/free-solid-svg-icons";
+import {faWindowRestore, faCalendar,faLocationDot,faMagnifyingGlass} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from "@fortawesome/free-solid-svg-icons";
 import { faChevronUp } from "@fortawesome/free-solid-svg-icons";
@@ -34,6 +34,10 @@ const Companion = () => {
   const endDate = location.state ? location.state.endDate : null;
   const title = location.state ? location.state.title : null;
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
   useEffect(() => {
     const updateButtonPosition = () => {
       const windowWidth = window.innerWidth;
@@ -184,13 +188,19 @@ const Companion = () => {
   return (
     <Container>
       <Header>
-        <SearchInput type="text" onClick={handleSearchClick} placeholder="검색"/>
+        <InputWrapper>
+          <SearchIcon icon={faMagnifyingGlass} />
+          <TotalInput 
+            placeholder="검색" 
+            onClick={handleSearchClick}
+          />
+        </InputWrapper>
         <IconContainer onClick={() => setWrite(!write)}>
           {write && <Cmodal closeModal={() => setWrite(!write)}></Cmodal>}
           <FontAwesomeIcon icon={faPen} size="2x" color={"#f97800"} />
         </IconContainer>
         <IconContainer>
-          <FontAwesomeIcon onClick={() => navigate("/Community")} icon={faWindowRestore} size="2x" color={"#f97800"} />
+          <FontAwesomeIcon onClick={() => navigate("/Community")} icon={faWindowRestore} size="2x" color={"#f97800"}/>
         </IconContainer>
       </Header>
       <Content>
@@ -291,25 +301,30 @@ const Header = styled.div`
     height: 80px; // 태블릿 화면에서 높이 조정
   }
 `;
+const InputWrapper = styled.div`
+  position: relative;
+  width: 70%; /* 여기서 width를 조정했습니다. */
+  margin-left: 20px;
+  margin-right: 20px;
+`;
 
-const SearchInput = styled.input`
-  width: 70%;
-  height: 40px;
-  border-radius: 15px;
-  border: 1px solid #dadde0;
-  padding: 0 10px;
+const TotalInput = styled.input`
+  height: 40px; 
+  width: 88%; 
+  border-radius: 15px; 
+  border: 1px solid gray; 
+  padding: 0 30px; 
   &:focus {
     outline: none;
   }
-  margin-top: 10px;
+  margin-top: 10px; 
+`;
 
-  @media (max-width: 480px) {
-   
-    margin-left: 8px;
-    margin-right: 5px;
-    
-  }
-
+const SearchIcon = styled(FontAwesomeIcon)`
+  position: absolute;
+  top: 30px;
+  left: 10px;
+  transform: translateY(-50%);
 `;
 
 const IconContainer = styled.div`

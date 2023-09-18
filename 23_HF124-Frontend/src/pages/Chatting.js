@@ -23,6 +23,12 @@ function Chatting() {
 
   // SocketContext를 통해 App.js에서 생성된 소켓 가져오기
   // const socket = useContext(SocketContext);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  
   useEffect(() => {
     const fetchChatRoom = async () => {
       const response = await axios.get(baseURL + "/chat");
@@ -36,6 +42,11 @@ function Chatting() {
   const goChattingRoom = (chatID) => {
     navigate(`/ChattingRoom/${chatID}`);
   };
+  const formatChatTime = (chatTime) => {
+    const date = new Date(chatTime);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+  };
+  
 
   return (
     <Join>
@@ -67,7 +78,10 @@ function Chatting() {
                     <LastChatting>
                       {list.group_chatting.lastchat}
                     </LastChatting>
-                </RoomInfo>
+                  </RoomInfo>
+                  <RoomTime>
+                    <Time>{formatChatTime(list.group_chatting.chattime)}</Time>
+                  </RoomTime>
                 
 
                 
@@ -123,7 +137,15 @@ const RoomItem = styled.div`
 const RoomInfo = styled.div`
 
 `
+const RoomTime = styled.div`
+  margin-left: auto;
+  display: flex;
+  color:gray;
+`;
 
+const Time = styled.div`
+
+`
 const RoomImg = styled.div`
 background-color: rgb(254, 237, 229);
 width: 50px;
