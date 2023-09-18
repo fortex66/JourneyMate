@@ -8,7 +8,7 @@ import {
     faPhone,
     faUserGroup,
 } from "@fortawesome/free-solid-svg-icons";
-
+import Festival_Nav from "../components/Festival_Nav";
 const Festival_detail = () => {
     const [data, setData] = useState();
     const navigate = useNavigate();
@@ -139,7 +139,7 @@ const Festival_detail = () => {
                         <Tel>{festivalData.tel}</Tel>
                     </Tel1>
 
-                    <Together1>
+                    {/* <Together1>
                         <FontAwesomeIcon
                             icon={faUserGroup}
                             color={"#f97800"}
@@ -156,7 +156,7 @@ const Festival_detail = () => {
                                 <G onClick={Companion_Write}> 동행인 모집 </G>
                             </CompanionButton>
                         )}
-                    </Together1>
+                    </Together1> */}
                 </BasicBox>
 
                 <ContentTitle>
@@ -184,6 +184,7 @@ const Festival_detail = () => {
                         dangerouslySetInnerHTML={{ __html: getIntroText() }}
                     ></I_Content>
                 )}
+                <Festival_Nav />
             </Content>
 
             <br />
@@ -254,7 +255,8 @@ const BasicBox = styled.div`
     display: flex;
     justify-content: space-between;
     text-align: center;
-    border-bottom: 1px solid #dadada;
+    //border-bottom: 1px solid #dadada;
+    margin-top: -10px;
 
     @media (max-width: 600px) {
         padding: 10px;
@@ -265,7 +267,7 @@ const DetailBox = styled.div`
     border: 2px solid #dadada;
     padding: 25px;
     border-radius: 10px;
-    margin: 10px 0;
+    margin-top: 20px;
     width: 500px;
     margin-left: 45px;
     font-weight: bold;
@@ -273,9 +275,10 @@ const DetailBox = styled.div`
 
 const I_Content = styled.div`
     border: 2px solid #dadada;
+    margin-top: 20px;
     padding: 25px;
     border-radius: 10px;
-    margin: 10px 0;
+
     width: 500px;
     margin-left: 45px;
     font-weight: bold;
@@ -350,27 +353,39 @@ const Img = styled.img`
     cursor: pointer;
     padding-top: 5px;
     border-radius: 30px; // 둥근 모서리를 위한 코드 추가
+    margin-top: 100px;
 `;
 const Top = styled.div`
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-top: 20px;
     display: flex;
-    justify-content: center; /* Text를 중앙으로 정렬하기 위해 추가 */
-    align-items: center; /* 세로로 중앙으로 정렬하기 위해 추가 */
-    border-bottom: 1px solid #dadada;
-    position: relative; /* StyledButton을 절대 위치로 설정하기 위해 추가 */
-    padding-bottom: 20px; /* 여기에 원하는 크기의 padding 값을 설정하세요 */
+    align-items: center;
+    justify-content: center; /* 추가: 중앙 정렬을 위한 속성 */
+    width: 640px;
+    position: fixed;
+    top: 0;
+    height: 90px;
+    background-color: #fff;
+    border-bottom: 1px solid #000;
+    z-index: 1000;
     button {
-        position: absolute; /* 버튼을 절대 위치로 설정 */
-        left: 1px; /* Top 컨테이너의 왼쪽 모서리에서 시작 */
+        position: absolute; /* 추가: 버튼을 절대 위치로 설정 */
+        left: 20px; /* 추가: 버튼을 왼쪽으로 이동 */
+    }
+
+    @media (max-width: 640px) {
+        width: 100%;
+        height: 70px; // 모바일 화면에서 높이 조정
+    }
+
+    @media (min-width: 601px) and (max-width: 1200px) {
+        height: 80px; // 태블릿 화면에서 높이 조정
     }
 `;
 
 const Text = styled.div`
     display: flex;
-    font-size: 24px; /* 원하는 글자 크기로 설정하세요 */
-    font-weight: bold; /* 글자를 굵게 만듭니다 */
+    font-size: 24px;
+    font-weight: bold;
+    justify-content: center; /* 추가: 중앙 정렬을 위한 속성 */
 `;
 
 const StyledButton = styled.button`
