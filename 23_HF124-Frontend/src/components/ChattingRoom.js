@@ -645,7 +645,7 @@ const ChattingRoom = () => {
             <>
             {showDate && <DateLabel>{currentMessageDate}</DateLabel>}
             {message.roomID === Number(chatID) && (
-              {message.roomID === Number(chatID) && (
+              
             <ChatContainer key={index} self={message.self}>
               {!message.self && message.profileImage && (
                 <img
@@ -701,7 +701,7 @@ const ChattingRoom = () => {
             </ChatContainer>
             )}
             
-          )}
+          
           </>
           )
               
