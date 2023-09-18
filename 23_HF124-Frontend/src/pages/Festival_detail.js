@@ -144,10 +144,20 @@ const Festival_detail = () => {
         <div>
             <Top>
                 <StyledButton onClick={() => navigate(-1)}>{"<"}</StyledButton>
+                <Text
+                    fontSize={
+                        festivalData.title.length > 30
+                            ? "16px"
+                            : festivalData.title.length > 20
+                            ? "20px"
+                            : "24px"
+                    }
+                >
+                    {festivalData.title}
+                </Text>
             </Top>
 
             <ImgWrapper>
-                <Text>{festivalData.title}</Text>
                 <Img src={festivalData.firstimage} />
             </ImgWrapper>
 
@@ -460,11 +470,9 @@ const Content = styled.div``;
 
 const ImgWrapper = styled.div`
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100%; // 필요에 따라 조절하실 수 있습니다.
-    margin-top: 100px;
 `;
 
 const Img = styled.img`
@@ -477,6 +485,7 @@ const Img = styled.img`
     cursor: pointer;
     padding-top: 5px;
     border-radius: 30px; // 둥근 모서리를 위한 코드 추가
+    margin-top: 100px;
 `;
 const Top = styled.div`
     display: flex;
@@ -506,9 +515,9 @@ const Top = styled.div`
 
 const Text = styled.div`
     display: flex;
-    font-size: 24px;
+    font-size: ${({ fontSize }) => fontSize || "24px"};
     font-weight: bold;
-    justify-content: center; /* 추가: 중앙 정렬을 위한 속성 */
+    justify-content: center;
 `;
 
 const StyledButton = styled.button`
