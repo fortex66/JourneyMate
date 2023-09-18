@@ -99,6 +99,7 @@ const tLocation = sequelize.define(
     timestamps: false,
     sequelize,
     modelName: "travel_post_location",
+    tableName: "travel_post_location"
   }
 );
 
@@ -477,8 +478,8 @@ cPost.hasMany(cPostImage, { foreignKey: "cpostID" });
 users.User.hasMany(tPost, { foreignKey: "userID" });
 tPost.belongsTo(users.User, { foreignKey: "userID" });
 
-tPost.hasMany(tLocation, { foreignKey: "tpostID", onDelete: "CASCADE" });
-tLocation.belongsTo(tPost, { foreignKey: "tpostID" });
+tPost.hasMany(tLocation, { foreignKey: "tpostID", as: "travel_post_location"});
+tLocation.belongsTo(tPost, { foreignKey: "tpostID", as: "travel_posts" });
 
 module.exports = {
   tPost,
