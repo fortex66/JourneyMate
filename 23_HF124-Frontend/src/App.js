@@ -55,6 +55,8 @@ function App() {
     
     setSocket(newsocket);
 
+    
+
     return () => {
       newsocket.close();
       newsocket.off("chat_message");

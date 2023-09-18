@@ -4,71 +4,59 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Navigationbar from "../components/Navigationbar";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass,faFilter } from "@fortawesome/free-solid-svg-icons";
 
 axios.defaults.withCredentials = true;
 const baseURL = "http://localhost:3000/";
 const Community_Search = () => {
   const navigate = useNavigate();
-  const locationRef = useRef();
-  const [locationList, setLocationList] = useState([]);
-  const [tagItem, setTagItem] = useState("");
-  const [tagList, setTagList] = useState([]);
-  const [selectedLocation, setSelectedLocation] = useState({});
   const [posts, setPosts] = useState([]);
-  const [title, setTitle] = useState([]);
+  //const [title, setTitle] = useState([]);
   const [searchTriggered, setSearchTriggered] = useState(true); //Community에 searchTriggered값을 true로
   //날려서 검색 useeffect가 실행되게 하기 위함
 
-  const searchLocation = async () => {
-    const query = locationRef.current.value;
-    if (!query.trim()) {
-      setLocationList([]);
-      return;
-    }
-    try {
-      const response = await axios.get(
-        `${baseURL}community/posts/search-keyword?query=${locationRef.current.value}`
-      );
-      if (response.status === 200) {
-        setLocationList(Array.isArray(response.data) ? response.data : []);
-      } else {
-        console.error("주소 검색 실패", response.status);
-      }
-    } catch (error) {
-      console.error("주소를 검색하는 도중 에러가 발생했습니다", error);
-    }
+  const [inputValue, setInputValue] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("");
+
+  const [title, setTitle] = useState("");
+  const [location, setLocation] = useState("");
+  const [tags, setTags] = useState([]);
+
+  // 하나라도 입력을 하였는지 여부를 조사하기 위한 로직
+  const isAnyFieldFilled = title || location || tags.length > 0;
+
+
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
   };
-  const searchTitle = (value) => {
-    if (value) {
-      setTitle(value);
-    }
+
+  const handleFilterClick = (filter) => {
+    setSelectedFilter(filter);
   };
-  const onKeyDown = (e) => {
-    if (e.target.value.length !== 0 && e.key === "Enter") {
-      submitTagItem();
+
+  const handleInputKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      if (selectedFilter === "title") setTitle(inputValue);
+      if (selectedFilter === "location") setLocation(inputValue);
+      if (selectedFilter === "tag") setTags([...tags, inputValue]);
+
+      setInputValue("");
     }
   };
 
-  const submitTagItem = () => {
-    let updatedTagList = [...tagList];
-    updatedTagList.push(tagItem);
-    setTagList(updatedTagList);
-    setTagItem("");
+  const handleTagDelete = (index) => {
+    setTags(tags.filter((_, idx) => idx !== index));
   };
 
-  const deleteTagItem = (e) => {
-    const deleteTagItem = e.target.parentElement.firstChild.innerText;
-    const filteredTagList = tagList.filter(
-      (tagItem) => tagItem !== deleteTagItem
-    );
-    setTagList(filteredTagList);
-  };
 
+  // 서버로 전송하는 부분
   const handleCompleteBtnClick = async () => {
     try {
+
       const response = await axios.get(`${baseURL}community/searchcount`, {
         params: {
-          location: selectedLocation.address_name,
+          location: location === "" ? "empty" : location,
         },
       });
       console.log(response);
@@ -84,13 +72,6 @@ const Community_Search = () => {
     }
   };
 
-  const handleLocationSelect = (location) => {
-    locationRef.current.value = location.place_name;
-    setSelectedLocation({
-      address_name: location.place_name,
-    });
-    setLocationList([]);
-  };
 
   return (
     <div>
@@ -107,54 +88,91 @@ const Community_Search = () => {
       </Navigation>
 
       <Info>
-        <input
-          name="title"
-          id="title"
-          placeholder="제목 입력"
-          onChange={(e) => searchTitle(e.target.value)}
+      <Filter>
+        <TitleSelect 
+          onClick={() => handleFilterClick("title")} 
+          selected={selectedFilter === "title"}
+        >
+          제목
+        </TitleSelect>
+        <LocationSelect 
+          onClick={() => handleFilterClick("location")} 
+          selected={selectedFilter === "location"}
+        >
+          위치
+        </LocationSelect>
+        <TagSelect 
+          onClick={() => handleFilterClick("tag")} 
+          selected={selectedFilter === "tag"}
+        >
+          태그
+        </TagSelect>
+        
+      </Filter>
+      <InputWrapper>
+        <SearchIcon icon={faMagnifyingGlass} />
+        <TotalInput 
+          placeholder="검색 입력" 
+          value={inputValue} 
+          onChange={handleInputChange} 
+          onKeyPress={handleInputKeyPress}
         />
-        <input
-          name="location"
-          placeholder="위치 입력"
-          ref={locationRef}
-          onChange={searchLocation}
-        />
-        {locationList.map((location, i) => (
-          <li key={i} onClick={() => handleLocationSelect(location)}>
-            {location.place_name}
-          </li>
-        ))}
-        {tagList.map((tagItem, index) => {
-          return (
-            <TagItem key={index}>
-              <Text>{tagItem}</Text>
-              <TagButton onClick={deleteTagItem}>X</TagButton>
-            </TagItem>
-          );
-        })}
-        <TagInput
-          type="text"
-          placeholder="태그를 입력해주세요!"
-          onChange={(e) => setTagItem(e.target.value)}
-          value={tagItem}
-          onKeyDown={onKeyDown}
-        />
+      </InputWrapper>
+      <MainContainer>
+        <MainTitle>
+          필터 목록 &nbsp;
+          <FontAwesomeIcon icon={faFilter} />
+        </MainTitle>
+        {title && (
+          <TitleContainer>
+          <TitleName>
+            제목
+          </TitleName>
+          <TitleContent>
+            {title}
+            {title && <DeleteButton onClick={() => setTitle("")}>x</DeleteButton>}
+          </TitleContent>
+        </TitleContainer>
+        )}
+        
+        {location && (
+          <LocationContainer>
+          <LocationName>
+            위치
+          </LocationName>
+          <LocationContent>
+            {location}
+            {location && <DeleteButton onClick={() => setLocation("")}>x</DeleteButton>}
+          </LocationContent>
+        </LocationContainer>
+        )}
+        
+        {tags.length > 0 && (
+          <TagContainer>
+          <TagName>
+            태그
+          </TagName>
+          <TagList>
+            {tags.map((tag, index) => (
+              <TagItem key={index}>
+                {tag}
+                <DeleteButton onClick={() => handleTagDelete(index)}>x</DeleteButton>
+              </TagItem>
+            ))}
+          </TagList>
+          
+        </TagContainer>
+        )}
+        
+      </MainContainer>
+
       </Info>
-      <Button>
-        <button
-          className="complete_btn"
+      <Button isAnyFieldFilled={isAnyFieldFilled}>
+        <button className="complete_btn"
           onClick={async () => {
             const isSuccess = await handleCompleteBtnClick();
             if (isSuccess) {
-              navigate("/Community", {
-                state: {
-                  posts,
-                  title,
-                  location: selectedLocation,
-                  searchTriggered,
-                  tagList,
-                },
-              });
+              navigate("/Community", { state: { posts, title, location: location, searchTriggered, tagList: tags,},});
             }
           }}
         >
@@ -167,17 +185,7 @@ const Community_Search = () => {
 };
 
 export default Community_Search;
-const TagButton = styled.button`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 15px;
-  height: 15px;
-  margin-left: 5px;
-  background-color: white;
-  border-radius: 50%;
-  color: tomato;
-`;
+
 
 const Button = styled.div`
   display: flex;
@@ -185,36 +193,17 @@ const Button = styled.div`
   padding-top: 20px;
 
   button.complete_btn {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-sizing: border-box;
-    appearance: none;
-    background-color: transparent;
-    border: 2px solid #f97800;
-    border-radius: 0.6em;
-    color: #f97800;
+
+    height: 40px;
+    border: none;
+    border-radius: 10px;
+    background-color: ${({ isAnyFieldFilled }) => (isAnyFieldFilled ? '#f97800' : '#787878')};
+    color: white;
+    font-size: 15px;
     cursor: pointer;
-    font-size: 16px;
-    font-family: "Nanum Gothic", sans-serif;
-    line-height: 1;
-    padding: 0.6em 1em;
-    text-decoration: none;
-    letter-spacing: 2px;
-    font-weight: 700;
-
-    &:hover,
-    &:focus {
-      color: #fff;
-      outline: 0;
-    }
+  
     &:hover {
-      box-shadow: 0 0 40px 40px #f97800 inset;
-    }
-
-    &:focus:not(:hover) {
-      color: #f97800;
-      box-shadow: none;
+      box-shadow: ${({ isAnyFieldFilled }) => (isAnyFieldFilled ? '0 0 40px 40px #f97800 inset' : 'none')};
     }
   }
 `;
@@ -297,36 +286,199 @@ const Info = styled.div`
   margin-top: 80px;
   margin-bottom: 20px;
   border-bottom: 1px solid rgb(234, 235, 239);
-  cursor: pointer;
 
-  input {
-    border: 0;
-    outline: none;
-    padding: 10px;
-    font-family: "Nanum Gothic", sans-serif;
-    cursor: pointer;
-  }
+
 `;
 
-const TagInput = styled.input`
-  display: inline-flex;
-  min-width: 200px;
-  background: transparent;
+const Filter = styled.div`
+  margin : 20px 0px 20px 20px;
+`
+
+const TitleSelect = styled.button`
+  background-color: ${props => props.selected ? 'rgb(37, 37, 37)' : 'rgb(218 218 218)'};
+  color:  ${props => props.selected ? 'rgb(248, 248, 248)' : 'rgb(37, 37, 37)'};
+
+  height: 40px;
+  padding: 10px;
   border: none;
-  outline: none;
-  cursor: text;
+  border-radius: 10px;
+  box-sizing: border-box;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+  font-weight: 400;
+  font-size: 14px;
+  margin-right: 12px;
+  line-height: 21px;
+  transition: all 0.25s ease-out 0s;
+  font-family: NotoSansKR, "Noto Sans CJK KR", sans-serif;
+  margin-right:10px;
+  cursor:pointer;
+
+
 `;
 
+const LocationSelect = styled.button`
+background-color: ${props => props.selected ? 'rgb(37, 37, 37)' : 'rgb(218 218 218)'};
+color:  ${props => props.selected ? 'rgb(248, 248, 248)' : 'rgb(37, 37, 37)'};
+
+height: 40px;
+padding: 10px;
+border: none;
+border-radius: 10px;
+box-sizing: border-box;
+flex-wrap: nowrap;
+flex-shrink: 0;
+font-weight: 400;
+font-size: 14px;
+margin-right: 12px;
+line-height: 21px;
+transition: all 0.25s ease-out 0s;
+font-family: NotoSansKR, "Noto Sans CJK KR", sans-serif;
+margin-right:10px;
+cursor:pointer;
+
+
+`;
+
+const TagSelect = styled.button`
+background-color: ${props => props.selected ? 'rgb(37, 37, 37)' : 'rgb(218 218 218)'};
+color:  ${props => props.selected ? 'rgb(248, 248, 248)' : 'rgb(37, 37, 37)'};
+
+height: 40px;
+padding: 10px;
+border: none;
+border-radius: 10px;
+box-sizing: border-box;
+flex-wrap: nowrap;
+flex-shrink: 0;
+font-weight: 400;
+font-size: 14px;
+margin-right: 12px;
+line-height: 21px;
+transition: all 0.25s ease-out 0s;
+font-family: NotoSansKR, "Noto Sans CJK KR", sans-serif;
+margin-right:10px;
+cursor:pointer;
+
+
+`;
+
+const InputWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  margin-left: 20px;
+  margin-right; 20px;
+`;
+
+const TotalInput = styled.input`
+  height: 30px;
+  width: 88%;
+  padding-left: 35px; 
+  border-radius:10px;
+`;
+
+const SearchIcon = styled(FontAwesomeIcon)`
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+`;
+
+
+
+const MainContainer = styled.div`
+  background-color : #efefef;
+  margin : 50px 20px 30px 20px;
+  border-radius:8px;
+
+  height:320px;
+
+`
+
+const MainTitle = styled.div`
+  margin : 15px 0px 10px 30px;
+  font-size:17px;
+  font-weight:700;
+`
+
+const TitleContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin : 20px 20px 20px 20px;
+  border-radius : 8px;
+  background-color:#fff;
+
+`
+const TitleName = styled.span`
+  font-size:16px;
+  font-weight:700;
+  margin : 5px 0px 5px 10px;
+`
+
+const TitleContent = styled.div`
+  display:flex;
+  font-size : 14px;
+  font-weight:700;
+  color:#636363;
+  margin : 5px 0px 5px 10px;
+`
+
+const LocationContainer = styled.div`
+display: flex;
+flex-direction: column;
+margin : 20px 20px 20px 20px;
+border-radius : 8px;
+background-color:#fff;
+`
+
+const LocationName = styled.span`
+  font-size:16px;
+  font-weight:700;
+  margin : 5px 0px 5px 10px;
+`
+
+const LocationContent = styled.div`
+  display:flex;
+  font-size : 14px;
+  font-weight:700;
+  color:#636363;
+  margin : 5px 0px 5px 10px;
+`
+
+const TagContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin : 20px 20px 20px 20px;
+  border-radius : 8px;
+  background-color:#fff;
+`;
+
+const TagName = styled.span`
+  font-size:16px;
+  font-weight:700;
+  margin : 5px 0px 5px 10px;
+`
+const TagList = styled.div`
+  display:flex;
+  font-size : 14px;
+  font-weight:700;
+  color:#636363;
+  margin : 5px 0px 5px 10px;
+`
 const TagItem = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin: 5px;
-  padding: 5px;
-  background-color: tomato;
-  border-radius: 5px;
-  color: white;
-  font-size: 13px;
+  margin-right : 5px;
+  
+  
 `;
 
-const Text = styled.span``;
+const DeleteButton = styled.button`
+  color:red;
+  border:none;
+  background-color:transparent;
+  cursor:pointer;
+`;
+
+
+

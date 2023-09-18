@@ -13,13 +13,13 @@ const Community_Write = () => {
   const detaildata = useLocation();
 
   const titleRef = useRef();
-  const locationRef = useRef();
+  const locationRef = useRef([]);
   const tagRef = useRef();
   const photoRefs = useRef([]);
   const contentRefs = useRef([]);
 
   const [locationList, setLocationList] = useState([]);
-  const [selectedLocation, setSelectedLocation] = useState({});
+  const [selectedLocation, setSelectedLocation] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [tagItem, setTagItem] = useState(""); // 태그 입력값
@@ -64,8 +64,11 @@ const Community_Write = () => {
   }, []);
 
   //위치를 입력 받을때 kakaoapi를 활용하기 위함
-  const searchLocation = async () => {
-    const query = locationRef.current.value;
+  const searchLocation = async (e, i) => {
+    console.log("확인")
+    // const {loc}=e.target;
+    const query = locationRef.current[i].value;
+    console.log(query)
     if (detaildata.state !== null) {
       // detail 상태 업데이트
       setDetail((prevDetail) => ({
@@ -73,7 +76,6 @@ const Community_Write = () => {
         location: query,
       }));
     }
-
     if (!query.trim()) {
       // 입력값이 비어있는 경우 API 호출을 막습니다.
       setLocationList([]); // 위치 목록을 초기화하면서 자동완성 리스트를 비웁니다.
@@ -81,8 +83,9 @@ const Community_Write = () => {
     }
     try {
       const response = await axios.get(
-        `${baseURL}community/posts/search-keyword?query=${locationRef.current.value}`
+        `${baseURL}community/posts/search-keyword?query=${locationRef.current[i].value}`
       );
+      console.log(response)
       if (response.status === 200) {
         // response.data가 배열인지 확인하고, 배열이 아니면 빈 배열로 설정
         setLocationList(Array.isArray(response.data) ? response.data : []);
@@ -128,11 +131,11 @@ const Community_Write = () => {
         location: location.place_name,
       }));
     }
-    setSelectedLocation({
+    setSelectedLocation(prevState => [...prevState, {
       x: location.x,
       y: location.y,
       address_name: location.address_name,
-    });
+    }]);
     setLocationList([]);
   };
 
@@ -326,12 +329,15 @@ const Community_Write = () => {
         formData.append("photos[]", item.file);
         formData.append("contents[]", item.content);
       });
+      console.log('selectedLocation', selectedLocation, Array.isArray(selectedLocation));
+      selectedLocation.forEach((location, index) => {
+        formData.append(`location[${index}][x]`, location.x);
+        formData.append(`location[${index}][y]`, location.y);
+        formData.append(`location[${index}][address_name]`, location.address_name);
+    });
       // json으로 제목과 위치를 만들기
       const jsonData = {
         title: titleRef.current.value,
-        location: locationRef.current.value,
-        x: selectedLocation.x,
-        y: selectedLocation.y,
         address_name: selectedLocation.address_name,
         tags: tagList,
       };
@@ -423,7 +429,7 @@ const Community_Write = () => {
           )}
         </Title>
         <Info>
-          {detaildata.state === null ? (
+          {/* {detaildata.state === null ? (
             <input
               name="location"
               placeholder="위치 입력"
@@ -442,7 +448,7 @@ const Community_Write = () => {
             <li key={i} onClick={() => handleLocationSelect(location)}>
               {location.place_name}
             </li>
-          ))}
+          ))} */}
           {tagList.map((tagItem, index) => {
             return (
               <TagItem key={index}>
@@ -545,6 +551,28 @@ const Community_Write = () => {
                 </DeleteButton>
               )}
             </PhotoWrapper>
+            <Info>
+                {detaildata.state === null ? (
+                <input
+                  name="location"
+                  placeholder="위치 입력"
+                  ref={(e)=>(locationRef.current[i]=e)}
+                  onChange={(e1)=>searchLocation(e1,i)}
+                />
+              ) : (
+                <input
+                  name="location"
+                  value={detail.location}
+                  ref={locationRef}
+                  onChange={searchLocation}
+                />
+              )}
+              {locationList.map((location, i) => (
+                <li key={i} onClick={() => handleLocationSelect(location)}>
+                  {location.place_name}
+                </li>
+              ))}
+            </Info>
             <Contents>
               {detaildata.state === null ? (
                 <textarea

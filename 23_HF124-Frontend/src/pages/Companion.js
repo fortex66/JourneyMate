@@ -24,6 +24,7 @@ const Companion = () => {
   const observer = useRef();
 
   const location = useLocation();
+  console.log(location)
   const searchTriggered = location.state?.searchTriggered || false;
   const tagList = location.state ? location.state.tagList : [];
   const selectedLocation = location.state ? location.state.location : "";
@@ -130,6 +131,7 @@ const Companion = () => {
       try {
         if (selectedLocation || tagList || title) {
           console.log(`서치 ${page}`);
+          console.log(title)
           const response = await axios.get(`${baseURL}companion/search`, {
             params: {
               page,

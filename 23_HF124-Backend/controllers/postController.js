@@ -5,19 +5,20 @@ const userProfile = require("../models/signupModel");
 const Users = require("../models/userModel");
 const SearchHistories = require("../models/uploadModel");
 const { Op } = require("sequelize");
+const {sequelize}=require("../config");
 const { Sequelize } = require("sequelize");
 
 
-const sequelize = new Sequelize(
-  process.env.MYSQL_DATABASE,
-  process.env.MYSQL_USERNAME,
-  process.env.MYSQL_PASSWORD,
-  {
-    host: process.env.MYSQL_HOST,
-    port: process.env.MYSQL_PORT,
-    dialect: "mysql",
-  }
-);
+// const sequelize = new Sequelize(
+//   process.env.MYSQL_DATABASE,
+//   process.env.MYSQL_USERNAME,
+//   process.env.MYSQL_PASSWORD,
+//   {
+//     host: process.env.MYSQL_HOST,
+//     port: process.env.MYSQL_PORT,
+//     dialect: "mysql",
+//   }
+// );
 
 const getlist = async (req, res) => {
   //커뮤니티 게시글 받아오기
@@ -49,6 +50,10 @@ const getlist = async (req, res) => {
           model: userProfile.User,
           attributes: ["profileImage"],
         },
+        {
+          model: tPost.tLocation,
+          attributes:["location","x","y"]
+        }
       ],
     });
     const total_pages = Math.ceil(posts.count / per_page);
@@ -132,9 +137,10 @@ const getCNearbylist = async (req, res) => {
 const searchCount = async (req, res) => {
   try {
     const { location } = req.query;
+    console.log(typeof(location))
     console.log("서버로부터 날아온 값 : ", location);
     // Search History 테이블에 새로운 레코드 추가
-    if (location) {
+    if (location !== "empty") {
       const newSearchHistory = await SearchHistories.SearchHistories.create({
         location,
         searchDate: new Date(),
@@ -346,6 +352,10 @@ const getpost = async (req, res) => {
           as: "tags",
         },
         {
+          model: tPost.tLocation,
+          attributes:["location","x","y"]
+        },
+        {
           model: Users,
           attributes:["profileImage"]
         }
@@ -520,9 +530,14 @@ const getCSearchlist = async (req, res) => {
         post.tags.some((tag) => tagList.includes(tag.content))
       );
     }
-
     const total_pages = Math.ceil(posts.count / per_page);
-
+    await posts.rows.map((post)=>{
+      const getYear=post.users.dataValues.birth.getFullYear();
+      var date = new Date();
+      var year = date.getFullYear();
+      post.users.dataValues.birth = year - getYear;
+      
+    })
     res.status(200).json({ posts, total_pages });
     console.log(posts);
   } catch (err) {
