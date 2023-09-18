@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Navigationbar from "../components/Navigationbar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass,faFilter } from "@fortawesome/free-solid-svg-icons";
 
 axios.defaults.withCredentials = true;
 const baseURL = "http://localhost:3000/";
@@ -22,6 +22,10 @@ const Community_Search = () => {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [tags, setTags] = useState([]);
+
+  // 하나라도 입력을 하였는지 여부를 조사하기 위한 로직
+  const isAnyFieldFilled = title || location || tags.length > 0;
+
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -115,7 +119,12 @@ const Community_Search = () => {
         />
       </InputWrapper>
       <MainContainer>
-        <TitleContainer>
+        <MainTitle>
+          필터 목록 &nbsp;
+          <FontAwesomeIcon icon={faFilter} />
+        </MainTitle>
+        {title && (
+          <TitleContainer>
           <TitleName>
             제목
           </TitleName>
@@ -124,8 +133,10 @@ const Community_Search = () => {
             {title && <DeleteButton onClick={() => setTitle("")}>x</DeleteButton>}
           </TitleContent>
         </TitleContainer>
-
-        <LocationContainer>
+        )}
+        
+        {location && (
+          <LocationContainer>
           <LocationName>
             위치
           </LocationName>
@@ -134,22 +145,29 @@ const Community_Search = () => {
             {location && <DeleteButton onClick={() => setLocation("")}>x</DeleteButton>}
           </LocationContent>
         </LocationContainer>
-
-        <TagContainer>
+        )}
+        
+        {tags.length > 0 && (
+          <TagContainer>
           <TagName>
             태그
           </TagName>
-          {tags.map((tag, index) => (
-            <TagItem key={index}>
-              {tag}
-              <DeleteButton onClick={() => handleTagDelete(index)}>x</DeleteButton>
-            </TagItem>
-          ))}
+          <TagList>
+            {tags.map((tag, index) => (
+              <TagItem key={index}>
+                {tag}
+                <DeleteButton onClick={() => handleTagDelete(index)}>x</DeleteButton>
+              </TagItem>
+            ))}
+          </TagList>
+          
         </TagContainer>
+        )}
+        
       </MainContainer>
 
       </Info>
-      <Button>
+      <Button isAnyFieldFilled={isAnyFieldFilled}>
         <button className="complete_btn"
           onClick={async () => {
             const isSuccess = await handleCompleteBtnClick();
@@ -167,17 +185,7 @@ const Community_Search = () => {
 };
 
 export default Community_Search;
-const TagButton = styled.button`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 15px;
-  height: 15px;
-  margin-left: 5px;
-  background-color: white;
-  border-radius: 50%;
-  color: tomato;
-`;
+
 
 const Button = styled.div`
   display: flex;
@@ -185,36 +193,17 @@ const Button = styled.div`
   padding-top: 20px;
 
   button.complete_btn {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-sizing: border-box;
-    appearance: none;
-    background-color: transparent;
-    border: 2px solid #f97800;
-    border-radius: 0.6em;
-    color: #f97800;
+
+    height: 40px;
+    border: none;
+    border-radius: 10px;
+    background-color: ${({ isAnyFieldFilled }) => (isAnyFieldFilled ? '#f97800' : '#787878')};
+    color: white;
+    font-size: 15px;
     cursor: pointer;
-    font-size: 16px;
-    font-family: "Nanum Gothic", sans-serif;
-    line-height: 1;
-    padding: 0.6em 1em;
-    text-decoration: none;
-    letter-spacing: 2px;
-    font-weight: 700;
-
-    &:hover,
-    &:focus {
-      color: #fff;
-      outline: 0;
-    }
+  
     &:hover {
-      box-shadow: 0 0 40px 40px #f97800 inset;
-    }
-
-    &:focus:not(:hover) {
-      color: #f97800;
-      box-shadow: none;
+      box-shadow: ${({ isAnyFieldFilled }) => (isAnyFieldFilled ? '0 0 40px 40px #f97800 inset' : 'none')};
     }
   }
 `;
@@ -378,11 +367,12 @@ const InputWrapper = styled.div`
   position: relative;
   width: 100%;
   margin-left: 20px;
+  margin-right; 20px;
 `;
 
 const TotalInput = styled.input`
   height: 30px;
-  width: 300px;
+  width: 88%;
   padding-left: 35px; 
   border-radius:10px;
 `;
@@ -397,61 +387,90 @@ const SearchIcon = styled(FontAwesomeIcon)`
 
 
 const MainContainer = styled.div`
-  display:flex;
-  margin : 50px 20px 50px 20px;
+  background-color : #efefef;
+  margin : 50px 20px 30px 20px;
+  border-radius:8px;
 
+  height:320px;
+
+`
+
+const MainTitle = styled.div`
+  margin : 15px 0px 10px 30px;
+  font-size:17px;
+  font-weight:700;
 `
 
 const TitleContainer = styled.div`
-  background-color:rgb(218 218 218);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  margin : 20px 20px 20px 20px;
+  border-radius : 8px;
+  background-color:#fff;
 
 `
 const TitleName = styled.span`
-  font-size:20px;
+  font-size:16px;
   font-weight:700;
+  margin : 5px 0px 5px 10px;
 `
 
 const TitleContent = styled.div`
   display:flex;
+  font-size : 14px;
+  font-weight:700;
+  color:#636363;
+  margin : 5px 0px 5px 10px;
 `
 
 const LocationContainer = styled.div`
-  background-color:rgb(218 218 218);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+display: flex;
+flex-direction: column;
+margin : 20px 20px 20px 20px;
+border-radius : 8px;
+background-color:#fff;
 `
 
 const LocationName = styled.span`
-font-size:20px;
-font-weight:700;
+  font-size:16px;
+  font-weight:700;
+  margin : 5px 0px 5px 10px;
 `
 
 const LocationContent = styled.div`
-display:flex;
+  display:flex;
+  font-size : 14px;
+  font-weight:700;
+  color:#636363;
+  margin : 5px 0px 5px 10px;
 `
 
 const TagContainer = styled.div`
-background-color:rgb(218 218 218);
-display: flex;
-flex-direction: column;
-align-items: center;
+  display: flex;
+  flex-direction: column;
+  margin : 20px 20px 20px 20px;
+  border-radius : 8px;
+  background-color:#fff;
 `;
 
 const TagName = styled.span`
-font-size:20px;
-font-weight:700;
+  font-size:16px;
+  font-weight:700;
+  margin : 5px 0px 5px 10px;
 `
-
+const TagList = styled.div`
+  display:flex;
+  font-size : 14px;
+  font-weight:700;
+  color:#636363;
+  margin : 5px 0px 5px 10px;
+`
 const TagItem = styled.div`
   display: flex;
   align-items: center;
-  margin: 0 5px;
-  padding: 5px;
-  border: 1px solid #000;
+  margin-right : 5px;
+  
+  
 `;
 
 const DeleteButton = styled.button`
@@ -461,30 +480,5 @@ const DeleteButton = styled.button`
   cursor:pointer;
 `;
 
-const Titleinput = styled.input`
-  border: 0;
-  outline: none;
-  padding: 10px;
-  font-family: "Nanum Gothic", sans-serif;
-  cursor: text;
-`
-
-const Locationinput = styled.input`
-  border: 0;
-  outline: none;
-  padding: 10px;
-  font-family: "Nanum Gothic", sans-serif;
-  cursor: text;
-`
-
-const TagInput = styled.input`
-  border: 0;
-  outline: none;
-  padding: 10px;
-  font-family: "Nanum Gothic", sans-serif;
-  cursor: text;
-`;
 
 
-
-const Text = styled.span``;

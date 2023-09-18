@@ -596,8 +596,7 @@ const Next = styled.button`
   height: 40px;
   border: none;
   border-radius: 10px;
-  background-color: ${(props) =>
-    props.allFieldsFilled ? "#f97800" : "#787878"};
+  background-color: ${(props) => props.allFieldsFilled ? "#f97800" : "#787878"};
   color: white;
   font-size: 15px;
   cursor: pointer;
