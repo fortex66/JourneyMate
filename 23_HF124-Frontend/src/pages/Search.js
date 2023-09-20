@@ -98,7 +98,8 @@ const SearchItem = styled.div`
   margin: 10px 0;
   font-size: 1rem;
   color: #333;
-
+  background-color: #f2f2f2;
+  font-weight: 700;
   span:first-child {
     font-weight: bold;
   }
@@ -141,7 +142,7 @@ const TopSearches = styled.div`
   margin: 0 auto;
   padding: 20px;
   border-radius: 8px;
-  background-color: #f2f2f2;
+  
   p {
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -149,5 +150,6 @@ const TopSearches = styled.div`
     margin: 10px 0;
     font-size: 1rem;
     color: #333;
+    
   }
 `;
