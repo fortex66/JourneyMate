@@ -89,7 +89,7 @@ function App() {
         const handleChatMessage = async (data) => {
           new Notification(`${data.title.title}`, {
             body: data.message,
-            icon: imgURL+data.profileImage.profileImage // 알림에 표시될 아이콘 (필요한 경우)
+            icon: imgURL+data.profileImage.profileImage 
           });
           setMessages((prevMessages) => [
             ...prevMessages,

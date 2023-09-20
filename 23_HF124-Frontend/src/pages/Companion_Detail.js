@@ -323,7 +323,28 @@ const Companion_Detail = () => {
             {comments.map((comment, index) => (
               <Comment key={index}>
                 <CommentContent>
-                  {comment.userID}: {comment.contents}
+                  <CommentProfile>
+                    <ProfileImage onClick={(e) => { e.stopPropagation(); goUserDetail(data && data?.post.userID); }}  >
+                        {comment.User.profileImage === null ? (
+                          <img alt="chosen" style={{ width: "100%", borderRadius: "100%" }} />
+                        ) : (
+                          <img src={`${imgURL}${comment.User.profileImage.replace(/\\/g, "/")}`}
+                            style={{ width: "100%", borderRadius: "100%" }} />
+                        )}
+                    </ProfileImage>
+                    <Id>{comment.userID}</Id>
+                  </CommentProfile>
+                  <CommentContainer>
+                    <CommentContents>
+                      {comment.contents}
+                    </CommentContents>
+                    
+                    {currentUser && comment.userID === currentUser && (
+                      <Button onClick={() => deleteComment(comment.tcommentId)}>
+                        삭제
+                      </Button>
+                    )}
+                  </CommentContainer>
                   <CommentDate>
                     {comment.commentDate
                       ? new Intl.DateTimeFormat("ko-KR", {
@@ -337,12 +358,6 @@ const Companion_Detail = () => {
                       : ""}
                   </CommentDate>
                 </CommentContent>
-
-                {currentUser && comment.userID === currentUser && (
-                  <Button onClick={() => deleteComment(comment.ccommentID)}>
-                    삭제
-                  </Button>
-                )}
               </Comment>
             ))}
           </CommentList>
@@ -553,6 +568,7 @@ const ProfileImage = styled.div`
   height: 30px;
   border-radius: 80%;
   display: flex;
+  align-items: center;
 
   margin-bottom: 10px;
   cursor: pointer;
@@ -573,7 +589,12 @@ const ProfileData = styled.div`
   margin-bottom: 10px;
   font-weight: 700;
 `;
-const Id = styled.div``;
+const Id = styled.div`
+  margin-top: 1px;
+  font-size: 13px;
+  margin-left: 10px;
+  font-weight: 700;
+`;
 
 const UserInfo = styled.div`
   color: rgb(0, 206, 124);
@@ -774,12 +795,16 @@ const CommentContent = styled.div`
   white-space: pre-wrap; // 띄어쓰기와 줄바꿈을 유지하면서 필요한 경우에만 줄바꿈
 `;
 
-const CommentContainer = styled.div`
-  display: flex;
+const CommentProfile = styled.div`
+display: flex;
+`
+
+const CommentContainer = styled. div`
+  display:flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 5px;
-`;
+  margin-bottom:5px;
+`
 
 const CommentContents = styled.div`
   font-size: 15px;
