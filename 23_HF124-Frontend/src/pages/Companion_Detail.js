@@ -340,7 +340,7 @@ const Companion_Detail = () => {
                     </CommentContents>
                     
                     {currentUser && comment.userID === currentUser && (
-                      <Button onClick={() => deleteComment(comment.tcommentId)}>
+                      <Button onClick={() => deleteComment(comment.ccommentID)}>
                         삭제
                       </Button>
                     )}

@@ -13,7 +13,6 @@ const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 const Profile = () => {
   const navigate = useNavigate();
   const {socket, socketId}=useContext(SocketContext);
-
   const [userData, setUserData] = useState(null);
   const [image, setImage] = useState(null);
 
@@ -72,7 +71,7 @@ const Profile = () => {
     try {
       const userLogout = await axios.delete(baseURL + "mypage/logout");
       alert("로그아웃을 완료하였습니다!");
-      socket.close()
+      socket.close();
       navigate("/Login");
     } catch (err) {
       console.error(err);
