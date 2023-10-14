@@ -24,10 +24,10 @@ exports.processPart1 = async (req, res) => {
       //     userID: userID,
       //   },
       // });
-      // console.log('아이디 중복검사 진행중');
+      
 
       // if (existingUser) {
-      //   console.log('아이디 중복됨');
+ 
       //   return res.status(400).send(`아이디 '${userID}'는 이미 사용 중입니다`);
       // }
       //회원 정보 저장
@@ -44,9 +44,8 @@ exports.processPart1 = async (req, res) => {
       });
       
       req.session.user= newUser;
-      console.log('세션 정보');
-      console.log(req.session.user)
-      console.log('회원가입 성공');
+    
+   
       return res.status(200).send({ message: '회원가입1 성공', userID: userID });
       
     } catch (error) {
@@ -60,13 +59,13 @@ exports.processPart1 = async (req, res) => {
   
   exports.processPart2 = async (req, res) => {
     try {
-      console.log('세션정보 = '+ req.session.user);
+    
       // 입력 받은 주소 가져오기
       const { address } = req.body;
 
       // 세션에서 사용자 ID 가져오기
       const userId = req.session.user.userID;
-      console.log('세션 userID 정보 = '+ userId);
+     
   
       // DB에서 해당 사용자 찾기
       const user = await User.findOne({ where: { userID: userId } });
@@ -156,10 +155,10 @@ exports.checkUserID = async (req, res) => {
       },
     });
     if (existingUser) {
-      console.log("아이디 사용중")
+    
       return res.status(400).send(`아이디 '${userID}'는 이미 사용 중입니다.`);
     } else {
-      console.log("아이디 사용가능")
+
       return res.status(200).send({ message: '사용 가능한 아이디입니다.', available: true });
     }
 
@@ -197,7 +196,7 @@ exports.sendEmail = async (req, res) => {
       console.log(error);
       res.status(400).send('이메일 전송 실패');
     } else {
-      console.log('Email sent: ' + info.response);
+   
       res.status(200).send(verificationCode.toString());
     }
   });

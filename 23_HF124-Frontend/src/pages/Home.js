@@ -24,7 +24,7 @@ const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 const NearbyModal = (props) => {
     const { closeModal, marker } = props;
     const [sortType, setSortType] = useState("latest");
-    
+
     // 정렬 방식 변경 핸들러
     const handleSortChange = (newSortType) => {
         setSortType(newSortType);
@@ -170,7 +170,6 @@ const Home = () => {
         setMarkerHovered(null);
     };
 
-    console.log(location);
     const mylocationClick = () => {
         if (navigator.geolocation) {
             // GeoLocation을 이용해서 접속 위치를 얻어옵니다
@@ -201,9 +200,7 @@ const Home = () => {
             });
         }
     };
-    useEffect(() => {
-        console.log("Location state has changed:", location);
-    }, [location]);
+    useEffect(() => {}, [location]);
     const getTexts = (size) => {
         if (size > 20) {
             return `
@@ -361,20 +358,6 @@ const Home = () => {
     );
 };
 export default Home;
-
-const FireBackground = styled.span`
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
-    opacity: 0.5;
-`;
-
-const HotText = styled.span`
-    position: relative;
-    z-index: 1;
-    color: red;
-`;
 
 const NearbyModalStyled = styled.div`
     position: fixed;

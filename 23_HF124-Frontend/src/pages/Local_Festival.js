@@ -12,9 +12,7 @@ import {
     faLocationDot,
 } from "@fortawesome/free-solid-svg-icons";
 import seoul from "../images/seoul.jpg";
-
 import incheon from "../images/incheon.jpg";
-
 import daejeon from "../images/daejeon.jpg";
 import daegu from "../images/daegu.jpg";
 import busan from "../images/busan.jpg";
@@ -30,16 +28,12 @@ import jeonranamdo from "../images/jeonranamdo.jpg";
 import ulsan from "../images/ulsan.jpg";
 import sejong from "../images/sejong.jpg";
 import gwangju from "../images/gwangju.jpg";
-import journeymatelogo from "../images/journeymatelogo.png";
 
 const Local_Festival = () => {
     const navigate = useNavigate();
     const [data, setData] = useState([]);
     const [data2, setData2] = useState([]);
     const [searchKeyword, setSearchKeyword] = useState(""); // 검색어 상태 추가
-    const [showModal, setShowModal] = useState(false); // 모달 보이기 상태
-    const [selectedRegion, setSelectedRegion] = useState(""); // 선택된 지역 상태
-    //최대날짜 지정용 변수
     const [maxDate, setMaxDate] = useState("");
     const [pageNo, setPageNo] = useState(1); // 페이지 번호 상태 추가
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
@@ -168,6 +162,7 @@ const Local_Festival = () => {
             setIsPageLoaded(false); // 다시 false로 설정
         }
     }, [isPageLoaded, pageNo]);
+
     const handleNearClick = () => {
         nearFetchData();
         setContentMode("near");
@@ -218,7 +213,6 @@ const Local_Festival = () => {
     return (
         <Container>
             <RealHead>
-              
                 <RealTitle onClick={() => navigate("/Home")}>
                     Journeymate{" "}
                     <FontAwesomeIcon
@@ -238,9 +232,13 @@ const Local_Festival = () => {
             </RealHead>
             <MainContainer>
                 <Area>
-                    <StyledIcon icon={faChevronLeft} onClick={scrollLeft} style={{ marginRight: "10px" }}/>
+                    <StyledIcon
+                        icon={faChevronLeft}
+                        onClick={scrollLeft}
+                        style={{ marginRight: "10px" }}
+                    />
                     <Area1 ref={areaRef}>
-                        <Seoul onClick={() => goArea("서울")}>
+                        <Icon onClick={() => goArea("서울")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -253,8 +251,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>서울</AreaTitle>
-                        </Seoul>
-                        <Incheon onClick={() => goArea("인천")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("인천")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -267,8 +265,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>인천</AreaTitle>
-                        </Incheon>
-                        <Daejeon onClick={() => goArea("대전")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("대전")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -281,8 +279,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>대전</AreaTitle>
-                        </Daejeon>
-                        <Daegu onClick={() => goArea("대구")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("대구")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -295,8 +293,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>대구</AreaTitle>
-                        </Daegu>
-                        <Gwangju onClick={() => goArea("광주")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("광주")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -309,8 +307,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>광주</AreaTitle>
-                        </Gwangju>
-                        <Busan onClick={() => goArea("부산")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("부산")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -323,8 +321,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>부산</AreaTitle>
-                        </Busan>
-                        <Ulsan onClick={() => goArea("울산")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("울산")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -337,8 +335,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>울산</AreaTitle>
-                        </Ulsan>
-                        <Sejong onClick={() => goArea("세종특별자치시")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("세종특별자치시")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -351,8 +349,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>세종</AreaTitle>
-                        </Sejong>{" "}
-                        <Gyeonggido onClick={() => goArea("경기도")}>
+                        </Icon>{" "}
+                        <Icon onClick={() => goArea("경기도")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -365,8 +363,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>경기도</AreaTitle>
-                        </Gyeonggido>
-                        <Gangwondo onClick={() => goArea("강원특별자치도")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("강원특별자치도")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -379,8 +377,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>강원도</AreaTitle>
-                        </Gangwondo>
-                        <Chungcheongbukdo onClick={() => goArea("충청북도")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("충청북도")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -393,8 +391,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>충청북도</AreaTitle>
-                        </Chungcheongbukdo>
-                        <Chungcheongnamdo onClick={() => goArea("충청남도")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("충청남도")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -407,8 +405,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>충청남도</AreaTitle>
-                        </Chungcheongnamdo>
-                        <Gyeongsangbukdo onClick={() => goArea("경상북도")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("경상북도")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -421,8 +419,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>경상북도</AreaTitle>
-                        </Gyeongsangbukdo>
-                        <Gyeongsangnamdo onClick={() => goArea("경상남도")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("경상남도")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -435,8 +433,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>경상남도</AreaTitle>
-                        </Gyeongsangnamdo>
-                        <Jeonrabukdo onClick={() => goArea("전라북도")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("전라북도")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -449,8 +447,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>전라북도</AreaTitle>
-                        </Jeonrabukdo>
-                        <Jeonranamdo onClick={() => goArea("전라남도")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("전라남도")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -463,8 +461,8 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>전라남도</AreaTitle>
-                        </Jeonranamdo>
-                        <Jejudo onClick={() => goArea("제주도")}>
+                        </Icon>
+                        <Icon onClick={() => goArea("제주도")}>
                             {" "}
                             <AreaCircle>
                                 <img
@@ -477,7 +475,7 @@ const Local_Festival = () => {
                                 />
                             </AreaCircle>
                             <AreaTitle>제주도</AreaTitle>
-                        </Jejudo>
+                        </Icon>
                     </Area1>
                     <StyledIcon icon={faChevronRight} onClick={scrollRight} />
                 </Area>
@@ -695,12 +693,10 @@ const Container = styled.div`
     width: 100%;
 `;
 
-
-
 const RealHead = styled.div`
     display: flex;
     align-items: center;
-    justify-content: flex-end	;
+    justify-content: flex-end;
     width: 640px;
     position: fixed;
     top: 0;
@@ -735,12 +731,11 @@ const RealTitle = styled.div`
 const RealSearch = styled.div`
     cursor: pointer;
     margin-right: 20px;
-    
+
     @media (max-width: 480px) {
         margin-right: 8px;
     }
 `;
-
 
 const MainContainer = styled.div`
     margin-right: 20px;
@@ -840,117 +835,20 @@ const AreaCircle = styled.div`
 const Area = styled.div`
     display: flex;
 `;
-const Seoul = styled.div`
+
+const Icon = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-right: 30px;
 `;
-const Incheon = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Daejeon = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Daegu = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Gwangju = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Busan = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Ulsan = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Sejong = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Gyeonggido = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Gangwondo = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Chungcheongbukdo = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Chungcheongnamdo = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Gyeongsangbukdo = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Gyeongsangnamdo = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Jeonrabukdo = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Jeonranamdo = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
-`;
-const Jejudo = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-`;
+
 const AreaTitle = styled.div`
     //text-align: center;
     font-size: 15px;
     //font-weight: bold;
 `;
 
-const AreaText = styled.div`
-    font-weight: bold;
-    margin-bottom: 10px;
-`;
 const NewTitle = styled.div`
     font-size: 20px;
     font-weight: bold;
@@ -1047,9 +945,6 @@ const NewContent = styled.div`
   }
 `;
 
-
-
-
 const Img = styled.img`
     object-fit: cover;
     cursor: pointer;
@@ -1101,13 +996,11 @@ const Box = styled.div`
     @media (min-width: 601px) and (max-width: 1200px) {
         margin-top: 20px;
         width: 100%;
-        
     }
 
     @media (min-width: 1201px) {
         margin-top: 20px;
         width: 100%;
-      
     }
 `;
 

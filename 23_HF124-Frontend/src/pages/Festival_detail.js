@@ -15,7 +15,7 @@ const Festival_detail = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const festivalData = location.state.festivalData;
-    console.log(festivalData);
+
     const [detailInfo, setDetailInfo] = useState("");
     const [showDetails, setShowDetails] = useState(false);
     const [searchTriggered, setSearchTriggered] = useState(true);
@@ -41,7 +41,7 @@ const Festival_detail = () => {
                 `https://apis.data.go.kr/B551011/KorService1/detailInfo1?MobileOS=ETC&MobileApp=Journeymate&_type=json&contentId=${festivalData.contentid}&contentTypeId=15&serviceKey=gjCAjUo72Uf%2BjMwy1BdQo85%2B1vNiWiTVe4X987jUj42meneObLKNI%2F4pAYfK%2BysqF%2FObJvxdZp7Fe4uA6%2FPxKQ%3D%3D`
             );
             const json = await response.json();
-            console.log(json.response.body.items.item);
+
             setData(json.response.body.items.item);
             const detailItem = json.response.body.items.item.find(
                 (item) => item.infoname === "행사내용"
