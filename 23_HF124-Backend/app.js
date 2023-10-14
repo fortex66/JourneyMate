@@ -39,10 +39,10 @@ const connectDB = require("./database/database");
 connectDB();
 
 app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
+    cors({
+        origin: true,
+        credentials: true,
+    })
 );
 
 app.use(express.json());
@@ -50,11 +50,11 @@ app.use(cookiParser());
 app.use("/uploads", express.static("uploads"));
 
 app.use(
-  session({
-    secret: process.env.sessionKey,
-    resave: false,
-    saveUninitialized: false,
-  })
+    session({
+        secret: process.env.sessionKey,
+        resave: false,
+        saveUninitialized: false,
+    })
 );
 
 app.use("/community", communityRoutes);
@@ -67,7 +67,7 @@ app.use("/chat", chatRoutes);
 
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
-  console.log("서버가 " + port + "번 포트에서 실행중입니다.");
+    console.log("서버가 " + port + "번 포트에서 실행중입니다.");
 });
 
 // const io = socketio(server, {

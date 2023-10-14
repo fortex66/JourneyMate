@@ -84,7 +84,7 @@ async function deletepost(req, res) {
   const result = await tUpload.tPost.findOne({ where: { tpostID: param } }); // postID 파라메터와 같은 게시물 찾기
   try {
     await tUpload.tPost.destroy({ where: { tpostID: param } }); // postID 파라메터와 같은 게시물 찾기
-    console.log(result);
+ 
     res.status(200).json({ message: "게시물이 정상적으로 삭제되었습니다." });
   } catch (error) {
     console.error(error);
@@ -124,11 +124,11 @@ async function updatePost(req, res) {
       const currentArray = await tUpload.TTagging.findAll({
         where: { tpostID: tpostID },
       });
-      console.log(currentArray);
+   
       const toDelete = currentArray.filter((x) => !tags.includes(x));
       const toAdd = tags.filter((x) => !currentArray.includes(x));
-      console.log(toDelete);
-      console.log(toAdd);
+     
+ 
 
       await TTagging.destroy({ where: { tpostID: tpostID } }); // id는 실제로 사용되는 키로 대체해야합니다.
 
@@ -150,10 +150,10 @@ async function updatePost(req, res) {
         where: { tpostID: tpostID },
       });
 
-      // console.log(imageIDArray[0].dataValues.imageId);
+      
 
       const updatePromises = req.body.contents.map((content, index) => {
-        console.log(imageIDArray[index].dataValues.imageId);
+       
         return tUpload.tPostImage.update(
           { content: content },
           {
@@ -174,7 +174,7 @@ async function updatePost(req, res) {
 async function deleteImage(req, res) {
   const number = req.query.number;
   const tpostID = req.query.tpostID;
-  console.log(tpostID);
+
   try {
     const imageArray = await tUpload.tPostImage.findAll({
       attributes: ["imageId"],
@@ -273,7 +273,7 @@ async function companionUpdatePost(req, res) {
     const existedPost = await cUpload.cPost.findOne({
       where: { cpostID: cpostID },
     }); // DB에서 postId가 같은 데이터 찾기
-    console.log(existedPost.userID);
+
 
     if (user !== existedPost.userID) {
       // 로그인 정보와 게시글 작성자가 같은지 확인
@@ -304,12 +304,10 @@ async function companionUpdatePost(req, res) {
       const currentArray = await cUpload.CTagging.findAll({
         where: { cpostID: cpostID },
       });
-      console.log(currentArray);
+
       const toDelete = currentArray.filter((x) => !tags.includes(x));
       const toAdd = tags.filter((x) => !currentArray.includes(x));
-      console.log(toDelete);
-      console.log(toAdd);
-
+    
       await CTagging.destroy({ where: { cpostID: cpostID } }); // id는 실제로 사용되는 키로 대체해야합니다.
 
       for (const tagName of toAdd) {
@@ -361,7 +359,6 @@ async function companionDeletepost(req, res) {
       await ccomment.cComment.destroy({ where: { cpostID: param } });
       await cUpload.cPostImage.destroy({ where: { cpostID: param } });
       await cUpload.cPost.destroy({ where: { cpostID: param } }); // postID 파라메터와 같은 게시물 찾기
-      console.log(result);
       res
         .status(200)
         .json({ message: "동행인 게시물이 정상적으로 삭제되었습니다." });

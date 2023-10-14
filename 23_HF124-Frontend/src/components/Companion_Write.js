@@ -39,7 +39,7 @@ const Companion_Write = () => {
     detail ? detail.post_images[0].imageURL : ""
   );
 
-  console.log(file);
+
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [previewURL, setPreviewURL] = useState(
@@ -51,7 +51,7 @@ const Companion_Write = () => {
 
   const [data, setData] = useState();
 
-  console.log(detaildata.state);
+
 
   const handleAgeChange = (e) => {
     setAge(e.target.value);

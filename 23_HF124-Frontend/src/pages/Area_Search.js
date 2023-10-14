@@ -101,7 +101,7 @@ const Local_Festival = () => {
     }
     setIsLoading(false);
   };
-  console.log(data);
+
   useEffect(() => {
     if (isSearchButtonClicked || isPageLoaded || pageNo > 1) {
       fetchData();

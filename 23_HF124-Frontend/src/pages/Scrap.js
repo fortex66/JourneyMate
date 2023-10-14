@@ -8,96 +8,103 @@ import { faScroll } from "@fortawesome/free-solid-svg-icons";
 const baseURL = "http://localhost:3000/";
 const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 const Scrap = () => {
-  const [scrapedPosts, setScrapedPosts] = useState([]); // "수정!!Koo"
-  const navigate = useNavigate();
+    const [scrapedPosts, setScrapedPosts] = useState([]); // "수정!!Koo"
+    const navigate = useNavigate();
 
-  const goDetail = (postId) => {
-    navigate(`/Community_Detail/${postId}`);
-  };
-
-  useEffect(() => {
-    const fetchScrapedPosts = async () => {
-      try {
-        const response = await axios.get(`${baseURL}mypage/scrap`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-          },
-        });
-        setScrapedPosts(response.data.data);
-      } catch (error) {
-        console.error(error);
-      }
+    const goDetail = (postId) => {
+        navigate(`/Community_Detail/${postId}`);
     };
 
-    fetchScrapedPosts();
-  }, []);
+    useEffect(() => {
+        const fetchScrapedPosts = async () => {
+            try {
+                const response = await axios.get(`${baseURL}mypage/scrap`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "jwtToken"
+                        )}`,
+                    },
+                });
+                setScrapedPosts(response.data.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
 
-  console.log(scrapedPosts);
-  return (
-    <div>
-      <Top>
-        {" "}
-        <StyledButton onClick={() => navigate(-1)}>{"<"}</StyledButton>
-      </Top>
-      <Icon>
-        <FontAwesomeIcon icon={faScroll} size="2x" color={"#f97800"} />
-      </Icon>
+        fetchScrapedPosts();
+    }, []);
 
-      <br />
-      <CommunityList>
-        {scrapedPosts.map((post, index) => (
-          <CommunityItem key={index} onClick={() => goDetail(post.tpostID)}>
-            <div>
-              <Content>
+    return (
+        <div>
+            <Top>
                 {" "}
-                <Picture>
-                  <img
-                    src={`${imgURL}${
-                      post.post_images[0]
-                        ? post.post_images[0].imageURL.replace(/\\/g, "/")
-                        : ""
-                    }`}
-                  />
-                </Picture>
-              </Content>
-            </div>
-          </CommunityItem>
-        ))}
-      </CommunityList>
-      <Navigationbar />
-    </div>
-  );
+                <StyledButton onClick={() => navigate(-1)}>{"<"}</StyledButton>
+            </Top>
+            <Icon>
+                <FontAwesomeIcon icon={faScroll} size="2x" color={"#f97800"} />
+            </Icon>
+
+            <br />
+            <CommunityList>
+                {scrapedPosts.map((post, index) => (
+                    <CommunityItem
+                        key={index}
+                        onClick={() => goDetail(post.tpostID)}
+                    >
+                        <div>
+                            <Content>
+                                {" "}
+                                <Picture>
+                                    <img
+                                        src={`${imgURL}${
+                                            post.post_images[0]
+                                                ? post.post_images[0].imageURL.replace(
+                                                      /\\/g,
+                                                      "/"
+                                                  )
+                                                : ""
+                                        }`}
+                                    />
+                                </Picture>
+                            </Content>
+                        </div>
+                    </CommunityItem>
+                ))}
+            </CommunityList>
+            <Navigationbar />
+        </div>
+    );
 };
 
 const Content = styled.div``;
 const CommunityList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+    display: flex;
+    flex-wrap: wrap;
 `;
 const CommunityItem = styled.div``;
 
 const Picture = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-  img {
-    width: 213.333px;
-    height: 213.333px;
-    object-fit: cover;
-  }
+    img {
+        width: 213.333px;
+        height: 213.333px;
+        object-fit: cover;
+    }
 `;
 
 const Icon = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: -35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -35px;
 `;
 
 const Line = styled.div`
-  border-bottom: 1px solid #f97800;
-  margin-top: 26px;
+    border-bottom: 1px solid #f97800;
+    margin-top: 26px;
 `;
 const StyledButton = styled.button`
 box-sizing: border-box;
@@ -136,12 +143,12 @@ transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
 
 `;
 const Top = styled.div`
-  margin-left: 20px;
-  margin-right: 20px;
-  display: flex;
-  justify-content: space-between;
-  button {
-    margin-right: 5px;
-  }
+    margin-left: 20px;
+    margin-right: 20px;
+    display: flex;
+    justify-content: space-between;
+    button {
+        margin-right: 5px;
+    }
 `;
 export default Scrap;
