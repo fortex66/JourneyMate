@@ -13,7 +13,6 @@ const Community_Detail = () => {
   const [newComment, setNewComment] = useState("");
   const [data, setData] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
-  const [showButtons, setShowButtons] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tagTriggered, setTagTriggered] = useState(true); //Community에 searchTriggered값을 true로
   const [posts, setPosts] = useState([]);

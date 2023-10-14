@@ -11,25 +11,22 @@ import Slick  from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Cmodal from "../components/Cmodal";
-import Pmodal from "../components/Pmodal";
+
 
 
 const baseURL = "http://localhost:3000/";
 const imgURL = "https://journeymate.s3.ap-northeast-2.amazonaws.com/";
 
 const Community = () => {
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
   const [data, setData] = useState({ posts: { rows: [] } });
   const [page, setPage] = useState(1);
   const [totalpage, setTotalpage] = useState();
   const [sort, setSort] = useState("latest");
   const [write, setWrite] = useState(false);
-  const [change, setChange] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState("20px");
-  const [userData, setUserData] = useState(null);
-  const [image, setImage] = useState(null);
   const observer = useRef();
 
 
@@ -41,10 +38,7 @@ const Community = () => {
   const selectedLocation = location.state ? location.state.location : "";
   const title = location.state ? location.state.title : "";
 
-  console.log(data)
-  console.log(page)
-  console.log(data.total_pages)
-  console.log(location)
+ 
   useEffect(() => {
     const updateButtonPosition = () => {
       const windowWidth = window.innerWidth;
@@ -252,7 +246,7 @@ const Community = () => {
 
   if (!data || !data.posts || !data.posts.rows) return null;
 
-  // 
+  /* 게시글의 상세 정보 */
   function PostItem({ post, goDetail, goUserDetail, imgURL, lastPostElementRef }) {
     const slickRef = useRef();
   
@@ -393,7 +387,8 @@ const Community = () => {
             댓글순
           </button>
         </Sort>
-        <CommunityList>
+        <CommunityList> 
+          {/* 커뮤니티게시글의 목록을 반복문을 사용하여 PostItem을 보여줍니다. */}
           {data && data.posts.rows.map((post, index) => (
             <PostItem 
               key={index} 

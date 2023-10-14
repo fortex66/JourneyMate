@@ -2,7 +2,6 @@
 import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import Detail_Nav from "../components/Detail_Nav";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -340,7 +339,7 @@ const Companion_Detail = () => {
                     </CommentContents>
                     
                     {currentUser && comment.userID === currentUser && (
-                      <Button onClick={() => deleteComment(comment.tcommentId)}>
+                      <Button onClick={() => deleteComment(comment.ccommentID)}>
                         삭제
                       </Button>
                     )}

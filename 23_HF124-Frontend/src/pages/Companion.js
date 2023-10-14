@@ -18,13 +18,12 @@ const Companion = () => {
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("latest");
   const [write, setWrite] = useState(false);
-  const [change, setChange] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState("20px");
   const observer = useRef();
 
   const location = useLocation();
-  console.log(location)
+
   const searchTriggered = location.state?.searchTriggered || false;
   const tagList = location.state ? location.state.tagList : [];
   const selectedLocation = location.state ? location.state.location : "";
