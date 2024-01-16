@@ -208,6 +208,7 @@ const RealHead = styled.div`
     display: flex;
     align-items: center; // 수직 중앙 정렬
     //justify-content: space-between; // 수평 간격 동일하게
+    
 `;
 const RealSearch = styled.div`
     align-self: center; // 수직 중앙 정렬

@@ -374,6 +374,7 @@ const NearbyModalStyled = styled.div`
     & > div {
         position: relative;
         width: 320px;
+        
 
         padding: 40px;
         text-align: center;
@@ -460,7 +461,19 @@ const MapContainer = styled.div`
     position: relative;
     z-index: 1;
     top: 0;
-    height: calc(100% - 90px);
+
+    @media (max-width: 600px) {
+        height: calc(100% - 55px); // 기존에 -90px로 되어있어서 지도와 네비게이션바 사이에 빈공간이 있었습니다.
+    }
+
+    @media (min-width: 601px) and (max-width: 1200px) {
+        height: calc(100% - 70px); // 기존에 -90px로 되어있어서 지도와 네비게이션바 사이에 빈공간이 있었습니다.
+    }
+
+    @media (min-width: 1201px) {
+        height: calc(100% - 90px); // 기존에 -90px로 되어있어서 지도와 네비게이션바 사이에 빈공간이 있었습니다.
+    }
+
 `;
 
 const MyLocation = styled.div`

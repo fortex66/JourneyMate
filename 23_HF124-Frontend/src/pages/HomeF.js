@@ -335,7 +335,7 @@ const MapContainer = styled.div`
     position: relative;
     z-index: 1;
     top: 0;
-    height: calc(100% - 90px);
+    height: calc(100% - 60px); // 기존에 -90px로 되어있어서 지도와 네비게이션바 사이에 빈공간이 있었습니다.
 `;
 
 const MyLocation = styled.div`
